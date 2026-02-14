@@ -1,0 +1,461 @@
+<!-- Landingpage Content (Hidden by Default) -->
+<div id="landingpage-content" class="dashboard-content" style="display: none;">
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+      <h5 class="card-title m-0 fw-bold">
+        <i class="fas fa-globe me-2 text-primary"></i>Landingpage-Verwaltung
+      </h5>
+      <div>
+        <a href="/praxis-landingpage/zahnärzte-am-stadtplatz-berlin" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+          <i class="fas fa-external-link-alt me-1"></i> Vorschau
+        </a>
+        <button class="btn btn-sm btn-success">
+          <i class="fas fa-cloud-upload-alt me-1"></i> Veröffentlichen
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-info" role="alert">
+        <i class="fas fa-info-circle me-2"></i> Hier können Sie Ihre individuelle Premium-Landingpage gestalten und verwalten. Alle Änderungen werden zunächst im Vorschaumodus gespeichert.
+      </div>
+      
+      <!-- Vorschau und Design-Auswahl -->
+      <div class="row mb-4">
+        <div class="col-lg-9">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-2">
+              <img src="{{ url_for('static', filename='images/dashboard/landingpage-preview.jpg') }}" alt="Landingpage Vorschau" class="img-fluid rounded border">
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <h6 class="fw-bold mb-3">Design-Einstellungen</h6>
+              
+              <div class="mb-3">
+                <label class="form-label">Template-Auswahl</label>
+                <select class="form-select">
+                  <option selected>Modern (aktuell)</option>
+                  <option>Klassisch</option>
+                  <option>Minimalistisch</option>
+                  <option>Premium Plus</option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Farbschema</label>
+                <div class="d-flex gap-2 mb-2">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="farbschema" id="farbeBlau" checked>
+                    <label class="form-check-label" for="farbeBlau">
+                      <span class="d-inline-block rounded-circle" style="width: 20px; height: 20px; background-color: #40bfd8;"></span>
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="farbschema" id="farbeGruen">
+                    <label class="form-check-label" for="farbeGruen">
+                      <span class="d-inline-block rounded-circle" style="width: 20px; height: 20px; background-color: #28a745;"></span>
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="farbschema" id="farbeViolett">
+                    <label class="form-check-label" for="farbeViolett">
+                      <span class="d-inline-block rounded-circle" style="width: 20px; height: 20px; background-color: #6f42c1;"></span>
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="farbschema" id="farbeTeal">
+                    <label class="form-check-label" for="farbeTeal">
+                      <span class="d-inline-block rounded-circle" style="width: 20px; height: 20px; background-color: #20c997;"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Header-Stil</label>
+                <select class="form-select">
+                  <option selected>Bild mit Overlay</option>
+                  <option>Video-Hintergrund</option>
+                  <option>Minimalistisch</option>
+                </select>
+              </div>
+              
+              <button class="btn btn-primary w-100">Design anwenden</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Accordion für die Sektionen -->
+      <div class="accordion mb-4" id="landingpageAccordion">
+        <!-- Header-Sektion -->
+        <div class="accordion-item border-0 shadow-sm mb-3">
+          <h2 class="accordion-header" id="headingHeader">
+            <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHeader" aria-expanded="true" aria-controls="collapseHeader">
+              <i class="fas fa-image me-2 text-primary"></i> Header-Bereich
+            </button>
+          </h2>
+          <div id="collapseHeader" class="accordion-collapse collapse show" aria-labelledby="headingHeader" data-bs-parent="#landingpageAccordion">
+            <div class="accordion-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="headerTitle" class="form-label">Hauptüberschrift</label>
+                  <input type="text" class="form-control" id="headerTitle" value="Zahnärzte am Stadtplatz - Ihre moderne Zahnarztpraxis in Berlin">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="headerSubtitle" class="form-label">Unterüberschrift</label>
+                  <input type="text" class="form-control" id="headerSubtitle" value="Kompetente Behandlung mit modernster Technik in angenehmer Atmosphäre">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="headerButtonText" class="form-label">Button-Text</label>
+                  <input type="text" class="form-control" id="headerButtonText" value="Termin vereinbaren">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="headerButtonLink" class="form-label">Button-Link</label>
+                  <input type="text" class="form-control" id="headerButtonLink" value="/termine">
+                </div>
+                <div class="col-12 mb-3">
+                  <label class="form-label">Header-Bild</label>
+                  <div class="d-flex align-items-center border rounded p-2">
+                    <img src="{{ url_for('static', filename='images/dashboard/landingpage-header.jpg') }}" alt="Header Bild" class="img-fluid me-2" style="max-height: 100px;">
+                    <div class="flex-grow-1">
+                      <div class="input-group">
+                        <input type="file" class="form-control" id="headerImage">
+                        <button class="btn btn-outline-secondary" type="button">Hochladen</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Über uns Sektion -->
+        <div class="accordion-item border-0 shadow-sm mb-3">
+          <h2 class="accordion-header" id="headingAbout">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAbout" aria-expanded="false" aria-controls="collapseAbout">
+              <i class="fas fa-info-circle me-2 text-primary"></i> Über uns
+            </button>
+          </h2>
+          <div id="collapseAbout" class="accordion-collapse collapse" aria-labelledby="headingAbout" data-bs-parent="#landingpageAccordion">
+            <div class="accordion-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="aboutTitle" class="form-label">Überschrift</label>
+                  <input type="text" class="form-control" id="aboutTitle" value="Willkommen in unserer Praxis">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="aboutSubtitle" class="form-label">Unterüberschrift</label>
+                  <input type="text" class="form-control" id="aboutSubtitle" value="Moderne Zahnheilkunde in angenehmer Atmosphäre">
+                </div>
+                <div class="col-12 mb-3">
+                  <label for="aboutDescription" class="form-label">Beschreibung</label>
+                  <textarea class="form-control" id="aboutDescription" rows="5">Die Zahnarztpraxis "Zahnärzte am Stadtplatz" ist eine moderne Gemeinschaftspraxis im Herzen von Berlin-Mitte. Mit unserem Team aus 5 Zahnärzten und 12 Mitarbeitern bieten wir unseren Patienten das gesamte Spektrum der modernen Zahnmedizin. Digitale Technologien, neueste Behandlungsmethoden und ein freundliches Arbeitsklima zeichnen unsere Praxis aus.
+
+Wir legen großen Wert auf eine angenehme Atmosphäre, in der Sie sich wohlfühlen können. Unser Ziel ist es, Ihnen die bestmögliche zahnmedizinische Versorgung zu bieten und Ihnen zu einem strahlenden Lächeln zu verhelfen.</textarea>
+                </div>
+                <div class="col-12 mb-3">
+                  <label class="form-label">Bild für "Über uns"</label>
+                  <form action="{{ url_for('dashboard_ueber_uns_bild_speichern') }}" method="POST" enctype="multipart/form-data">
+                    <div class="d-flex align-items-center border rounded p-2">
+                      {% if ueber_uns_bild %}
+                        <img src="{{ ueber_uns_bild.pfad }}" alt="Über uns Bild" class="img-fluid me-2" style="max-height: 100px; border-radius: 8px;">
+                      {% else %}
+                        <div class="me-2 d-flex align-items-center justify-content-center bg-light" style="width: 120px; height: 80px; border-radius: 8px;">
+                          <i class="fas fa-image text-muted fa-2x"></i>
+                        </div>
+                      {% endif %}
+                      <div class="flex-grow-1">
+                        <div class="input-group">
+                          <input type="file" class="form-control" name="ueber_uns_bild" accept="image/*" required>
+                          <button class="btn btn-outline-secondary" type="submit">Hochladen</button>
+                        </div>
+                        <small class="text-muted mt-1 d-block">Empfohlen: Querformat, mind. 800x500px (JPG, PNG)</small>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Leistungen Sektion -->
+        <div class="accordion-item border-0 shadow-sm mb-3">
+          <h2 class="accordion-header" id="headingServices">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseServices" aria-expanded="false" aria-controls="collapseServices">
+              <i class="fas fa-tooth me-2 text-primary"></i> Leistungen
+            </button>
+          </h2>
+          <div id="collapseServices" class="accordion-collapse collapse" aria-labelledby="headingServices" data-bs-parent="#landingpageAccordion">
+            <div class="accordion-body">
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h6 class="fw-bold mb-0">Leistungen bearbeiten</h6>
+                  <button class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus me-1"></i> Neue Leistung
+                  </button>
+                </div>
+                
+                <!-- Leistungen Liste -->
+                <div class="list-group">
+                  <!-- Leistung 1 -->
+                  <div class="list-group-item list-group-item-action p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-tooth text-primary me-2"></i> Prophylaxe & Zahnreinigung
+                      </h6>
+                      <div>
+                        <button class="btn btn-sm btn-outline-primary me-1">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <p class="mb-0 small text-muted">Professionelle Zahnreinigung und individuelles Prophylaxe-Programm für gesunde Zähne.</p>
+                  </div>
+                  
+                  <!-- Leistung 2 -->
+                  <div class="list-group-item list-group-item-action p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-teeth text-primary me-2"></i> Implantologie
+                      </h6>
+                      <div>
+                        <button class="btn btn-sm btn-outline-primary me-1">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <p class="mb-0 small text-muted">Hochwertige Zahnimplantate für festsitzenden Zahnersatz und ein natürliches Lächeln.</p>
+                  </div>
+                  
+                  <!-- Leistung 3 -->
+                  <div class="list-group-item list-group-item-action p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-smile text-primary me-2"></i> Ästhetische Zahnheilkunde
+                      </h6>
+                      <div>
+                        <button class="btn btn-sm btn-outline-primary me-1">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <p class="mb-0 small text-muted">Veneers, Bleaching und Zahnformkorrekturen für ein strahlendes Lächeln.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Team Sektion -->
+        <div class="accordion-item border-0 shadow-sm mb-3">
+          <h2 class="accordion-header" id="headingTeam">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTeam" aria-expanded="false" aria-controls="collapseTeam">
+              <i class="fas fa-user-md me-2 text-primary"></i> Unser Team
+            </button>
+          </h2>
+          <div id="collapseTeam" class="accordion-collapse collapse" aria-labelledby="headingTeam" data-bs-parent="#landingpageAccordion">
+            <div class="accordion-body">
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h6 class="fw-bold mb-0">Team-Mitglieder bearbeiten</h6>
+                  <button class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus me-1"></i> Neues Mitglied
+                  </button>
+                </div>
+                
+                <!-- Team-Mitglieder Liste -->
+                <div class="row g-3">
+                  <!-- Mitglied 1 -->
+                  <div class="col-md-6 col-xl-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                      <div class="card-body p-3">
+                        <div class="d-flex mb-3">
+                          <img src="{{ url_for('static', filename='images/dashboard/team-member-1.jpg') }}" class="rounded-circle me-3" width="60" height="60" alt="Dr. Michael Schmidt">
+                          <div>
+                            <h6 class="card-title mb-1 fw-bold">Dr. Michael Schmidt</h6>
+                            <p class="card-subtitle text-muted mb-0">Zahnarzt / Inhaber</p>
+                          </div>
+                        </div>
+                        <p class="card-text small">Facharzt für Implantologie mit über 15 Jahren Erfahrung. Leitet die Praxis seit 2008.</p>
+                        <div class="d-flex justify-content-end mt-3">
+                          <button class="btn btn-sm btn-outline-primary me-1">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Mitglied 2 -->
+                  <div class="col-md-6 col-xl-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                      <div class="card-body p-3">
+                        <div class="d-flex mb-3">
+                          <img src="{{ url_for('static', filename='images/dashboard/team-member-2.jpg') }}" class="rounded-circle me-3" width="60" height="60" alt="Dr. Sandra Klein">
+                          <div>
+                            <h6 class="card-title mb-1 fw-bold">Dr. Sandra Klein</h6>
+                            <p class="card-subtitle text-muted mb-0">Zahnärztin</p>
+                          </div>
+                        </div>
+                        <p class="card-text small">Spezialistin für ästhetische Zahnheilkunde und Kinderzahnheilkunde. Teil unseres Teams seit 2015.</p>
+                        <div class="d-flex justify-content-end mt-3">
+                          <button class="btn btn-sm btn-outline-primary me-1">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Mitglied 3 -->
+                  <div class="col-md-6 col-xl-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                      <div class="card-body p-3">
+                        <div class="d-flex mb-3">
+                          <img src="{{ url_for('static', filename='images/dashboard/team-member-3.jpg') }}" class="rounded-circle me-3" width="60" height="60" alt="Maria Wagner">
+                          <div>
+                            <h6 class="card-title mb-1 fw-bold">Maria Wagner</h6>
+                            <p class="card-subtitle text-muted mb-0">ZFA / Prophylaxe</p>
+                          </div>
+                        </div>
+                        <p class="card-text small">Expertin für professionelle Zahnreinigung und Prophylaxe mit langjähriger Erfahrung.</p>
+                        <div class="d-flex justify-content-end mt-3">
+                          <button class="btn btn-sm btn-outline-primary me-1">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Kontakt & Öffnungszeiten Sektion -->
+        <div class="accordion-item border-0 shadow-sm mb-3">
+          <h2 class="accordion-header" id="headingContact">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseContact" aria-expanded="false" aria-controls="collapseContact">
+              <i class="fas fa-map-marker-alt me-2 text-primary"></i> Kontakt & Öffnungszeiten
+            </button>
+          </h2>
+          <div id="collapseContact" class="accordion-collapse collapse" aria-labelledby="headingContact" data-bs-parent="#landingpageAccordion">
+            <div class="accordion-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="contactTitle" class="form-label">Überschrift</label>
+                  <input type="text" class="form-control" id="contactTitle" value="Kontakt & Anfahrt">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="contactSubtitle" class="form-label">Unterüberschrift</label>
+                  <input type="text" class="form-control" id="contactSubtitle" value="So erreichen Sie uns">
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="contactForm" class="form-label">Kontaktformular aktivieren</label>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="contactForm" checked>
+                      <label class="form-check-label" for="contactForm">Formular anzeigen</label>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="contactMap" class="form-label">Karte anzeigen</label>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="contactMap" checked>
+                      <label class="form-check-label" for="contactMap">Google Maps einbinden</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Öffnungszeiten einblenden</label>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="showHours" checked>
+                      <label class="form-check-label" for="showHours">Öffnungszeiten anzeigen</label>
+                    </div>
+                  </div>
+                  <div class="alert alert-light p-2 mb-0">
+                    <small class="text-muted">Die Öffnungszeiten werden automatisch aus Ihren Praxisdaten übernommen.</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- SEO-Einstellungen -->
+        <div class="accordion-item border-0 shadow-sm mb-3">
+          <h2 class="accordion-header" id="headingSEO">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSEO" aria-expanded="false" aria-controls="collapseSEO">
+              <i class="fas fa-search me-2 text-primary"></i> SEO-Einstellungen
+            </button>
+          </h2>
+          <div id="collapseSEO" class="accordion-collapse collapse" aria-labelledby="headingSEO" data-bs-parent="#landingpageAccordion">
+            <div class="accordion-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="seoTitle" class="form-label">Meta-Titel (50-60 Zeichen)</label>
+                  <input type="text" class="form-control" id="seoTitle" value="Zahnärzte am Stadtplatz Berlin | Moderne Zahnarztpraxis im Zentrum">
+                  <div class="form-text">Aktuell: 67 Zeichen</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="seoKeywords" class="form-label">Keywords (durch Komma getrennt)</label>
+                  <input type="text" class="form-control" id="seoKeywords" value="Zahnarzt Berlin, Zahnärzte am Stadtplatz, Implantate Berlin, Prophylaxe">
+                </div>
+                <div class="col-12 mb-3">
+                  <label for="seoDescription" class="form-label">Meta-Beschreibung (150-160 Zeichen)</label>
+                  <textarea class="form-control" id="seoDescription" rows="3">Ihre moderne Zahnarztpraxis in Berlin-Mitte. Wir bieten das gesamte Spektrum der Zahnmedizin: Prophylaxe, Implantologie, ästhetische Zahnheilkunde und mehr. Jetzt Termin vereinbaren!</textarea>
+                  <div class="form-text">Aktuell: 157 Zeichen</div>
+                </div>
+                <div class="col-12 mb-3">
+                  <label for="seoSlug" class="form-label">URL-Pfad (Slug)</label>
+                  <div class="input-group">
+                    <span class="input-group-text">dentalax.de/praxis/</span>
+                    <input type="text" class="form-control" id="seoSlug" value="zahnärzte-am-stadtplatz-berlin">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="d-flex justify-content-between">
+        <button class="btn btn-light">Zurücksetzen</button>
+        <div>
+          <button class="btn btn-primary me-2">
+            <i class="fas fa-save me-1"></i> Speichern
+          </button>
+          <button class="btn btn-success">
+            <i class="fas fa-cloud-upload-alt me-1"></i> Veröffentlichen
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

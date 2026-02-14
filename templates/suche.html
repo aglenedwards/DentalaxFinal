@@ -1,0 +1,989 @@
+{% extends 'layout.html' %}
+
+{% block navigation %}
+<nav class="listing-nav d-none d-lg-block" id="listingNav">
+  <div class="container-fluid px-4">
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <a href="/" class="me-4">
+          <img src="{{ url_for('static', filename='img/dentalax-logo.png') }}" alt="Dentalax Logo" style="height: 50px;">
+        </a>
+        <ul class="navbar-nav flex-row align-items-center mb-0">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="zahnaerzteDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Zahnärzte
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="zahnaerzteDropdown">
+              <li><a class="dropdown-item" href="/fuer-zahnaerzte"><i class="fas fa-info-circle me-2 text-primary"></i> Für Zahnärzte</a></li>
+              <li><a class="dropdown-item" href="/paketwahl"><i class="fas fa-tags me-2 text-primary"></i> Pakete & Preise</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/stellenangebote">Stellenangebote</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/ueber-uns">Über uns</a>
+          </li>
+        </ul>
+      </div>
+      <ul class="navbar-nav flex-row align-items-center mb-0">
+        {% if current_user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdownDesktop" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user-circle me-1"></i> Mein Konto
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdownDesktop">
+            <li><a class="dropdown-item" href="/zahnarzt-dashboard"><i class="fas fa-tachometer-alt me-2 text-primary"></i> Dashboard</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2 text-danger"></i> Ausloggen</a></li>
+          </ul>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="/zahnarzt-login">Login</a>
+        </li>
+        <li class="nav-item ms-2">
+          <a class="btn button-shimmer rounded-3 px-4 py-2" href="/register">Registrieren</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header class="mobile-nav-header d-lg-none" id="mobileNavHeader">
+  <div class="d-flex justify-content-between align-items-center">
+    <a href="/">
+      <img src="{{ url_for('static', filename='img/dentalax-logo.png') }}" alt="Dentalax Logo" style="height: 50px;">
+    </a>
+    <button class="btn btn-link p-0" type="button" id="mobileMenuBtn" aria-label="Menü öffnen" style="color: #2a8294;">
+      <i class="fas fa-bars fa-xl"></i>
+    </button>
+  </div>
+</header>
+
+<div class="mobile-menu-overlay d-lg-none" id="mobileMenuOverlay">
+  <button class="btn btn-link text-dark position-absolute p-0" style="top: 1.5rem; right: 1.5rem;" id="mobileMenuClose" aria-label="Menü schließen">
+    <i class="fas fa-times fa-xl"></i>
+  </button>
+  <div class="mobile-menu-logo mb-4">
+    <a href="/"><img src="{{ url_for('static', filename='img/dentalax-logo.png') }}" alt="Dentalax" style="height: 45px;"></a>
+  </div>
+  <nav class="mobile-menu-nav">
+    <div class="mobile-menu-group">
+      <a class="nav-link" href="/fuer-zahnaerzte"><i class="fas fa-tooth me-3 text-primary"></i>Für Zahnärzte</a>
+      <a class="nav-link" href="/paketwahl"><i class="fas fa-gem me-3 text-primary"></i>Pakete & Preise</a>
+      <a class="nav-link" href="/stellenangebote"><i class="fas fa-briefcase me-3 text-primary"></i>Stellenangebote</a>
+      <a class="nav-link" href="/ueber-uns"><i class="fas fa-info-circle me-3 text-primary"></i>Über uns</a>
+    </div>
+    <div class="mobile-menu-divider"></div>
+    <div class="mobile-menu-group">
+      {% if current_user.is_authenticated %}
+      <a class="nav-link" href="/zahnarzt-dashboard"><i class="fas fa-columns me-3 text-primary"></i>Dashboard</a>
+      <a class="nav-link text-danger" href="/logout"><i class="fas fa-sign-out-alt me-3"></i>Ausloggen</a>
+      {% else %}
+      <a class="nav-link" href="/zahnarzt-login"><i class="fas fa-user-md me-3 text-primary"></i>Login</a>
+      {% endif %}
+    </div>
+    {% if not current_user.is_authenticated %}
+    <div class="mobile-menu-cta mt-4">
+      <a class="btn button-shimmer rounded-pill px-4 py-3 w-100 fw-semibold" href="/register"><i class="fas fa-user-plus me-2"></i>Jetzt registrieren</a>
+    </div>
+    {% endif %}
+  </nav>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileNavHeader = document.getElementById('mobileNavHeader');
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const mobileMenuClose = document.getElementById('mobileMenuClose');
+  const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+  window.addEventListener('scroll', function() {
+    if (mobileNavHeader) {
+      if (window.scrollY > 50) mobileNavHeader.classList.add('scrolled');
+      else mobileNavHeader.classList.remove('scrolled');
+    }
+  });
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', function() {
+      mobileMenuOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+  }
+  if (mobileMenuClose) {
+    mobileMenuClose.addEventListener('click', function() {
+      mobileMenuOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+  }
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="suche-section" style="padding-top: 80px;">
+  <div class="container-fluid">
+    <div class="row flex-nowrap" style="height: calc(100vh - 80px); overflow: hidden;">
+
+      <!-- Linke Spalte: Filter -->
+      <div id="filterSection" class="col-md-2 bg-white p-4 overflow-auto shadow-sm rounded-start" style="max-height: 100%; border-right: 1px solid rgba(0,0,0,0.05);">
+        <p class="mb-4 fw-bold text-primary h5">Filtereinstellungen</p>
+        <form>
+          <div class="mb-4">
+            <label class="form-label fw-medium small text-secondary">In welcher Stadt?</label>
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0">
+                <i class="fas fa-map-marker-alt text-primary"></i>
+              </span>
+              <input type="text" class="form-control border-start-0 ps-0" name="ort" placeholder="z.B. Frankfurt"
+                value="{{ ort }}">
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <label class="form-label fw-medium small text-secondary">Umkreissuche</label>
+            <div class="mb-2 d-flex justify-content-between align-items-center">
+              <span class="badge rounded-pill bg-light text-dark">5 km</span>
+              <span class="badge rounded-pill bg-primary px-2">{{ umkreis }} km</span>
+              <span class="badge rounded-pill bg-light text-dark">100 km</span>
+            </div>
+            <input type="range" class="form-range" name="umkreis" min="5" max="100" step="5" value="{{ umkreis }}" 
+              oninput="this.previousElementSibling.querySelector('.bg-primary').textContent = this.value + ' km'">
+          </div>
+          
+          <div class="mb-4">
+            <label class="form-label fw-medium small text-secondary">Leistungsschwerpunkte</label>
+            <div class="d-flex flex-column gap-2 mt-2">
+              <div class="form-check custom-checkbox">
+                <input class="form-check-input" type="checkbox" name="leistung" value="implantologie" id="leistung_implantologie" {{ 'checked' if 'implantologie' in selected_leistungen else '' }}>
+                <label class="form-check-label" for="leistung_implantologie">Implantologie</label>
+              </div>
+              <div class="form-check custom-checkbox">
+                <input class="form-check-input" type="checkbox" name="leistung" value="kieferorthopaedie" id="leistung_kieferorthopaedie" {{ 'checked' if 'kieferorthopaedie' in selected_leistungen else '' }}>
+                <label class="form-check-label" for="leistung_kieferorthopaedie">Kieferorthopädie</label>
+              </div>
+              <div class="form-check custom-checkbox">
+                <input class="form-check-input" type="checkbox" name="leistung" value="prophylaxe" id="leistung_prophylaxe" {{ 'checked' if 'prophylaxe' in selected_leistungen else '' }}>
+                <label class="form-check-label" for="leistung_prophylaxe">Prophylaxe</label>
+              </div>
+              <div class="form-check custom-checkbox">
+                <input class="form-check-input" type="checkbox" name="leistung" value="parodontologie" id="leistung_parodontologie" {{ 'checked' if 'parodontologie' in selected_leistungen else '' }}>
+                <label class="form-check-label" for="leistung_parodontologie">Parodontologie</label>
+              </div>
+              <div class="form-check custom-checkbox">
+                <input class="form-check-input" type="checkbox" name="leistung" value="wurzelbehandlung" id="leistung_wurzelbehandlung" {{ 'checked' if 'wurzelbehandlung' in selected_leistungen else '' }}>
+                <label class="form-check-label" for="leistung_wurzelbehandlung">Wurzelbehandlung</label>
+              </div>
+              <div class="form-check custom-checkbox">
+                <input class="form-check-input" type="checkbox" name="leistung" value="zahnersatz" id="leistung_zahnersatz" {{ 'checked' if 'zahnersatz' in selected_leistungen else '' }}>
+                <label class="form-check-label" for="leistung_zahnersatz">Zahnersatz</label>
+              </div>
+              <div class="form-check custom-checkbox">
+                <input class="form-check-input" type="checkbox" name="leistung" value="aesthetik" id="leistung_aesthetik" {{ 'checked' if 'aesthetik' in selected_leistungen else '' }}>
+                <label class="form-check-label" for="leistung_aesthetik">Ästhetische Zahnheilkunde</label>
+              </div>
+              <div class="form-check custom-checkbox">
+                <input class="form-check-input" type="checkbox" name="leistung" value="kinderzahnheilkunde" id="leistung_kinderzahnheilkunde" {{ 'checked' if 'kinderzahnheilkunde' in selected_leistungen else '' }}>
+                <label class="form-check-label" for="leistung_kinderzahnheilkunde">Kinderzahnheilkunde</label>
+              </div>
+              <div class="form-check custom-checkbox">
+                <input class="form-check-input" type="checkbox" name="leistung" value="oralchirurgie" id="leistung_oralchirurgie" {{ 'checked' if 'oralchirurgie' in selected_leistungen else '' }}>
+                <label class="form-check-label" for="leistung_oralchirurgie">Oralchirurgie</label>
+              </div>
+              <div class="form-check custom-checkbox">
+                <input class="form-check-input" type="checkbox" name="leistung" value="angstpatienten" id="leistung_angstpatienten" {{ 'checked' if 'angstpatienten' in selected_leistungen else '' }}>
+                <label class="form-check-label" for="leistung_angstpatienten">Angstpatienten</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary px-4 py-2 fw-medium">
+              <i class="fas fa-search me-2"></i>Anwenden
+            </button>
+            <button type="reset" class="btn btn-outline-secondary btn-sm">Filter zurücksetzen</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Mittlere Spalte: Ergebnisse -->
+      <div id="resultsSection" class="col-md-5 p-4 overflow-auto bg-white" style="max-height: 100%;">
+        {% if seo_route %}
+          <h1 class="mb-3 fw-bold fs-2 text-primary">{{ seo_h1 }}</h1>
+          <p class="lead text-muted mb-4">{{ seo_intro }}</p>
+        {% else %}
+          <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 mb-4">
+            <h4 class="mb-0 fw-bold">Suchergebnisse für "{{ ort }}"</h4>
+            <span class="badge bg-primary">{{ ergebnisse|length if ergebnisse else 0 }} gefunden</span>
+          </div>
+        {% endif %}
+
+        {% if ergebnisse %}
+          <!-- Hervorhebung von Premium-Einträgen für bessere Sichtbarkeit -->
+          <style>
+            .premium-praxis-card {
+              border-left: 4px solid #40bfd8 !important;
+              background-color: #f8fdfe !important;
+              position: relative;
+              overflow: hidden;
+            }
+            
+            .highlight-feature {
+              color: #2a8294;
+              font-weight: 500;
+            }
+          </style>
+          
+          <div class="results-wrapper">
+            {% for praxis in ergebnisse %}
+              {% set paket_lower = praxis.paket|default('')|lower %}
+              {% set is_premium = paket_lower in ['premium', 'premiumplus'] %}
+              <div class="card mb-4 shadow-sm border-0 result-card {{ 'premium-praxis-card' if is_premium else '' }}" 
+                   data-lat="{{ praxis.lat }}" data-lng="{{ praxis.lng }}" data-id="{{ loop.index }}">
+                <div class="card-body p-4">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <p class="card-title fw-bold mb-0 h5">{{ praxis.name|e }}</p>
+                    <div class="d-flex gap-2">
+                      {% if praxis.beansprucht and praxis.beansprucht.lower() == "ja" %}
+                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Verifiziert</span>
+                      {% elif praxis.id and not paket_lower %}
+                        <a href="{{ url_for('praxis_uebernehmen', praxis_id=praxis.id) }}" 
+                           class="badge bg-warning text-dark text-decoration-none claim-badge" 
+                           title="Sind Sie Inhaber dieser Praxis? Jetzt kostenlos verwalten">
+                          <i class="fas fa-user-plus me-1"></i>Praxis übernehmen
+                        </a>
+                      {% elif praxis.aus_csv and not paket_lower %}
+                        <a href="{{ url_for('praxis_uebernehmen_csv', csv_id=praxis.csv_id) }}" 
+                           class="badge bg-warning text-dark text-decoration-none claim-badge" 
+                           title="Sind Sie Inhaber dieser Praxis? Jetzt kostenlos verwalten">
+                          <i class="fas fa-user-plus me-1"></i>Praxis übernehmen
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  
+                  <p class="card-text mb-2 d-flex align-items-center text-secondary">
+                    <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                    {{ praxis.straße|e }}, {{ praxis.plz }} {{ praxis.stadt|e }}
+                  </p>
+                  
+                  <div class="d-flex align-items-center mb-3 flex-wrap">
+                    <span class="badge rounded-pill bg-light text-dark me-2 mb-1">
+                      <i class="fas fa-route me-1 text-primary"></i>
+                      {{ praxis.entfernung }} km
+                    </span>
+                    
+                    {% if paket_lower == 'premiumplus' %}
+                      <span class="badge rounded-pill bg-primary text-white me-2 mb-1">PremiumPlus</span>
+                    {% elif paket_lower == 'premium' %}
+                      <span class="badge rounded-pill bg-info text-white me-2 mb-1">Premium</span>
+                    {% endif %}
+                    
+                    {% set has_dentalax = praxis.bewertung_anzahl is defined and praxis.bewertung_anzahl > 0 %}
+                    {% set has_google = praxis.google_rating is defined and praxis.google_rating and praxis.google_review_count is defined and praxis.google_review_count > 0 %}
+                    
+                    {% if has_dentalax or has_google %}
+                      {% if has_google and has_dentalax %}
+                        {% set combined_total = praxis.bewertung_anzahl + praxis.google_review_count %}
+                        {% set combined_avg = ((praxis.bewertung_avg * praxis.bewertung_anzahl + praxis.google_rating * praxis.google_review_count) / combined_total)|round(1) %}
+                      {% elif has_google %}
+                        {% set combined_avg = praxis.google_rating %}
+                        {% set combined_total = praxis.google_review_count %}
+                      {% else %}
+                        {% set combined_avg = praxis.bewertung_avg %}
+                        {% set combined_total = praxis.bewertung_anzahl %}
+                      {% endif %}
+                      <span class="badge rounded-pill bg-light text-dark mb-1">
+                        {% for i in range(1, 6) %}
+                          {% if combined_avg >= i %}
+                            <i class="fas fa-star text-warning"></i>
+                          {% elif combined_avg >= i - 0.5 %}
+                            <i class="fas fa-star-half-alt text-warning"></i>
+                          {% else %}
+                            <i class="far fa-star text-warning"></i>
+                          {% endif %}
+                        {% endfor %}
+                        <span class="ms-1">{{ combined_avg }} ({{ combined_total }})</span>
+                        {% if has_google %}
+                        <svg class="ms-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" style="vertical-align: -1px;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        {% endif %}
+                      </span>
+                    {% endif %}
+                  </div>
+                  
+                  {% if is_premium %}
+                  <div class="d-flex flex-wrap mb-3 gap-3">
+                    <div class="highlight-feature small">
+                      <i class="fas fa-check-circle me-1"></i>Digitale Röntgentechnik
+                    </div>
+                    <div class="highlight-feature small">
+                      <i class="fas fa-check-circle me-1"></i>Barrierefreier Zugang
+                    </div>
+                    <div class="highlight-feature small">
+                      <i class="fas fa-check-circle me-1"></i>Flexible Termine
+                    </div>
+                  </div>
+                  {% endif %}
+                  
+                  <div class="d-flex mt-3 flex-wrap gap-2">
+                    {% if praxis.telefon %}
+                      <a class="btn btn-sm btn-outline-primary" href="tel:{{ praxis.telefon }}">
+                        <i class="fas fa-phone-alt me-1"></i>{{ praxis.telefon }}
+                      </a>
+                    {% endif %}
+                    
+                    {% if praxis.webseite %}
+                      <a class="btn btn-sm btn-outline-secondary" href="{{ praxis.webseite|e }}" target="_blank">
+                        <i class="fas fa-globe me-1"></i>Website
+                      </a>
+                    {% endif %}
+                    
+                    {% if praxis.slug and praxis.landingpage_aktiv and praxis.paket|lower in ['premium', 'premiumplus'] %}
+                      <a class="btn btn-sm btn-outline-info" href="/zahnarzt/{{ praxis.slug }}" target="_blank">
+                        <i class="fas fa-info-circle me-1"></i>Details
+                      </a>
+                    {% endif %}
+                    
+                    <button class="btn btn-sm btn-outline-dark ms-auto show-on-map-btn" 
+                            onclick="highlightMarker({{ praxis.lat }}, {{ praxis.lng }}, {{ loop.index }})">
+                      <i class="fas fa-map-pin me-1"></i>Auf Karte
+                    </button>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          {% if gesamt_seiten > 1 %}
+            <nav aria-label="Seitennavigation" class="mt-5">
+              <ul class="pagination justify-content-center">
+                <!-- Erste Seite -->
+                {% if seite > 1 %}
+                  <li class="page-item">
+                    {% if is_seo_page %}
+                    <a class="page-link rounded-start" href="{{ url_for('zahnarzt_stadt', stadt_slug=stadt_slug, seite=1) }}" aria-label="Erste Seite">
+                    {% else %}
+                    <a class="page-link rounded-start" href="{{ url_for('suche', ort=ort, behandlung=behandlung, umkreis=umkreis, seite=1) }}" aria-label="Erste Seite">
+                    {% endif %}
+                      <i class="fas fa-angle-double-left"></i>
+                    </a>
+                  </li>
+                  <li class="page-item">
+                    {% if is_seo_page %}
+                    <a class="page-link" href="{{ url_for('zahnarzt_stadt', stadt_slug=stadt_slug, seite=seite - 1) }}">
+                    {% else %}
+                    <a class="page-link" href="{{ url_for('suche', ort=ort, behandlung=behandlung, umkreis=umkreis, seite=seite - 1) }}">
+                    {% endif %}
+                      <i class="fas fa-angle-left"></i>
+                    </a>
+                  </li>
+                {% endif %}
+
+                <!-- Mittelbereich mit max. 5 Seiten -->
+                {% set start = max(seite - 2, 1) %}
+                {% set end = min(start + 4, gesamt_seiten) %}
+                {% if end - start < 4 %}
+                  {% set start = max(end - 4, 1) %}
+                {% endif %}
+
+                {% for s in range(start, end + 1) %}
+                  <li class="page-item {% if s == seite %}active{% endif %}">
+                    {% if is_seo_page %}
+                    <a class="page-link" href="{{ url_for('zahnarzt_stadt', stadt_slug=stadt_slug, seite=s) }}">{{ s }}</a>
+                    {% else %}
+                    <a class="page-link" href="{{ url_for('suche', ort=ort, behandlung=behandlung, umkreis=umkreis, seite=s) }}">{{ s }}</a>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+
+                <!-- Weiter & Letzte -->
+                {% if seite < gesamt_seiten %}
+                  <li class="page-item">
+                    {% if is_seo_page %}
+                    <a class="page-link" href="{{ url_for('zahnarzt_stadt', stadt_slug=stadt_slug, seite=seite + 1) }}">
+                    {% else %}
+                    <a class="page-link" href="{{ url_for('suche', ort=ort, behandlung=behandlung, umkreis=umkreis, seite=seite + 1) }}">
+                    {% endif %}
+                      <i class="fas fa-angle-right"></i>
+                    </a>
+                  </li>
+                  <li class="page-item">
+                    {% if is_seo_page %}
+                    <a class="page-link rounded-end" href="{{ url_for('zahnarzt_stadt', stadt_slug=stadt_slug, seite=gesamt_seiten) }}" aria-label="Letzte Seite">
+                    {% else %}
+                    <a class="page-link rounded-end" href="{{ url_for('suche', ort=ort, behandlung=behandlung, umkreis=umkreis, seite=gesamt_seiten) }}" aria-label="Letzte Seite">
+                    {% endif %}
+                      <i class="fas fa-angle-double-right"></i>
+                    </a>
+                  </li>
+                {% endif %}
+              </ul>
+            </nav>
+          {% endif %}
+
+          {% if is_seo_page and stadt_seo %}
+            <div class="mt-5 pt-4 border-top">
+              <h2 class="h4 text-primary mb-3">{{ stadt_seo.h2_titel_1 or 'Zahnärzte in ' + ort + ' – Ihre Praxis in der Nähe' }}</h2>
+              <p class="text-secondary lh-lg">{{ stadt_seo.seo_text_1 or 'Finden Sie qualifizierte Zahnärzte in ' + ort + '. Vergleichen Sie Bewertungen, Leistungen und Öffnungszeiten, um die passende Zahnarztpraxis für Ihre Bedürfnisse zu finden.' }}</p>
+              
+              <h2 class="h4 text-primary mb-3 mt-4">{{ stadt_seo.h2_titel_2 or 'Zahnarztpraxis ' + ort + ' – Worauf Sie achten sollten' }}</h2>
+              <p class="text-secondary lh-lg">{{ stadt_seo.seo_text_2 or 'Bei der Wahl Ihrer Zahnarztpraxis in ' + ort + ' sollten Sie auf Faktoren wie Erreichbarkeit, angebotene Leistungen und Patientenbewertungen achten. Nutzen Sie unsere Filterfunktionen, um genau den Zahnarzt zu finden, der zu Ihnen passt.' }}</p>
+              
+              {% if faq_list and faq_list|length > 0 %}
+              <div class="mt-5">
+                <h2 class="h4 text-primary mb-4">
+                  <i class="fas fa-question-circle me-2"></i>Häufige Fragen zu Zahnärzten in {{ ort }}
+                </h2>
+                <div class="accordion" id="faqAccordion">
+                  {% for faq in faq_list %}
+                  <div class="accordion-item border-0 mb-2 shadow-sm">
+                    <h3 class="accordion-header" id="faqHeading{{ loop.index }}">
+                      <button class="accordion-button {{ 'collapsed' if loop.index > 1 else '' }} fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse{{ loop.index }}" aria-expanded="{{ 'true' if loop.index == 1 else 'false' }}" aria-controls="faqCollapse{{ loop.index }}">
+                        {{ faq.frage }}
+                      </button>
+                    </h3>
+                    <div id="faqCollapse{{ loop.index }}" class="accordion-collapse collapse {{ 'show' if loop.index == 1 else '' }}" aria-labelledby="faqHeading{{ loop.index }}" data-bs-parent="#faqAccordion">
+                      <div class="accordion-body text-secondary">
+                        {{ faq.antwort }}
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              
+              {% if faq_schema_json %}
+              <script type="application/ld+json">
+              {{ faq_schema_json|safe }}
+              </script>
+              {% endif %}
+              {% endif %}
+              
+              {% if hauptstadt or vororte %}
+              <div class="mt-5 pt-4 border-top">
+                <h3 class="h5 text-primary mb-3">
+                  <i class="fas fa-map-signs me-2"></i>Weitere Stadtteile erkunden
+                </h3>
+                {% if hauptstadt %}
+                <p class="text-secondary mb-3">
+                  Sie suchen Zahnärzte in der gesamten Region? Besuchen Sie auch unsere Übersichtsseite:
+                </p>
+                <a href="/zahnarzt-{{ hauptstadt.slug }}" class="btn btn-outline-primary mb-3">
+                  <i class="fas fa-city me-2"></i>Alle Zahnärzte in {{ hauptstadt.name }}
+                </a>
+                {% endif %}
+                
+                {% if vororte %}
+                <p class="text-secondary mb-3">
+                  Entdecken Sie Zahnärzte in den Stadtteilen von {{ ort }}:
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                  {% for vorort in vororte %}
+                  <a href="/zahnarzt-{{ vorort.slug }}" class="btn btn-sm btn-outline-secondary">
+                    {{ vorort.name }}
+                  </a>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+          {% elif seo_route %}
+            <div class="mt-5 pt-3 border-top">
+              {% if leistung_seo_route and leistung_h2_titel_1 %}
+              <h2 class="h4 text-primary mb-3">{{ leistung_h2_titel_1 }}</h2>
+              <p class="text-secondary mb-4">{{ leistung_seo_text_1 }}</p>
+              {% endif %}
+              
+              {% if leistung_seo_route and leistung_h2_titel_2 %}
+              <h2 class="h4 text-primary mb-3 mt-4">{{ leistung_h2_titel_2 }}</h2>
+              <p class="text-secondary mb-4">{{ leistung_seo_text_2 }}</p>
+              {% endif %}
+              
+              {% if leistung_seo_route and leistung_faq %}
+              <div class="mt-4">
+                <h2 class="h4 text-primary mb-3">Häufig gestellte Fragen</h2>
+                <div class="accordion" id="leistungFaqAccordion">
+                  {% for item in leistung_faq %}
+                  <div class="accordion-item">
+                    <h3 class="accordion-header" id="leistungFaqHead{{ loop.index }}">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                              data-bs-target="#leistungFaqCollapse{{ loop.index }}" aria-expanded="false" 
+                              aria-controls="leistungFaqCollapse{{ loop.index }}">
+                        {{ item.frage }}
+                      </button>
+                    </h3>
+                    <div id="leistungFaqCollapse{{ loop.index }}" class="accordion-collapse collapse" 
+                         aria-labelledby="leistungFaqHead{{ loop.index }}" data-bs-parent="#leistungFaqAccordion">
+                      <div class="accordion-body">
+                        {{ item.antwort }}
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              
+              {% if leistung_faq_schema_json %}
+              <script type="application/ld+json">
+              {{ leistung_faq_schema_json | safe }}
+              </script>
+              {% endif %}
+              {% endif %}
+              
+              {% if not leistung_seo_route or (not leistung_h2_titel_1 and not leistung_faq) %}
+              <h2 class="h4 text-primary mb-3">{{ leistung_name }} in {{ ort }}</h2>
+              <p class="text-secondary">{{ seo_footer }}</p>
+              {% endif %}
+
+              {% if leistung_seo_route and (leistung_hauptstadt or leistung_vororte) %}
+              <div class="mt-5 pt-4 border-top">
+                <h3 class="h5 text-primary mb-3">
+                  <i class="fas fa-map-signs me-2"></i>{{ leistung_name }} in weiteren Stadtteilen
+                </h3>
+                {% if leistung_hauptstadt %}
+                <p class="text-secondary mb-3">
+                  Sie suchen {{ leistung_name }}-Spezialisten in der gesamten Region? Besuchen Sie auch unsere Übersichtsseite:
+                </p>
+                <a href="/{{ leistung_hauptstadt.leistung_slug }}-{{ leistung_hauptstadt.slug }}" class="btn btn-outline-primary mb-3">
+                  <i class="fas fa-city me-2"></i>{{ leistung_name }} in {{ leistung_hauptstadt.name }}
+                </a>
+                {% endif %}
+
+                {% if leistung_vororte %}
+                <p class="text-secondary mb-3">
+                  Entdecken Sie {{ leistung_name }}-Spezialisten in den Stadtteilen von {{ ort }}:
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                  {% for vorort in leistung_vororte %}
+                  <a href="/{{ vorort.leistung_slug }}-{{ vorort.slug }}" class="btn btn-sm btn-outline-secondary">
+                    {{ vorort.name }}
+                  </a>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+        {% else %}
+          <div class="alert alert-light border rounded-3 p-4 text-center mt-4 shadow-sm">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h5 class="fw-bold">Keine Praxen gefunden</h5>
+            <p class="text-muted mb-0">Leider konnten wir keine Zahnärzte im Umkreis von <strong>{{ ort }}</strong> finden. Bitte versuchen Sie es mit einem anderen Ort oder erweitern Sie den Suchradius.</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Rechte Spalte: Karte -->
+      <div id="mapSection" class="col-md-5 p-0" style="position: sticky; top: 120px; height: calc(100vh - 120px);">
+        <div class="position-relative h-100">
+          <div id="map" style="width: 100%; height: 100%;"></div>
+          
+          <!-- Map Controls Overlay -->
+          <div class="position-absolute top-0 end-0 m-3 d-flex flex-column gap-2" style="z-index: 1000;">
+            <button class="btn btn-light shadow-sm" id="mapZoomIn" title="Hineinzoomen">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button class="btn btn-light shadow-sm" id="mapZoomOut" title="Herauszoomen">
+              <i class="fas fa-minus"></i>
+            </button>
+            <button class="btn btn-light shadow-sm" id="mapReset" title="Kartenansicht zurücksetzen">
+              <i class="fas fa-expand"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Stiländerungen -->
+<style>
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #40bfd8;
+  }
+
+  /* Filter Styles */
+  .form-control:focus, .input-group-text {
+    box-shadow: none;
+    border-color: #e2e8f0;
+  }
+  
+  .form-range::-webkit-slider-thumb {
+    background: #40bfd8;
+  }
+  
+  .form-range::-moz-range-thumb {
+    background: #40bfd8;
+  }
+  
+  .form-check-input:checked {
+    background-color: #40bfd8;
+    border-color: #40bfd8;
+  }
+
+  /* Result Cards */
+  .result-card {
+    transition: all 0.2s ease-in-out;
+    border-left: 4px solid transparent;
+  }
+  
+  .result-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+    border-left: 4px solid #40bfd8;
+  }
+  
+  .result-card.active {
+    border-left: 4px solid #40bfd8;
+    background-color: #f0fafc;
+  }
+  
+  /* Pagination */
+  .pagination .page-link {
+    border: none;
+    color: #2a8294;
+    margin: 0 2px;
+  }
+  
+  .pagination .page-item.active .page-link {
+    background-color: #40bfd8;
+    color: white;
+  }
+  
+  .pagination .page-link:hover {
+    background-color: #e9f7fa;
+    color: #40bfd8;
+  }
+  
+  /* Map Controls */
+  #mapZoomIn, #mapZoomOut, #mapReset {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+  }
+  
+  /* Mobile Styles */
+  @media (max-width: 768px) {
+    section.suche-section {
+      padding-top: 70px !important;
+      padding-bottom: 60px !important;
+    }
+    
+    section.suche-section > .container-fluid {
+      height: auto !important;
+    }
+    
+    section.suche-section > .container-fluid > .row {
+      flex-wrap: wrap !important;
+      height: auto !important;
+      overflow: visible !important;
+    }
+    
+    .mobile-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      background-color: white;
+      border-top: 1px solid #eaeaea;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1050;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .mobile-nav button {
+      background: none;
+      border: none;
+      padding: 8px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.75rem;
+      color: #6c757d;
+    }
+    
+    .mobile-nav button i {
+      font-size: 1.1rem;
+      margin-bottom: 3px;
+    }
+    
+    .mobile-nav button.active {
+      color: #40bfd8;
+    }
+    
+    #filterSection, #resultsSection, #mapSection {
+      display: none;
+      height: auto !important;
+      min-height: calc(100vh - 116px);
+      width: 100% !important;
+      max-width: 100% !important;
+      flex: 0 0 100% !important;
+      padding-top: 10px !important;
+      padding-bottom: 10px !important;
+      overflow-x: hidden !important;
+      overflow-y: visible !important;
+    }
+
+    #mapSection {
+      height: calc(100vh - 116px) !important;
+      min-height: auto;
+      overflow: hidden !important;
+    }
+    
+    .section-visible {
+      display: block !important;
+    }
+  }
+</style>
+
+<!-- Google Maps Script -->
+{% if ergebnisse %}
+<script>
+  let map;
+  let markers = [];
+  let infoWindow;
+  let bounds;
+  
+  function initMap() {
+    bounds = new google.maps.LatLngBounds();
+    map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 12,
+      center: {
+        lat: {{ ergebnisse[0].lat if ergebnisse[0].lat else 50.1109 }},
+        lng: {{ ergebnisse[0].lng if ergebnisse[0].lng else 8.6821 }}
+      },
+      styles: [
+        { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e9e9e9" }, { "lightness": 17 }] },
+        { "featureType": "landscape", "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }, { "lightness": 20 }] },
+        { "featureType": "road.highway", "elementType": "geometry.fill", "stylers": [{ "color": "#ffffff" }, { "lightness": 17 }] },
+        { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#ffffff" }, { "lightness": 29 }, { "weight": 0.2 }] },
+        { "featureType": "road.arterial", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }, { "lightness": 18 }] },
+        { "featureType": "road.local", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }, { "lightness": 16 }] },
+        { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }, { "lightness": 21 }] },
+        { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#dedede" }, { "lightness": 21 }] },
+        { "elementType": "labels.text.stroke", "stylers": [{ "visibility": "on" }, { "color": "#ffffff" }, { "lightness": 16 }] },
+        { "elementType": "labels.text.fill", "stylers": [{ "saturation": 36 }, { "color": "#333333" }, { "lightness": 40 }] },
+        { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+        { "featureType": "transit", "elementType": "geometry", "stylers": [{ "color": "#f2f2f2" }, { "lightness": 19 }] },
+        { "featureType": "administrative", "elementType": "geometry.fill", "stylers": [{ "color": "#fefefe" }, { "lightness": 20 }] },
+        { "featureType": "administrative", "elementType": "geometry.stroke", "stylers": [{ "color": "#fefefe" }, { "lightness": 17 }, { "weight": 1.2 }] }
+      ],
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: false,
+    });
+
+    infoWindow = new google.maps.InfoWindow();
+
+    {% for praxis in ergebnisse %}
+      {% if praxis.lat and praxis.lng %}
+        (function() {
+          {% set is_premium = (loop.index == 1 or loop.index == 3 or loop.index == 5) %}
+          const marker = new google.maps.Marker({
+            position: { lat: {{ praxis.lat }}, lng: {{ praxis.lng }} },
+            map: map,
+            title: "{{ praxis.name|e }}",
+            animation: google.maps.Animation.DROP,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: '{{ "#40bfd8" if is_premium else "#999" }}',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+              scale: {{ "10" if is_premium else "8" }}
+            }
+          });
+
+          const content = `
+            <div style="max-width: 280px; padding: 10px;">
+              <p class="h5" style="font-weight: bold; margin-bottom: 8px; color: #2a8294;">{{ praxis.name|e }}</p>
+              <p style="margin-bottom: 8px;">{{ praxis.straße|e }}, {{ praxis.plz }} {{ praxis.stadt|e }}</p>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                {% if praxis.telefon %}
+                  <a href="tel:{{ praxis.telefon }}" style="text-decoration: none; color: #40bfd8;">
+                    <i class="fas fa-phone-alt" style="margin-right: 4px;"></i>Anrufen
+                  </a>
+                {% endif %}
+                {% if praxis.webseite %}
+                  <a href="{{ praxis.webseite|e }}" target="_blank" style="text-decoration: none; color: #40bfd8;">
+                    <i class="fas fa-globe" style="margin-right: 4px;"></i>Website
+                  </a>
+                {% endif %}
+                {% if praxis.slug and praxis.landingpage_aktiv and praxis.paket|lower in ['premium', 'premiumplus'] %}
+                  <a href="/zahnarzt/{{ praxis.slug }}" style="text-decoration: none; color: #40bfd8;">
+                    <i class="fas fa-info-circle" style="margin-right: 4px;"></i>Details
+                  </a>
+                {% endif %}
+              </div>
+              {% if is_premium %}
+              <div style="margin-top: 10px; background-color: #f0fafc; padding: 8px; border-radius: 4px; border-left: 3px solid #40bfd8;">
+                <span style="font-weight: bold; color: #2a8294;">Premium-Praxis</span>
+              </div>
+              {% endif %}
+            </div>
+          `;
+
+          marker.addListener("click", () => {
+            infoWindow.setContent(content);
+            infoWindow.open(map, marker);
+            
+            // Highlight corresponding card
+            highlightCard({{ loop.index }});
+          });
+
+          markers.push(marker);
+          bounds.extend(marker.getPosition());
+        })();
+      {% endif %}
+    {% endfor %}
+
+    map.fitBounds(bounds);
+    
+    // Map controls
+    document.getElementById('mapZoomIn').addEventListener('click', () => {
+      map.setZoom(map.getZoom() + 1);
+    });
+    
+    document.getElementById('mapZoomOut').addEventListener('click', () => {
+      map.setZoom(map.getZoom() - 1);
+    });
+    
+    document.getElementById('mapReset').addEventListener('click', () => {
+      map.fitBounds(bounds);
+    });
+  }
+  
+  function highlightMarker(lat, lng, index) {
+    if (markers[index - 1]) {
+      // Pan to the marker
+      map.panTo({ lat: lat, lng: lng });
+      map.setZoom(14);
+      
+      // Open info window
+      infoWindow.close();
+      google.maps.event.trigger(markers[index - 1], 'click');
+      
+      // Add bounce animation
+      markers.forEach(m => m.setAnimation(null));
+      markers[index - 1].setAnimation(google.maps.Animation.BOUNCE);
+      setTimeout(() => {
+        markers[index - 1].setAnimation(null);
+      }, 1500);
+      
+      // In mobile view, switch to map
+      if (window.innerWidth <= 768) {
+        switchMobileSection('mapSection', document.querySelectorAll(".mobile-nav button")[2]);
+      }
+    }
+  }
+  
+  function highlightCard(index) {
+    const cards = document.querySelectorAll('.result-card');
+    cards.forEach(card => card.classList.remove('active'));
+    
+    // Find card with matching data-id
+    const targetCard = document.querySelector(`.result-card[data-id="${index}"]`);
+    if (targetCard) {
+      targetCard.classList.add('active');
+      
+      // Scroll card into view if not visible
+      targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+</script>
+
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key={{ config.GOOGLE_MAPS_API_KEY }}&callback=initMap">
+</script>
+{% endif %}
+
+<!-- Mobile Bottom Navigation -->
+<div class="mobile-nav d-md-none">
+  <button onclick="switchMobileSection('filterSection', this)" title="Filter">
+    <i class="fas fa-sliders-h"></i>
+    <span>Filter</span>
+  </button>
+  <button onclick="switchMobileSection('resultsSection', this)" class="active" title="Ergebnisse">
+    <i class="fas fa-list"></i>
+    <span>Ergebnisse</span>
+  </button>
+  <button onclick="switchMobileSection('mapSection', this)" title="Karte">
+    <i class="fas fa-map-marked-alt"></i>
+    <span>Karte</span>
+  </button>
+</div>
+
+<script>
+  function switchMobileSection(sectionId, btn) {
+    const allSections = ["filterSection", "resultsSection", "mapSection"];
+    const allButtons = document.querySelectorAll(".mobile-nav button");
+
+    allSections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove("section-visible");
+    });
+
+    allButtons.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    const target = document.getElementById(sectionId);
+    if (target) target.classList.add("section-visible");
+    
+    // Trigger resize for map
+    if (sectionId === 'mapSection' && typeof google !== 'undefined' && google.maps && map) {
+      google.maps.event.trigger(map, 'resize');
+    }
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    if (window.innerWidth <= 768) {
+      switchMobileSection("resultsSection", document.querySelectorAll(".mobile-nav button")[1]);
+    }
+  });
+  
+  // Add event listeners for range input for live updating
+  const rangeInput = document.querySelector('input[type="range"]');
+  if (rangeInput) {
+    rangeInput.addEventListener('input', function() {
+      const badge = this.previousElementSibling.querySelector('.bg-primary');
+      if (badge) {
+        badge.textContent = this.value + ' km';
+      }
+    });
+  }
+</script>
+
+{% if is_seo_page and item_list_schema %}
+<script type="application/ld+json">
+{{ item_list_schema|safe }}
+</script>
+{% endif %}
+{% endblock %}

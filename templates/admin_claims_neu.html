@@ -1,0 +1,112 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Claims{% endblock %}
+{% block page_title %}Claims-Verwaltung{% endblock %}
+
+{% block content %}
+<div class="filter-tabs mb-3">
+  <a href="?status=pending" class="filter-tab {{ 'active' if status == 'pending' or not status else '' }}">
+    Ausstehend <span class="badge bg-warning text-dark ms-1">{{ counts.pending }}</span>
+  </a>
+  <a href="?status=verifying" class="filter-tab {{ 'active' if status == 'verifying' else '' }}">
+    In Prüfung <span class="badge bg-info ms-1">{{ counts.verifying }}</span>
+  </a>
+  <a href="?status=approved" class="filter-tab {{ 'active' if status == 'approved' else '' }}">
+    Genehmigt <span class="badge bg-success ms-1">{{ counts.approved }}</span>
+  </a>
+  <a href="?status=rejected" class="filter-tab {{ 'active' if status == 'rejected' else '' }}">
+    Abgelehnt <span class="badge bg-danger ms-1">{{ counts.rejected }}</span>
+  </a>
+  <a href="?status=all" class="filter-tab {{ 'active' if status == 'all' else '' }}">
+    Alle <span class="badge bg-secondary ms-1">{{ counts.all }}</span>
+  </a>
+</div>
+
+<div class="data-card">
+  <div class="data-card-body">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Praxis</th>
+          <th>E-Mail</th>
+          <th>Adresse</th>
+          <th>Paket</th>
+          <th>Status</th>
+          <th>Erstellt</th>
+          <th>Aktionen</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for claim in claims %}
+        <tr>
+          <td><small class="text-muted">#{{ claim.id }}</small></td>
+          <td><strong>{{ claim.praxis_name }}</strong></td>
+          <td>
+            <a href="mailto:{{ claim.email }}">{{ claim.email }}</a>
+            {% if claim.verified_at %}
+            <br><small class="text-success"><i class="fas fa-check-circle"></i> E-Mail verifiziert</small>
+            {% endif %}
+          </td>
+          <td>
+            {{ claim.strasse }}<br>
+            <small>{{ claim.plz }}</small>
+          </td>
+          <td>
+            {% if claim.gewaehltes_paket %}
+              {% if claim.gewaehltes_paket.lower() == 'premiumplus' %}
+                <span class="badge badge-paket badge-premiumplus">PremiumPlus</span>
+              {% elif claim.gewaehltes_paket.lower() == 'premium' %}
+                <span class="badge badge-paket badge-premium">Premium</span>
+              {% else %}
+                <span class="badge badge-paket badge-basic">Basis</span>
+              {% endif %}
+            {% else %}
+              <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if claim.status == 'pending' %}
+              <span class="badge bg-warning text-dark">Ausstehend</span>
+            {% elif claim.status == 'verifying' %}
+              <span class="badge bg-info">In Prüfung</span>
+            {% elif claim.status == 'approved' %}
+              <span class="badge bg-success">Genehmigt</span>
+            {% elif claim.status == 'rejected' %}
+              <span class="badge bg-danger">Abgelehnt</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ claim.status }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <small>{{ claim.erstellt_am.strftime('%d.%m.%Y %H:%M') if claim.erstellt_am else '-' }}</small>
+          </td>
+          <td>
+            {% if claim.status == 'pending' or claim.status == 'verifying' %}
+            <form action="/admin/claim/{{ claim.id }}/genehmigen" method="POST" class="d-inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-sm btn-success" title="Genehmigen">
+                <i class="fas fa-check"></i>
+              </button>
+            </form>
+            <form action="/admin/claim/{{ claim.id }}/ablehnen" method="POST" class="d-inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-sm btn-danger" title="Ablehnen" onclick="return confirm('Claim wirklich ablehnen?')">
+                <i class="fas fa-times"></i>
+              </button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" class="text-center text-muted py-4">
+            Keine Claims gefunden
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

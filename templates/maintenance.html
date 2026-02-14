@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wartungsarbeiten | Dentalax</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #e8f8fa 0%, #d1f0f5 50%, #b8e8f0 100%);
+            color: #212a37;
+        }
+        .maintenance-container {
+            text-align: center;
+            max-width: 560px;
+            padding: 48px 32px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(42, 130, 148, 0.12);
+            margin: 20px;
+        }
+        .icon-wrapper {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #35bfd6 0%, #2a8294 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 28px;
+        }
+        .icon-wrapper i {
+            font-size: 2.8rem;
+            color: white;
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #212a37;
+            margin-bottom: 12px;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+        .divider {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(135deg, #35bfd6 0%, #2a8294 100%);
+            border-radius: 2px;
+            margin: 0 auto 28px;
+        }
+        .access-form {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e8f0f2;
+        }
+        .access-form p {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 12px;
+        }
+        .input-group {
+            display: flex;
+            gap: 8px;
+            max-width: 340px;
+            margin: 0 auto;
+        }
+        .input-group input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus {
+            border-color: #35bfd6;
+        }
+        .input-group button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #35bfd6 0%, #2a8294 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+        .input-group button:hover {
+            opacity: 0.9;
+        }
+        .error-msg {
+            color: #e53e3e;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+        .logo {
+            margin-bottom: 24px;
+        }
+        .logo img {
+            height: 40px;
+        }
+        .logo span {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2a8294;
+        }
+    </style>
+</head>
+<body>
+    <div class="maintenance-container">
+        <div class="logo">
+            <span><i class="fas fa-tooth" style="color: #35bfd6; margin-right: 6px;"></i>DENTALAX</span>
+        </div>
+        <div class="icon-wrapper">
+            <i class="fas fa-tools"></i>
+        </div>
+        <h1>Wartungsarbeiten</h1>
+        <div class="divider"></div>
+        <p class="subtitle">
+            Wir arbeiten gerade an Verbesserungen für Sie.<br>
+            Die Seite ist in Kürze wieder erreichbar.
+        </p>
+        
+        <div class="access-form">
+            <p>Zugang mit Passwort:</p>
+            <form action="/wartung/zugang" method="POST">
+                <div class="input-group">
+                    <input type="password" name="password" placeholder="Passwort eingeben" required>
+                    <button type="submit"><i class="fas fa-lock-open me-1"></i> Öffnen</button>
+                </div>
+            </form>
+            {% if error %}
+            <p class="error-msg">{{ error }}</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

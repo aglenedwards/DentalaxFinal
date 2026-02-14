@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<section class="py-5 text-center">
+  <div class="container p-4 rounded shadow-sm bg-white">
+    <h1 class="mb-4 text-success">✅ Antrag übermittelt</h1>
+    <p class="lead">Vielen Dank! Dein Antrag zur Übernahme der Praxis <strong>{{ praxisname }}</strong> wurde erfolgreich übermittelt.</p>
+    <p>Wir haben deine Angaben erhalten und prüfen diese. Du bekommst in Kürze eine Rückmeldung an <strong>{{ email }}</strong>.</p>
+
+    <div class="mt-4">
+      <a href="/" class="btn btn-primary">Zurück zur Startseite</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

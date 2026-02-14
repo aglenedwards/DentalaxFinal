@@ -1,0 +1,1026 @@
+{% extends "layout.html" %}
+{% block title %}Praxisdaten vervollständigen | Dentalax{% endblock %}
+
+{% block styles %}
+<!-- Externe CSS-Datei mit Cache-Busting Zeitstempel -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/wizard.css') }}?v={{ import_datetime|default(20251225) }}">
+{% endblock %}
+
+{% block content %}
+<div class="wizard-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-9">
+                <div class="card wizard-card">
+                    <div class="wizard-header text-white">
+                        <h3><i class="fas fa-clinic-medical me-2"></i>Praxisdaten vervollständigen</h3>
+                        <p>Richten Sie Ihre Praxis-Landingpage in wenigen Schritten ein</p>
+                    </div>
+                    <div class="wizard-body">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                    <form id="praxis-form" method="post" action="{{ url_for('praxis_daten_speichern_db') }}" enctype="multipart/form-data" novalidate>
+                        {{ form.hidden_tag() }}
+                        <input type="hidden" name="form_step" id="form_step" value="step7">
+                        <input type="hidden" name="final_submit" id="final_submit" value="1">
+                        
+                        <!-- Navigation und Fortschrittsanzeige -->
+                        <div class="progress-step-container">
+                            <div class="progress mb-4">
+                                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <ul class="nav nav-pills mb-4 step-circles" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link step-circle active" id="step1-tab" data-bs-toggle="pill" data-bs-target="#step1" type="button" role="tab" aria-controls="step1" aria-selected="true">1</button>
+                                    <div class="step-label">Stammdaten</div>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link step-circle" id="step2-tab" data-bs-toggle="pill" data-bs-target="#step2" type="button" role="tab" aria-controls="step2" aria-selected="false">2</button>
+                                    <div class="step-label">Adresse</div>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link step-circle" id="step3-tab" data-bs-toggle="pill" data-bs-target="#step3" type="button" role="tab" aria-controls="step3" aria-selected="false">3</button>
+                                    <div class="step-label">Öffnungszeiten</div>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link step-circle" id="step4-tab" data-bs-toggle="pill" data-bs-target="#step4" type="button" role="tab" aria-controls="step4" aria-selected="false">4</button>
+                                    <div class="step-label">Leistungen</div>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link step-circle" id="step5-tab" data-bs-toggle="pill" data-bs-target="#step5" type="button" role="tab" aria-controls="step5" aria-selected="false">5</button>
+                                    <div class="step-label">Team</div>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link step-circle" id="step6-tab" data-bs-toggle="pill" data-bs-target="#step6" type="button" role="tab" aria-controls="step6" aria-selected="false">6</button>
+                                    <div class="step-label">Terminbuchung</div>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link step-circle" id="step7-tab" data-bs-toggle="pill" data-bs-target="#step7" type="button" role="tab" aria-controls="step7" aria-selected="false">7</button>
+                                    <div class="step-label">Bestätigung</div>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Tab-Inhalte -->
+                        <div class="tab-content" id="myTabContent">
+                            <!-- Schritt 1: Stammdaten -->
+                            <div class="tab-pane fade show active" id="step1" role="tabpanel" aria-labelledby="step1-tab">
+                                <div class="step-header">
+                                    <h4><i class="fas fa-building me-2"></i>Praxis-Stammdaten</h4>
+                                    <p>Geben Sie die grundlegenden Informationen Ihrer Praxis ein.</p>
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="praxisname" class="form-label">Praxisname</label>
+                                        <input type="text" class="form-control" id="praxisname" name="praxisname" value="{{ praxis.name if praxis else stammdaten.praxisname if stammdaten else '' }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="vorname" class="form-label">Ihr Vorname</label>
+                                        <input type="text" class="form-control" id="vorname" name="vorname" value="{{ stammdaten.vorname if stammdaten else '' }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="nachname" class="form-label">Ihr Nachname</label>
+                                        <input type="text" class="form-control" id="nachname" name="nachname" value="{{ stammdaten.nachname if stammdaten else '' }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="telefon" class="form-label">Telefonnummer der Praxis</label>
+                                        <input type="tel" class="form-control" id="telefon" name="telefon" value="{{ praxis.telefon if praxis else stammdaten.telefon if stammdaten else '' }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">E-Mail-Adresse der Praxis</label>
+                                        <input type="email" class="form-control" id="email" name="email" value="{{ praxis.email if praxis else stammdaten.email if stammdaten else '' }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="webseite" class="form-label">Webseite (optional)</label>
+                                        <input type="url" class="form-control" id="webseite" name="webseite" value="{{ praxis.webseite if praxis else stammdaten.webseite if stammdaten else '' }}" placeholder="https://www.ihre-praxis.de">
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label for="beschreibung" class="form-label">Praxisbeschreibung</label>
+                                        <textarea class="form-control" id="beschreibung" name="beschreibung" rows="3">{{ praxis.beschreibung if praxis else '' }}</textarea>
+                                        <div class="form-text">Eine kurze Beschreibung Ihrer Praxis und Ihre besonderen Schwerpunkte.</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="portrait" class="form-label">Ihr Portraitfoto</label>
+                                        <input type="file" class="form-control" id="portrait" name="portrait" accept="image/*">
+                                        <div class="form-text">Ein professionelles Foto von Ihnen für die Landingpage.</div>
+                                        {% if portrait_bild %}
+                                        <div class="mt-2">
+                                            <small class="text-success"><i class="fas fa-check-circle"></i> Aktuelles Bild vorhanden</small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="ueber_uns_text" class="form-label">Willkommenstext</label>
+                                        <textarea class="form-control" id="ueber_uns_text" name="ueber_uns_text" rows="3" placeholder="Herzlich willkommen in unserer Praxis...">{{ praxis.ueber_uns_text if praxis else '' }}</textarea>
+                                        <div class="form-text">Dieser Text erscheint im "Über uns"-Bereich Ihrer Landingpage.</div>
+                                    </div>
+                                </div>
+
+                                <div class="wizard-nav">
+                                    <div></div>
+                                    <button type="button" class="btn btn-wizard btn-wizard-primary next-step" data-target="step2-tab">
+                                        Weiter <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Schritt 2: Adresse -->
+                            <div class="tab-pane fade" id="step2" role="tabpanel" aria-labelledby="step2-tab">
+                                <div class="step-header">
+                                    <h4><i class="fas fa-map-marker-alt me-2"></i>Adresse</h4>
+                                    <p>Geben Sie die Anschrift Ihrer Praxis ein.</p>
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-md-8 mb-3">
+                                        <label for="strasse" class="form-label">Straße und Hausnummer</label>
+                                        <input type="text" class="form-control" id="strasse" name="strasse" value="{{ praxis.strasse if praxis else stammdaten.strasse if stammdaten else '' }}" required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="plz" class="form-label">Postleitzahl</label>
+                                        <input type="text" class="form-control" id="plz" name="plz" value="{{ praxis.plz if praxis else stammdaten.plz if stammdaten else '' }}" required>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label for="stadt" class="form-label">Stadt</label>
+                                        <input type="text" class="form-control" id="stadt" name="stadt" value="{{ praxis.stadt if praxis else stammdaten.stadt if stammdaten else '' }}" required>
+                                    </div>
+                                </div>
+
+                                <div class="wizard-nav">
+                                    <button type="button" class="btn btn-wizard btn-wizard-secondary prev-step" data-target="step1-tab">
+                                        <i class="fas fa-arrow-left me-2"></i> Zurück
+                                    </button>
+                                    <button type="button" class="btn btn-wizard btn-wizard-primary next-step" data-target="step3-tab">
+                                        Weiter <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Schritt 3: Öffnungszeiten -->
+                            <div class="tab-pane fade" id="step3" role="tabpanel" aria-labelledby="step3-tab">
+                                <div class="step-header">
+                                    <h4><i class="fas fa-clock me-2"></i>Öffnungszeiten</h4>
+                                    <p>Legen Sie die Öffnungszeiten Ihrer Praxis fest.</p>
+                                </div>
+
+                                <div class="opening-hours-container">
+                                    {% set wochentage = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'] %}
+                                    
+                                    {% for tag in wochentage %}
+                                        <div class="mb-3 opening-hours-row">
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col-md-2">
+                                                    <label class="form-check-label">
+                                                        {% set geschlossen = false %}
+                                                        {% for oz in oeffnungszeiten %}
+                                                            {% if oz.tag == tag and oz.geschlossen %}
+                                                                {% set geschlossen = true %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        <input type="checkbox" class="form-check-input me-2 closed-day" name="closed_{{ tag|lower }}" value="1" {% if geschlossen %}checked{% endif %}>
+                                                        {{ tag }}
+                                                    </label>
+                                                </div>
+                                                
+                                                <div class="col-md-10">
+                                                    <div class="row time-input-group" {% if geschlossen %}style="display: none;"{% endif %}>
+                                                        {% set von = '' %}
+                                                        {% set bis = '' %}
+                                                        {% for oz in oeffnungszeiten %}
+                                                            {% if oz.tag == tag and not oz.geschlossen %}
+                                                                {% set von = oz.von|string %}
+                                                                {% set bis = oz.bis|string %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        
+                                                        <div class="col-md-5">
+                                                            <label class="form-label small" for="{{ tag|lower }}_von">Von</label>
+                                                            <input type="time" class="form-control" id="{{ tag|lower }}_von" name="{{ tag|lower }}_von" value="{{ von }}">
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <label class="form-label small" for="{{ tag|lower }}_bis">Bis</label>
+                                                            <input type="time" class="form-control" id="{{ tag|lower }}_bis" name="{{ tag|lower }}_bis" value="{{ bis }}">
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <label class="form-label small">&nbsp;</label>
+                                                            <button type="button" class="btn btn-outline-secondary form-control add-time-slot" data-day="{{ tag|lower }}" title="Weitere Zeitslots hinzufügen">
+                                                                <i class="fas fa-plus"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="additional-time-slots" id="{{ tag|lower }}_additional_slots">
+                                                        <!-- Hier werden dynamisch weitere Zeitslots eingefügt -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="wizard-nav">
+                                    <button type="button" class="btn btn-wizard btn-wizard-secondary prev-step" data-target="step2-tab">
+                                        <i class="fas fa-arrow-left me-2"></i> Zurück
+                                    </button>
+                                    <button type="button" class="btn btn-wizard btn-wizard-primary next-step" data-target="step4-tab">
+                                        Weiter <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Schritt 4: Leistungen -->
+                            <div class="tab-pane fade" id="step4" role="tabpanel" aria-labelledby="step4-tab">
+                                <div class="step-header">
+                                    <h4><i class="fas fa-teeth me-2"></i>Leistungen</h4>
+                                    <p>Geben Sie die Leistungen an, die Ihre Praxis anbietet.</p>
+                                </div>
+
+                                <div id="leistungen-container">
+                                    {% if leistungen %}
+                                        {% for leistung in leistungen %}
+                                        <div class="leistung-item card mb-3">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label class="form-label">Titel</label>
+                                                        <input type="text" class="form-control" name="leistung_titel[]" value="{{ leistung.titel }}">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label class="form-label">Icon</label>
+                                                        <select class="form-select" name="leistung_icon[]">
+                                                            <option value="fas fa-tooth" {% if leistung.icon == 'fas fa-tooth' %}selected{% endif %}>Zahn</option>
+                                                            <option value="fas fa-teeth" {% if leistung.icon == 'fas fa-teeth' %}selected{% endif %}>Zähne</option>
+                                                            <option value="fas fa-procedures" {% if leistung.icon == 'fas fa-procedures' %}selected{% endif %}>Behandlung</option>
+                                                            <option value="fas fa-x-ray" {% if leistung.icon == 'fas fa-x-ray' %}selected{% endif %}>Röntgen</option>
+                                                            <option value="fas fa-syringe" {% if leistung.icon == 'fas fa-syringe' %}selected{% endif %}>Spritze</option>
+                                                            <option value="fas fa-user-md" {% if leistung.icon == 'fas fa-user-md' %}selected{% endif %}>Arzt</option>
+                                                            <option value="fas fa-microscope" {% if leistung.icon == 'fas fa-microscope' %}selected{% endif %}>Mikroskop</option>
+                                                            <option value="fas fa-pills" {% if leistung.icon == 'fas fa-pills' %}selected{% endif %}>Medikament</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-2 d-flex align-items-end mb-3">
+                                                        <button type="button" class="btn btn-outline-danger btn-sm remove-leistung">Entfernen</button>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="form-label">Beschreibung</label>
+                                                        <textarea class="form-control" name="leistung_beschreibung[]" rows="2">{{ leistung.beschreibung }}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <!-- Leistung-Template -->
+                                        <div class="leistung-item card mb-3">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label class="form-label">Titel</label>
+                                                        <input type="text" class="form-control" name="leistung_titel[]" placeholder="z.B. Professionelle Zahnreinigung">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label class="form-label">Icon</label>
+                                                        <select class="form-select" name="leistung_icon[]">
+                                                            <option value="fas fa-tooth">Zahn</option>
+                                                            <option value="fas fa-teeth">Zähne</option>
+                                                            <option value="fas fa-procedures">Behandlung</option>
+                                                            <option value="fas fa-x-ray">Röntgen</option>
+                                                            <option value="fas fa-syringe">Spritze</option>
+                                                            <option value="fas fa-user-md">Arzt</option>
+                                                            <option value="fas fa-microscope">Mikroskop</option>
+                                                            <option value="fas fa-pills">Medikament</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-2 d-flex align-items-end mb-3">
+                                                        <button type="button" class="btn btn-outline-danger btn-sm remove-leistung">Entfernen</button>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="form-label">Beschreibung</label>
+                                                        <textarea class="form-control" name="leistung_beschreibung[]" rows="2" placeholder="Kurze Beschreibung der Leistung..."></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <button type="button" id="add-leistung" class="btn btn-outline-primary mt-3">
+                                    <i class="fas fa-plus-circle me-1"></i>Leistung hinzufügen
+                                </button>
+
+                                <div class="wizard-nav">
+                                    <button type="button" class="btn btn-wizard btn-wizard-secondary prev-step" data-target="step3-tab">
+                                        <i class="fas fa-arrow-left me-2"></i> Zurück
+                                    </button>
+                                    <button type="button" class="btn btn-wizard btn-wizard-primary next-step" data-target="step5-tab">
+                                        Weiter <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Schritt 5: Team -->
+                            <div class="tab-pane fade" id="step5" role="tabpanel" aria-labelledby="step5-tab">
+                                <div class="step-header">
+                                    <h4><i class="fas fa-users me-2"></i>Team</h4>
+                                    <p>Stellen Sie Ihr Praxisteam vor.</p>
+                                </div>
+
+                                <div id="team-container">
+                                    {% if team %}
+                                        {% for mitglied in team %}
+                                        <div class="team-item card mb-3">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label class="form-label">Name</label>
+                                                        <input type="text" class="form-control" name="team_name[]" value="{{ mitglied.name }}">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label class="form-label">Position</label>
+                                                        <input type="text" class="form-control" name="team_position[]" value="{{ mitglied.position }}">
+                                                    </div>
+                                                    <div class="col-md-2 d-flex align-items-end mb-3">
+                                                        <button type="button" class="btn btn-outline-danger btn-sm remove-team">Entfernen</button>
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Beschreibung</label>
+                                                        <textarea class="form-control" name="team_beschreibung[]" rows="2">{{ mitglied.beschreibung }}</textarea>
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Qualifikationen</label>
+                                                        <textarea class="form-control" name="team_qualifikationen[]" rows="2" placeholder="z.B. Implantologie, Endodontie, Kinderzahnheilkunde (kommagetrennt)">{{ mitglied.qualifikationen }}</textarea>
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Schwerpunkte</label>
+                                                        <input type="text" class="form-control" name="team_schwerpunkte[]" placeholder="z.B. Ästhetische Zahnheilkunde, Prophylaxe (kommagetrennt)" value="{{ mitglied.schwerpunkte }}">
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Sprachen</label>
+                                                        <input type="text" class="form-control" name="team_sprachen[]" placeholder="z.B. Deutsch, Englisch, Türkisch (kommagetrennt)" value="{{ mitglied.sprachen }}">
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="form-label">Foto (optional)</label>
+                                                        <input type="file" class="form-control" name="team_foto[]" accept="image/*">
+                                                        {% if mitglied.bild_pfad %}
+                                                        <div class="form-text">
+                                                            Aktuelles Bild: <a href="{{ mitglied.bild_pfad }}" target="_blank">Anzeigen</a>
+                                                        </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <!-- Teammitglied-Template -->
+                                        <div class="team-item card mb-3">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label class="form-label">Name</label>
+                                                        <input type="text" class="form-control" name="team_name[]" placeholder="Dr. Max Mustermann">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label class="form-label">Position</label>
+                                                        <input type="text" class="form-control" name="team_position[]" placeholder="Zahnarzt">
+                                                    </div>
+                                                    <div class="col-md-2 d-flex align-items-end mb-3">
+                                                        <button type="button" class="btn btn-outline-danger btn-sm remove-team">Entfernen</button>
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Beschreibung</label>
+                                                        <textarea class="form-control" name="team_beschreibung[]" rows="2" placeholder="Kurze Beschreibung der Person und ihres Bereichs..."></textarea>
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Qualifikationen</label>
+                                                        <textarea class="form-control" name="team_qualifikationen[]" rows="2" placeholder="z.B. Implantologie, Endodontie, Kinderzahnheilkunde (kommagetrennt)"></textarea>
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Schwerpunkte</label>
+                                                        <input type="text" class="form-control" name="team_schwerpunkte[]" placeholder="z.B. Ästhetische Zahnheilkunde, Prophylaxe (kommagetrennt)">
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Sprachen</label>
+                                                        <input type="text" class="form-control" name="team_sprachen[]" placeholder="z.B. Deutsch, Englisch, Türkisch (kommagetrennt)">
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="form-label">Foto (optional)</label>
+                                                        <input type="file" class="form-control" name="team_foto[]" accept="image/*">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <button type="button" id="add-team" class="btn btn-outline-primary mt-3">
+                                    <i class="fas fa-plus-circle me-1"></i>Teammitglied hinzufügen
+                                </button>
+
+                                <div class="wizard-nav">
+                                    <button type="button" class="btn btn-wizard btn-wizard-secondary prev-step" data-target="step4-tab">
+                                        <i class="fas fa-arrow-left me-2"></i> Zurück
+                                    </button>
+                                    <button type="button" class="btn btn-wizard btn-wizard-primary next-step" data-target="step6-tab">
+                                        Weiter <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Schritt 6: Terminbuchung -->
+                            <div class="tab-pane fade" id="step6" role="tabpanel" aria-labelledby="step6-tab">
+                                <div class="step-header">
+                                    <h4><i class="fas fa-calendar-check me-2"></i>Terminbuchung</h4>
+                                    <p>Legen Sie fest, wie Patienten Termine in Ihrer Praxis buchen können.</p>
+                                </div>
+
+                                <div class="booking-options-container mb-5">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4">
+                                            <div class="booking-option-card" data-option="dashboard">
+                                                <div class="option-icon">
+                                                    <i class="fas fa-calendar-check"></i>
+                                                </div>
+                                                <h5>Dentalax-Dashboard</h5>
+                                                <p>Verwalten Sie Termine direkt über unser integriertes System. Patienten können Termine online buchen, die Sie in Ihrem Dashboard bestätigen.</p>
+                                                <input class="form-check-input visually-hidden" type="radio" name="terminbuchung_modus" id="terminbuchung_modus_dashboard" value="dashboard" {% if praxis and praxis.terminbuchung_modus == 'dashboard' or not praxis %}checked{% endif %}>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-4">
+                                            <div class="booking-option-card" data-option="redirect">
+                                                <div class="option-icon">
+                                                    <i class="fas fa-external-link-alt"></i>
+                                                </div>
+                                                <h5>Externes Buchungssystem</h5>
+                                                <p>Nutzen Sie bereits Doctolib, Jameda oder ein anderes System? Patienten werden direkt zu Ihrem bevorzugten Buchungstool weitergeleitet.</p>
+                                                <input class="form-check-input visually-hidden" type="radio" name="terminbuchung_modus" id="terminbuchung_modus_redirect" value="redirect" {% if praxis and praxis.terminbuchung_modus == 'redirect' %}checked{% endif %}>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-4">
+                                            <div class="booking-option-card" data-option="api">
+                                                <div class="option-icon">
+                                                    <i class="fas fa-code"></i>
+                                                </div>
+                                                <h5>API-Integration</h5>
+                                                <p>Verbinden Sie Ihre eigene Software über unsere API. Ideal für Praxen mit bestehenden Terminbuchungssystemen, die eine tiefere Integration wünschen.</p>
+                                                <input class="form-check-input visually-hidden" type="radio" name="terminbuchung_modus" id="terminbuchung_modus_api" value="api" {% if praxis and praxis.terminbuchung_modus == 'api' %}checked{% endif %}>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-4">
+                                            <div class="booking-option-card" data-option="formular">
+                                                <div class="option-icon">
+                                                    <i class="fas fa-envelope"></i>
+                                                </div>
+                                                <h5>Kontaktformular</h5>
+                                                <p>Ein einfaches Formular, über das Patienten Terminanfragen stellen können. Sie erhalten eine E-Mail und können die Anfrage manuell bearbeiten.</p>
+                                                <input class="form-check-input visually-hidden" type="radio" name="terminbuchung_modus" id="terminbuchung_modus_formular" value="formular" {% if praxis and praxis.terminbuchung_modus == 'formular' %}checked{% endif %}>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Konfigurationsbereich für Externes Buchungssystem -->
+                                <div id="redirect_config" class="config-section mb-4" style="display: none;">
+                                    <div class="card border-light">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0"><i class="fas fa-external-link-alt me-2"></i>Externes Buchungssystem konfigurieren</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="terminbuchung_url" class="form-label">URL Ihres Buchungssystems</label>
+                                                <input type="url" class="form-control" id="terminbuchung_url" name="terminbuchung_url"
+                                                    value="{{ praxis.terminbuchung_url if praxis and praxis.terminbuchung_url }}" 
+                                                    placeholder="https://www.doctolib.de/arztpraxis/ihre-praxis">
+                                                <div class="form-text">Vollständige URL zu Ihrem externen Terminbuchungssystem (z.B. Doctolib, Jameda, etc.)</div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="extern_anbieter" class="form-label">Anbieter (optional)</label>
+                                                <select class="form-select" id="extern_anbieter" name="extern_anbieter">
+                                                    <option value="">Bitte wählen...</option>
+                                                    <option value="doctolib" {{ 'selected' if praxis and praxis.extern_anbieter == 'doctolib' }}>Doctolib</option>
+                                                    <option value="jameda" {{ 'selected' if praxis and praxis.extern_anbieter == 'jameda' }}>Jameda</option>
+                                                    <option value="samedi" {{ 'selected' if praxis and praxis.extern_anbieter == 'samedi' }}>Samedi</option>
+                                                    <option value="terminland" {{ 'selected' if praxis and praxis.extern_anbieter == 'terminland' }}>Terminland</option>
+                                                    <option value="andere" {{ 'selected' if praxis and praxis.extern_anbieter == 'andere' }}>Anderer Anbieter</option>
+                                                </select>
+                                                <div class="form-text">Die Auswahl des Anbieters hilft uns, die Integration zu optimieren.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Konfigurationsbereich für API-Integration -->
+                                <div id="api_config" class="config-section mb-4" style="display: none;">
+                                    <div class="card border-light">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0"><i class="fas fa-plug me-2"></i>API-Integration konfigurieren</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="api_anbieter" class="form-label">Ihre Praxissoftware</label>
+                                                <select class="form-select" id="api_anbieter" name="api_anbieter">
+                                                    <option value="">Bitte wählen...</option>
+                                                    <option value="medatixx" {{ 'selected' if praxis and praxis.api_anbieter == 'medatixx' }}>Medatixx</option>
+                                                    <option value="doctolib" {{ 'selected' if praxis and praxis.api_anbieter == 'doctolib' }}>Doctolib</option>
+                                                    <option value="cgm" {{ 'selected' if praxis and praxis.api_anbieter == 'cgm' }}>CGM (CompuGroup Medical)</option>
+                                                    <option value="medistar" {{ 'selected' if praxis and praxis.api_anbieter == 'medistar' }}>Medistar</option>
+                                                    <option value="turbomed" {{ 'selected' if praxis and praxis.api_anbieter == 'turbomed' }}>Turbomed</option>
+                                                    <option value="andere" {{ 'selected' if praxis and praxis.api_anbieter == 'andere' }}>Andere Software</option>
+                                                </select>
+                                                <div class="form-text">Wählen Sie Ihre Praxisverwaltungssoftware für eine optimale Integration.</div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="api_key" class="form-label">Dentalax API-Schlüssel</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="api_key" name="api_key" 
+                                                        value="{{ praxis.api_key if praxis and praxis.api_key is defined else '' }}" 
+                                                        placeholder="Ihr API-Schlüssel wird automatisch generiert">
+                                                    <button class="btn btn-outline-secondary" type="button" id="generate_api_key">
+                                                        <i class="fas fa-sync-alt"></i> Neu generieren
+                                                    </button>
+                                                </div>
+                                                <div class="form-text">Dieser Schlüssel wird für die Authentifizierung Ihrer API-Anfragen verwendet.</div>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <h6 class="mb-2">Verfügbare Endpunkte</h6>
+                                                <div class="api-endpoint-box">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <strong>Termine abrufen</strong>
+                                                        <i class="fas fa-copy copy-btn" data-endpoint="GET /api/v1/praxis/{praxis_id}/termine"></i>
+                                                    </div>
+                                                    <code>GET /api/v1/praxis/{praxis_id}/termine</code>
+                                                </div>
+
+                                                <div class="api-endpoint-box">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <strong>Termin erstellen</strong>
+                                                        <i class="fas fa-copy copy-btn" data-endpoint="POST /api/v1/praxis/{praxis_id}/termine"></i>
+                                                    </div>
+                                                    <code>POST /api/v1/praxis/{praxis_id}/termine</code>
+                                                </div>
+                                            </div>
+
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                <strong>Hinweis:</strong> Eine vollständige API-Dokumentation finden Sie in Ihrem Praxis-Dashboard nach der Einrichtung.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Konfigurationsbereich für Kontaktformular -->
+                                <div id="formular_config" class="config-section mb-4" style="display: none;">
+                                    <div class="card border-light">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>Kontaktformular konfigurieren</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="formular_email" class="form-label">E-Mail für Terminanfragen</label>
+                                                <input type="email" class="form-control" id="formular_email" name="formular_email"
+                                                    value="{{ praxis.formular_email if praxis and praxis.formular_email else praxis.email if praxis else '' }}" 
+                                                    placeholder="termine@ihre-praxis.de">
+                                                <div class="form-text">An diese E-Mail-Adresse werden alle Terminanfragen gesendet.</div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label d-block">Benötigte Informationen</label>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="formular_telefon" name="formular_felder[]" value="telefon" checked disabled>
+                                                    <label class="form-check-label" for="formular_telefon">Telefon</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="formular_email_patient" name="formular_felder[]" value="email" checked disabled>
+                                                    <label class="form-check-label" for="formular_email_patient">E-Mail</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="formular_grund" name="formular_felder[]" value="grund" checked>
+                                                    <label class="form-check-label" for="formular_grund">Termingrund</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="formular_versicherung" name="formular_felder[]" value="versicherung">
+                                                    <label class="form-check-label" for="formular_versicherung">Versicherung</label>
+                                                </div>
+                                                <div class="form-text">Telefon und E-Mail sind Pflichtfelder für die Kontaktaufnahme.</div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="formular_text" class="form-label">Zusätzlicher Hinweistext (optional)</label>
+                                                <textarea class="form-control" id="formular_text" name="formular_text" rows="3" 
+                                                    placeholder="z.B. 'Bitte beachten Sie, dass wir nur Terminanfragen während unserer Öffnungszeiten bearbeiten können.'">{{ praxis.formular_text if praxis and praxis.formular_text else '' }}</textarea>
+                                                <div class="form-text">Dieser Text wird im Terminanfrage-Formular angezeigt.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Konfigurationsbereich für Dentalax-Dashboard -->
+                                <div id="dashboard_config" class="config-section" style="display: none;">
+                                    <div class="card border-light">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Dentalax-Dashboard konfigurieren</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="alert alert-success">
+                                                <i class="fas fa-check-circle me-2"></i>
+                                                <strong>Perfekt!</strong> Das Dentalax-Dashboard ist bereits für Sie eingerichtet. Sie können es nach Abschluss der Praxiseinrichtung verwenden.
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label">Standardeinstellungen</label>
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="termin_dauer" class="form-label small text-muted">Standard-Termindauer</label>
+                                                        <select class="form-select" id="termin_dauer" name="termin_dauer">
+                                                            <option value="15" {{ 'selected' if praxis and praxis.termin_dauer == 15 }}>15 Minuten</option>
+                                                            <option value="20" {{ 'selected' if praxis and praxis.termin_dauer == 20 }}>20 Minuten</option>
+                                                            <option value="30" {{ 'selected' if praxis and praxis.termin_dauer == 30 or not praxis }}>30 Minuten</option>
+                                                            <option value="45" {{ 'selected' if praxis and praxis.termin_dauer == 45 }}>45 Minuten</option>
+                                                            <option value="60" {{ 'selected' if praxis and praxis.termin_dauer == 60 }}>60 Minuten</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="vorlaufzeit" class="form-label small text-muted">Vorlaufzeit für Buchungen</label>
+                                                        <select class="form-select" id="vorlaufzeit" name="vorlaufzeit">
+                                                            <option value="0" {{ 'selected' if praxis and praxis.vorlaufzeit == 0 }}>Keine (sofortige Buchung)</option>
+                                                            <option value="1" {{ 'selected' if praxis and praxis.vorlaufzeit == 1 }}>1 Tag</option>
+                                                            <option value="2" {{ 'selected' if praxis and praxis.vorlaufzeit == 2 or not praxis }}>2 Tage</option>
+                                                            <option value="3" {{ 'selected' if praxis and praxis.vorlaufzeit == 3 }}>3 Tage</option>
+                                                            <option value="7" {{ 'selected' if praxis and praxis.vorlaufzeit == 7 }}>1 Woche</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="form-text mb-3">
+                                                Die detaillierten Einstellungen für Terminarten, Zeitfenster und weitere Optionen können Sie später in Ihrem Dashboard anpassen.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="wizard-nav">
+                                    <button type="button" class="btn btn-wizard btn-wizard-secondary prev-step" data-target="step5-tab">
+                                        <i class="fas fa-arrow-left me-2"></i> Zurück
+                                    </button>
+                                    <button type="button" class="btn btn-wizard btn-wizard-primary next-step" data-target="step7-tab">
+                                        Weiter <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Schritt 7: Bestätigung -->
+                            <div class="tab-pane fade" id="step7" role="tabpanel" aria-labelledby="step7-tab">
+                                <div class="step-header">
+                                    <h4><i class="fas fa-check-circle me-2"></i>Bestätigung</h4>
+                                    <p>Überprüfen Sie Ihre Eingaben und schließen Sie die Praxiseinrichtung ab.</p>
+                                </div>
+
+                                <div class="card mb-4">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">Praxis-Paket</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div class="package-badge {{ 'badge-pro' if paket_name|lower == 'premium' else 'badge-plus' if paket_name|lower == 'premiumplus' else 'badge-basic' }}">
+                                                {{ paket_name }}
+                                            </div>
+                                            <div class="ms-3">
+                                                {% if paket_name|lower == 'premium' %}
+                                                <p class="mb-0">Ihr individuelles Praxisprofil mit erweiterten Funktionen</p>
+                                                {% elif paket_name|lower == 'premiumplus' %}
+                                                <p class="mb-0">PremiumPlus-Paket mit allen Funktionen und Stellenmodul</p>
+                                                {% else %}
+                                                <p class="mb-0">Basispaket mit grundlegender Praxisverwaltung</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info mb-4">
+                                    <div class="d-flex">
+                                        <div class="me-3">
+                                            <i class="fas fa-info-circle fa-2x"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="alert-heading">Fast geschafft!</h5>
+                                            <p class="mb-0">Nach dem Absenden können Sie Ihre Praxisseite jederzeit in Ihrem Dashboard bearbeiten. Ihre Praxis wird sofort in den Suchergebnissen angezeigt.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input" type="checkbox" id="agb_confirm" name="agb_confirm" required>
+                                    <label class="form-check-label" for="agb_confirm">
+                                        Ich bestätige die Richtigkeit meiner Angaben und akzeptiere die <a href="/agb" target="_blank">AGB</a> und <a href="/datenschutz" target="_blank">Datenschutzbestimmungen</a> von Dentalax.
+                                    </label>
+                                </div>
+
+                                <div class="wizard-nav">
+                                    <button type="button" class="btn btn-wizard btn-wizard-secondary prev-step" data-target="step6-tab">
+                                        <i class="fas fa-arrow-left me-2"></i> Zurück
+                                    </button>
+                                    <button type="submit" class="btn btn-wizard btn-success btn-lg" id="final-submit-btn">
+                                        <i class="fas fa-check-circle me-2"></i> Praxiseinrichtung abschließen
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fortschrittsbalken-Aktualisierung
+    const updateProgress = (stepId) => {
+        const totalSteps = 7;
+        const currentStep = parseInt(stepId.replace('step', ''));
+        const progress = (currentStep - 1) / (totalSteps - 1) * 100;
+        
+        document.querySelector('.progress-bar').style.width = progress + '%';
+        document.querySelector('.progress-bar').setAttribute('aria-valuenow', progress);
+        
+        // Aktualisierung der Schrittkreise
+        updateStepCircles(currentStep);
+    };
+    
+    // Kreisschritte aktualisieren
+    const updateStepCircles = (currentStep) => {
+        document.querySelectorAll('.step-circle').forEach((circle, index) => {
+            if (index + 1 < currentStep) {
+                circle.classList.add('active');
+                circle.innerHTML = '<i class="fas fa-check"></i>';
+            } else if (index + 1 === currentStep) {
+                circle.classList.add('active');
+                circle.innerHTML = (index + 1).toString();
+            } else {
+                circle.classList.remove('active');
+                circle.innerHTML = (index + 1).toString();
+            }
+        });
+    };
+    
+    // Initialisierung: Schritt 1 aktiv
+    updateProgress('step1');
+    
+    // Navigation zwischen Tabs
+    document.querySelectorAll('.next-step').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetTabId = this.dataset.target;
+            const targetTab = document.getElementById(targetTabId);
+            bootstrap.Tab.getOrCreateInstance(targetTab).show();
+        });
+    });
+    
+    document.querySelectorAll('.prev-step').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetTabId = this.dataset.target;
+            const targetTab = document.getElementById(targetTabId);
+            bootstrap.Tab.getOrCreateInstance(targetTab).show();
+        });
+    });
+    
+    // Aktualisiere bei Tab-Wechsel
+    document.querySelectorAll('button[data-bs-toggle="pill"]').forEach(button => {
+        button.addEventListener('shown.bs.tab', function(event) {
+            updateProgress(event.target.getAttribute('id'));
+        });
+    });
+    
+    // Kachelkarten als klickbare Elemente
+    const bookingCards = document.querySelectorAll('.booking-option-card');
+    bookingCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Kachelkartendarstellung aktualisieren
+            bookingCards.forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // Zugehöriges Radio-Button auswählen
+            const option = this.dataset.option;
+            const radio = document.getElementById('terminbuchung_modus_' + option);
+            if (radio) {
+                radio.checked = true;
+                
+                // Konfigurationsanzeige aktualisieren
+                updateConfigVisibility();
+            }
+        });
+    });
+    
+    // Terminbuchungskonfiguration anzeigen/ausblenden
+    function updateConfigVisibility() {
+        // Alle Konfigurationsbereiche ausblenden
+        document.querySelectorAll('.config-section').forEach(section => {
+            section.style.display = 'none';
+        });
+        
+        // Den ausgewählten Konfigurationsbereich anzeigen
+        const selectedOption = document.querySelector('input[name="terminbuchung_modus"]:checked');
+        if (selectedOption) {
+            const option = selectedOption.value;
+            const configSection = document.getElementById(option + '_config');
+            
+            if (configSection) {
+                configSection.style.display = 'block';
+            }
+        }
+    }
+    
+    // Initial die Konfiguration anzeigen
+    updateConfigVisibility();
+    
+    // Bei Änderung der Terminbuchungsoption die Konfigurationsanzeige aktualisieren
+    document.querySelectorAll('input[name="terminbuchung_modus"]').forEach(radio => {
+        radio.addEventListener('change', updateConfigVisibility);
+    });
+    
+    // Initial die Kachel für die ausgewählte Option markieren
+    const selectedRadio = document.querySelector('input[name="terminbuchung_modus"]:checked');
+    if (selectedRadio) {
+        const option = selectedRadio.value;
+        const card = document.querySelector(`.booking-option-card[data-option="${option}"]`);
+        if (card) {
+            card.classList.add('selected');
+        }
+    }
+    
+    // API-Schlüssel generieren
+    const generateApiKeyBtn = document.getElementById('generate_api_key');
+    if (generateApiKeyBtn) {
+        generateApiKeyBtn.addEventListener('click', function() {
+            const apiKeyInput = document.getElementById('api_key');
+            if (apiKeyInput) {
+                // Zufälligen API-Schlüssel generieren (24 Zeichen)
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let apiKey = '';
+                for (let i = 0; i < 24; i++) {
+                    apiKey += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                apiKeyInput.value = apiKey;
+            }
+        });
+    }
+    
+    // Endpunkte kopieren
+    const copyButtons = document.querySelectorAll('.copy-btn');
+    copyButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const endpoint = this.dataset.endpoint;
+            
+            // Text in die Zwischenablage kopieren
+            navigator.clipboard.writeText(endpoint).then(() => {
+                // Bestätigung anzeigen
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i>';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 1500);
+            });
+        });
+    });
+    
+    // Teammitglieder hinzufügen/entfernen
+    const addTeamBtn = document.getElementById('add-team');
+    if (addTeamBtn) {
+        addTeamBtn.addEventListener('click', function() {
+            const teamContainer = document.getElementById('team-container');
+            const teamItems = teamContainer.querySelectorAll('.team-item');
+            const newItem = teamItems[0].cloneNode(true);
+            
+            // Eingabefelder leeren
+            newItem.querySelectorAll('input[type="text"], textarea').forEach(input => {
+                input.value = '';
+            });
+            
+            // Foto-Input zurücksetzen
+            newItem.querySelector('input[type="file"]').value = '';
+            
+            // Alten Bild-Hinweis entfernen, falls vorhanden
+            const formText = newItem.querySelector('.form-text');
+            if (formText) {
+                formText.remove();
+            }
+            
+            teamContainer.appendChild(newItem);
+            
+            // Event-Listener für den Entfernen-Button
+            newItem.querySelector('.remove-team').addEventListener('click', function() {
+                if (teamContainer.querySelectorAll('.team-item').length > 1) {
+                    this.closest('.team-item').remove();
+                }
+            });
+        });
+    }
+    
+    // Event-Listeners für bestehende Entfernen-Buttons
+    document.querySelectorAll('.remove-team').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const teamContainer = document.getElementById('team-container');
+            if (teamContainer.querySelectorAll('.team-item').length > 1) {
+                this.closest('.team-item').remove();
+            }
+        });
+    });
+    
+    // Leistungen hinzufügen/entfernen
+    const addLeistungBtn = document.getElementById('add-leistung');
+    if (addLeistungBtn) {
+        addLeistungBtn.addEventListener('click', function() {
+            const leistungenContainer = document.getElementById('leistungen-container');
+            const leistungItems = leistungenContainer.querySelectorAll('.leistung-item');
+            const newItem = leistungItems[0].cloneNode(true);
+            
+            // Eingabefelder leeren
+            newItem.querySelectorAll('input[type="text"], textarea').forEach(input => {
+                input.value = '';
+            });
+            
+            leistungenContainer.appendChild(newItem);
+            
+            // Event-Listener für den Entfernen-Button
+            newItem.querySelector('.remove-leistung').addEventListener('click', function() {
+                if (leistungenContainer.querySelectorAll('.leistung-item').length > 1) {
+                    this.closest('.leistung-item').remove();
+                }
+            });
+        });
+    }
+    
+    // Event-Listeners für bestehende Entfernen-Buttons für Leistungen
+    document.querySelectorAll('.remove-leistung').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const leistungenContainer = document.getElementById('leistungen-container');
+            if (leistungenContainer.querySelectorAll('.leistung-item').length > 1) {
+                this.closest('.leistung-item').remove();
+            }
+        });
+    });
+    
+    // Geschlossene Tage bei Öffnungszeiten
+    document.querySelectorAll('.closed-day').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const timeInputGroup = this.closest('.opening-hours-row').querySelector('.time-input-group');
+            if (this.checked) {
+                timeInputGroup.style.display = 'none';
+            } else {
+                timeInputGroup.style.display = 'flex';
+            }
+        });
+    });
+    
+    // Debug: Form submit handler
+    const praxisForm = document.getElementById('praxis-form');
+    if (praxisForm) {
+        praxisForm.addEventListener('submit', function(e) {
+            console.log('Form wird abgeschickt...');
+            console.log('Form action:', this.action);
+            console.log('Form method:', this.method);
+            
+            // Alle Formularfelder loggen
+            const formData = new FormData(this);
+            for (let [key, value] of formData.entries()) {
+                console.log(key + ': ' + value);
+            }
+        });
+    }
+    
+    // Debug: Final submit button click
+    const finalSubmitBtn = document.getElementById('final-submit-btn');
+    if (finalSubmitBtn) {
+        finalSubmitBtn.addEventListener('click', function(e) {
+            console.log('Final submit button geklickt!');
+            
+            // Prüfen ob AGB angehakt
+            const agbCheckbox = document.getElementById('agb_confirm');
+            if (agbCheckbox && !agbCheckbox.checked) {
+                console.log('WARNUNG: AGB nicht angehakt!');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

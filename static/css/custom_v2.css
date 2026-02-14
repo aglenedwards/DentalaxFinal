@@ -1,0 +1,1074 @@
+/* Custom Farben für Dentalax */
+
+/* ========================================
+   FLOATING NAVIGATION STYLES
+   ======================================== */
+
+/* Floating Pill Navigation - Desktop */
+.listing-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  background: #fff;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.listing-nav .nav-link {
+  color: #333;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: color 0.3s ease;
+  white-space: nowrap;
+}
+
+.listing-nav .nav-link:hover {
+  color: var(--dental-primary);
+}
+
+.listing-nav .dropdown-menu {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  margin-top: 0.5rem;
+}
+
+.floating-nav {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 3rem);
+  max-width: 1320px;
+  z-index: 1050;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 1.25rem 2.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+}
+
+.floating-nav.scrolled {
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Floating Nav - Tablet/Smaller Desktop Anpassung */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .floating-nav {
+    padding: 0.75rem 1.5rem;
+  }
+  
+  .floating-nav .nav-link {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.88rem;
+  }
+  
+  .floating-nav .nav-main-links .nav-link {
+    padding: 0.4rem 0.8rem;
+  }
+  
+  .floating-nav .nav-separator {
+    margin: 0 0.5rem;
+  }
+  
+  .floating-nav .navbar-brand img,
+  .floating-nav > a > img {
+    height: 45px !important;
+  }
+  
+  .floating-nav .button-shimmer {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.85rem;
+  }
+}
+
+/* Navigation Links */
+.floating-nav .nav-link {
+  color: #4a5568;
+  font-weight: 500;
+  padding: 0.5rem 1.1rem;
+  position: relative;
+  transition: color 0.25s ease, background 0.25s ease;
+  white-space: nowrap;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+
+.floating-nav .nav-main-links .nav-link {
+  padding: 0.5rem 1.25rem;
+}
+
+.floating-nav .nav-link:hover {
+  color: var(--dental-primary);
+  background: rgba(42, 130, 148, 0.08);
+}
+
+.floating-nav .nav-separator {
+  display: inline-block;
+  width: 1px;
+  height: 20px;
+  background: linear-gradient(180deg, transparent, #cbd5e0, transparent);
+  margin: 0 0.4rem;
+  flex-shrink: 0;
+}
+
+.floating-nav .nav-separator-item {
+  display: flex;
+  align-items: center;
+  list-style: none;
+}
+
+/* Shimmer Button Animation */
+.button-shimmer {
+  background: linear-gradient(135deg, #35bfd6 0%, #2aa5bb 50%, #35bfd6 100%);
+  background-size: 200% 200%;
+  animation: buttonShimmer 3s ease-in-out infinite;
+  border: none;
+  color: white;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button-shimmer:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(53, 191, 214, 0.4);
+  color: white;
+}
+
+@keyframes buttonShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Geo Button - Gradient Animation nur beim Hover */
+.btn-geo-hover {
+  background: transparent;
+  color: var(--dental-primary);
+  border-color: var(--dental-primary);
+  animation: none;
+  transition: all 0.3s ease;
+}
+
+.btn-geo-hover:hover {
+  background: linear-gradient(135deg, #35bfd6 0%, #2aa5bb 50%, #35bfd6 100%);
+  background-size: 200% 200%;
+  animation: buttonShimmer 3s ease-in-out infinite;
+  border-color: transparent;
+  color: white !important;
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(53, 191, 214, 0.4);
+}
+
+/* Logo Text Styling */
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.logo-text .logo-dental {
+  color: var(--dental-primary);
+}
+
+.logo-text .logo-ax {
+  color: #1a2744;
+}
+
+/* Mobile Navigation */
+.mobile-nav-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 0.75rem 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.mobile-nav-header.scrolled {
+  background: rgba(255, 255, 255, 0.98);
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  z-index: 1060;
+  padding: 4rem 2rem 2rem;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+.mobile-menu-overlay.active {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.mobile-menu-overlay .nav-link {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.mobile-menu-overlay .nav-link:hover {
+  color: var(--dental-primary);
+  padding-left: 0.5rem;
+}
+
+.mobile-menu-overlay .nav-link i {
+  width: 24px;
+  text-align: center;
+}
+
+.mobile-menu-logo {
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--dental-primary);
+  margin-bottom: 1rem;
+}
+
+.mobile-menu-divider {
+  height: 1px;
+  background: linear-gradient(90deg, var(--dental-primary) 0%, transparent 100%);
+  margin: 1rem 0;
+  opacity: 0.3;
+}
+
+.mobile-menu-group .nav-link:last-child {
+  border-bottom: none;
+}
+
+.mobile-menu-cta .btn {
+  font-size: 1.1rem;
+  box-shadow: 0 4px 15px rgba(53, 191, 214, 0.3);
+}
+
+/* Dropdown für Floating Nav */
+.floating-nav .dropdown-menu {
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  margin-top: 0.5rem;
+}
+
+/* Hero animierter Gradient-Hintergrund */
+.impressive-gradient {
+  background: linear-gradient(135deg, 
+    #212a37 0%,         /* Dunkles Blau-Grau (Start) */
+    #2a8294 25%,        /* CI-Dunkelblau */
+    #35bfd6 50%,        /* CI-Blau (dental-primary) */
+    #5dd3e4 75%,        /* helles Cyan */
+    #212a37 100%);      /* wieder dunkles Blau-Grau */
+  background-size: 300% 300%;
+  animation: gradientShift 8s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Gradient Text für Paketüberschriften */
+.text-gradient {
+  background: linear-gradient(135deg, #2a8294 0%, #35bfd6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+:root {
+  /* Definition der Dentalax-Farben */
+  --dental-primary: #40bfd8;
+  --dental-primary-dark: #2a8294;
+  --dental-secondary: #2a8294;
+  --dental-dark: #333333;
+  
+  /* Bootstrap-Farben überschreiben */
+  --bs-primary: #40bfd8;
+  --bs-primary-rgb: 64, 191, 216;
+  --bs-secondary: #2a8294;
+  --bs-secondary-rgb: 42, 130, 148;
+  
+  /* Link-Farben */
+  --bs-link-color: #40bfd8;
+  --bs-link-hover-color: #2a8294;
+}
+
+/* Globale Farbüberschreibungen */
+.bg-primary {
+  background-color: #40bfd8 !important;
+}
+
+.text-primary {
+  color: #40bfd8 !important;
+}
+
+.border-primary {
+  border-color: #40bfd8 !important;
+}
+
+.btn-primary {
+  --bs-btn-bg: #40bfd8;
+  --bs-btn-border-color: #40bfd8;
+  --bs-btn-hover-bg: #2a8294;
+  --bs-btn-hover-border-color: #2a8294;
+  --bs-btn-active-bg: #2a8294;
+  --bs-btn-active-border-color: #2a8294;
+  --bs-btn-disabled-bg: #95d7e5;
+  --bs-btn-disabled-border-color: #95d7e5;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: #40bfd8;
+  --bs-btn-border-color: #40bfd8;
+  --bs-btn-hover-bg: #40bfd8;
+  --bs-btn-hover-border-color: #40bfd8;
+  --bs-btn-active-bg: #40bfd8;
+  --bs-btn-active-border-color: #40bfd8;
+  --bs-btn-disabled-color: #40bfd8;
+  --bs-btn-disabled-border-color: #40bfd8;
+}
+
+/* Spezielle Korrekturen für den Slider und andere Elemente */
+.form-range::-webkit-slider-thumb {
+  background-color: #40bfd8; 
+}
+.form-range::-moz-range-thumb {
+  background-color: #40bfd8;
+}
+.form-range::-ms-thumb {
+  background-color: #40bfd8;
+}
+
+.badge.bg-primary {
+  background-color: #40bfd8 !important;
+}
+
+/* Korrektur für die CTA-Sektion */
+section[style*="background-color: var(--dental-primary)"] {
+  background-color: #40bfd8 !important;
+}
+
+/* Modernisiertes Design für Praxis-Formular-Wizard */
+/* Grundstil für die Fortschrittsanzeige */
+.progress-container {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.progress {
+  height: 0.5rem;
+  background-color: #e9ecef;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.progress-bar {
+  transition: width 0.4s ease;
+}
+
+/* Fortschrittsschritte styling */
+.progress-steps {
+  position: relative;
+  padding: 0;
+  margin: 1.5rem 0 0;
+}
+
+.progress-step {
+  position: relative;
+  text-align: center;
+  padding: 0;
+  flex: 1;
+}
+
+.step-circle {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  border: 2px solid transparent;
+}
+
+.step-label {
+  color: #6c757d;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+/* Aktiver Schritt */
+.progress-step.active .step-circle {
+  background-color: #40bfd8;
+  color: white !important;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(64, 191, 216, 0.3);
+}
+
+.progress-step.active .step-label {
+  color: #40bfd8;
+  font-weight: 600;
+}
+
+/* Abgeschlossener Schritt */
+.progress-step.completed .step-circle {
+  background-color: #2a8294;
+  color: white !important;
+}
+
+.progress-step.completed .step-label {
+  color: #2a8294;
+}
+
+/* Hover-Effekt für die Schritte */
+.progress-step:hover .step-circle {
+  transform: scale(1.05);
+}
+
+/* Moderne Effekte für die Leistungsboxen auf Zahnarzt-Landingpage */
+.transform-on-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.transform-on-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.07) !important;
+}
+
+.transform-on-hover:hover .transition-icon {
+  color: white !important;
+}
+
+.transform-on-hover:hover .d-inline-flex {
+  background-color: var(--dental-primary) !important;
+}
+
+.opacity-10 {
+  opacity: 0.1;
+}
+
+.z-index-1 {
+  z-index: 1;
+}
+
+.transform-on-hover:hover .transform-scale {
+  transform: scale(1.2) translate(0, 0) !important;
+}
+
+.transition-icon {
+  transition: all 0.3s ease;
+}
+
+/* Neue Styles für moderne Kachel-Auswahl */
+.booking-option-card {
+  transition: all 0.3s ease;
+  border: 2px solid #e9ecef;
+  cursor: pointer;
+  height: 100%;
+}
+
+.booking-option-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  border-color: rgba(64, 191, 216, 0.3);
+}
+
+.booking-option-card.selected {
+  border-color: #40bfd8;
+  background-color: rgba(64, 191, 216, 0.05);
+  box-shadow: 0 10px 20px rgba(64, 191, 216, 0.15);
+}
+
+.api-config-container {
+  background: rgba(64, 191, 216, 0.05);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(64, 191, 216, 0.2);
+  margin-top: 1rem;
+  display: none;
+}
+
+.api-config-container h5 {
+  color: #2a8294;
+  margin-bottom: 1rem;
+}
+
+.api-endpoint-box {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-family: monospace;
+  margin-bottom: 1rem;
+  border: 1px solid #dee2e6;
+}
+
+.copy-btn {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+  color: #40bfd8;
+}
+
+.fs-5 {
+  font-size: 1.25rem !important;
+}
+/* Kachelkarten für Terminbuchungsoptionen */
+.booking-option-card {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 20px;
+    height: 100%;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background-color: #fff;
+}
+
+.booking-option-card:hover {
+    border-color: #40bfd8;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.booking-option-card.selected {
+    border-color: #40bfd8;
+    background-color: #f0fafc;
+    box-shadow: 0 5px 15px rgba(64, 191, 216, 0.2);
+}
+
+.booking-option-card .option-icon {
+    font-size: 2.2rem;
+    margin-bottom: 15px;
+    color: #40bfd8;
+}
+
+.booking-option-card h5 {
+    margin-bottom: 10px;
+    color: #2a8294;
+}
+
+.booking-option-card p {
+    color: #6c757d;
+    flex-grow: 1;
+    font-size: 0.9rem;
+}
+
+/* API-Endpunkte Stil */
+.api-endpoint-box {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.api-endpoint-box code {
+    display: block;
+    color: #2a8294;
+    font-size: 0.9rem;
+}
+
+.copy-btn {
+    cursor: pointer;
+    color: #40bfd8;
+    transition: color 0.2s;
+}
+
+.copy-btn:hover {
+    color: #2a8294;
+}
+
+/* Konfigurationscontainer */
+.config-section {
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Moderne Navigations-Styles */
+.header-modern .navbar {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.header-modern .navbar-nav .nav-item {
+  position: relative;
+  margin: 0 0.25rem;
+}
+
+.header-modern .nav-link {
+  font-weight: 500;
+  padding: 0.75rem 0.5rem;
+  position: relative;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.header-modern .nav-link:before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0.5rem;
+  right: 0.5rem;
+  height: 3px;
+  background-color: #40bfd8;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.header-modern .nav-link.active:before,
+.header-modern .nav-link:hover:before {
+  transform: scaleX(1);
+}
+
+.header-modern .nav-link.active,
+.header-modern .nav-link:hover {
+  color: #40bfd8 !important;
+}
+
+.header-modern .dropdown-animation {
+  animation: fadeInUp 0.3s ease;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border: none;
+  border-radius: 0.5rem;
+}
+
+.header-modern .dropdown-item {
+  padding: 0.75rem 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.header-modern .dropdown-item:hover {
+  background-color: #f0f9fb;
+  transform: translateX(5px);
+}
+
+.header-modern .dropdown-item i {
+  transition: transform 0.2s ease;
+}
+
+.header-modern .dropdown-item:hover i {
+  transform: translateX(3px);
+}
+
+.logo-animation {
+  transition: transform 0.3s ease;
+}
+
+.logo-animation:hover {
+  transform: scale(1.05);
+}
+
+.nav-btn-animation {
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(64, 191, 216, 0.3);
+}
+
+.nav-btn-animation:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(64, 191, 216, 0.4);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tablet Navigation - reduzierte Abstände für einzeilige Darstellung */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .header-modern .navbar-nav .nav-item {
+    margin: 0 0.1rem;
+  }
+  
+  .header-modern .nav-link {
+    padding: 0.5rem 0.35rem;
+    font-size: 0.9rem;
+  }
+  
+  .header-modern .navbar-brand img {
+    max-height: 35px;
+  }
+  
+  .nav-btn-animation {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .header-modern .navbar-nav .nav-item {
+    margin: 0;
+  }
+  
+  .header-modern .nav-link:before {
+    display: none;
+  }
+  
+  .header-modern .navbar-nav {
+    padding: 1rem 0;
+  }
+  
+  .header-modern .navbar-nav .nav-item:not(:last-child) {
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+}
+
+/* ============================================= */
+/* WIZARD MOBILE RESPONSIVE STYLES - v2025-12-25 */
+/* ============================================= */
+@media (max-width: 768px) {
+    .wizard-container {
+        padding: 1rem 0 !important;
+    }
+    
+    .wizard-header {
+        padding: 1.5rem 1rem !important;
+    }
+    
+    .wizard-header h3 {
+        font-size: 1.25rem !important;
+    }
+    
+    .wizard-body {
+        padding: 1.5rem 1rem !important;
+    }
+    
+    .progress-step-container {
+        margin-bottom: 1.5rem !important;
+        padding: 0 !important;
+    }
+    
+    .step-circles {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding-bottom: 0.5rem !important;
+        gap: 0.25rem !important;
+    }
+    
+    .step-circles .nav-item {
+        flex: 0 0 auto !important;
+        min-width: 50px !important;
+    }
+    
+    .step-circles .nav-item .step-circle {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 0.9rem !important;
+        margin-bottom: 6px !important;
+    }
+    
+    /* LABELS AUSBLENDEN AUF MOBILE - WICHTIG! */
+    .step-circles .nav-item .step-label,
+    .step-label {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    .step-header {
+        margin-bottom: 1.5rem !important;
+        padding-bottom: 0.75rem !important;
+    }
+    
+    .step-header h4 {
+        font-size: 1.2rem !important;
+    }
+    
+    .wizard-nav {
+        flex-direction: column-reverse !important;
+        gap: 0.75rem !important;
+        margin-top: 1.5rem !important;
+        padding-top: 1rem !important;
+    }
+    
+    .btn-wizard {
+        width: 100% !important;
+        padding: 0.875rem 1.5rem !important;
+        text-align: center !important;
+    }
+    
+    .booking-option-card {
+        padding: 15px !important;
+    }
+    
+    .booking-option-card .option-icon {
+        font-size: 1.8rem !important;
+        margin-bottom: 10px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .step-circles .nav-item .step-circle {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 0.85rem !important;
+        border-width: 2px !important;
+    }
+    
+    .step-circles .nav-item {
+        min-width: 42px !important;
+    }
+    
+    .form-control, .form-select {
+        padding: 0.65rem 0.85rem !important;
+        font-size: 16px !important;
+    }
+    
+    .form-floating > .form-control,
+    .form-floating > .form-select {
+        padding-top: 1.625rem !important;
+        padding-bottom: 0.625rem !important;
+        height: calc(3.5rem + 2px) !important;
+    }
+}
+
+/* ===== Konsistente CI-Farben (Türkis) ===== */
+
+/* Links */
+a {
+  color: #40bfd8;
+}
+a:hover {
+  color: #2a8294;
+}
+
+/* Checkboxen und Radio-Buttons */
+.form-check-input:checked {
+  background-color: #40bfd8;
+  border-color: #40bfd8;
+}
+.form-check-input:focus {
+  border-color: #40bfd8;
+  box-shadow: 0 0 0 0.25rem rgba(64, 191, 216, 0.25);
+}
+
+/* Dropdown-Menü */
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: rgba(64, 191, 216, 0.15);
+  color: #2a8294;
+}
+.dropdown-item.active,
+.dropdown-item:active {
+  background-color: #40bfd8;
+  color: #fff;
+}
+
+/* Select-Option Hover (Browser-spezifisch) */
+.form-select:focus {
+  border-color: #40bfd8;
+  box-shadow: 0 0 0 0.25rem rgba(64, 191, 216, 0.25);
+}
+
+/* Pagination */
+.page-link {
+  color: #40bfd8;
+}
+.page-link:hover {
+  color: #2a8294;
+  background-color: rgba(64, 191, 216, 0.1);
+}
+.page-item.active .page-link {
+  background-color: #40bfd8;
+  border-color: #40bfd8;
+  color: #fff;
+}
+.page-link:focus {
+  box-shadow: 0 0 0 0.25rem rgba(64, 191, 216, 0.25);
+}
+
+/* Focus-States für Formularfelder */
+.form-control:focus {
+  border-color: #40bfd8;
+  box-shadow: 0 0 0 0.25rem rgba(64, 191, 216, 0.25);
+}
+
+/* Job-Titel Links */
+.job-title {
+  color: #40bfd8 !important;
+}
+.job-title:hover {
+  color: #2a8294 !important;
+}
+
+/* Dashboard Navigation - list-group-item Stile */
+.list-group-item-action:active,
+.list-group-item-action:focus {
+  background-color: rgba(53, 191, 214, 0.15) !important;
+  border-color: #35bfd6 !important;
+  color: #2a8294 !important;
+}
+
+.list-group-item-action.active {
+  background-color: #35bfd6 !important;
+  border-color: #35bfd6 !important;
+  color: #fff !important;
+}
+
+.list-group-item-action:hover {
+  background-color: rgba(53, 191, 214, 0.1);
+  color: #2a8294;
+}
+
+/* Mobile Hero Section Anpassungen */
+@media (max-width: 768px) {
+  .impressive-gradient {
+    padding-top: 8rem !important;
+  }
+  
+  .mobile-nav-header .navbar-brand img {
+    height: 60px !important;
+  }
+  
+  /* Burger Menü in CI Blau */
+  .mobile-nav-header .navbar-toggler {
+    border-color: var(--dental-primary) !important;
+  }
+  
+  .mobile-nav-header .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%232a8294' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+  }
+}
+
+/* ========================================
+   FÜR-ZAHNÄRZTE SEITE - Mobile Optimierung
+   ======================================== */
+
+/* Verhindere horizontales Scrolling */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Mobile-spezifische Anpassungen für /fuer-zahnaerzte */
+@media (max-width: 991px) {
+  /* Floating Badge-Elemente auf Tablets/Mobile ausblenden */
+  .position-absolute.shadow-lg {
+    display: none !important;
+  }
+  
+  /* Hero-Section Padding reduzieren */
+  section.impressive-gradient[style*="padding: 14rem"] {
+    padding: 8rem 0 4rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Überschriften responsive */
+  .display-4 {
+    font-size: 2rem !important;
+  }
+  
+  .display-5 {
+    font-size: 1.75rem !important;
+  }
+  
+  .display-6 {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Lead-Text kleiner */
+  .lead.fs-4 {
+    font-size: 1.1rem !important;
+  }
+  
+  /* Cards in Hero-Section */
+  .hover-card .card-body {
+    padding: 1rem !important;
+  }
+  
+  .hover-card h3.h5 {
+    font-size: 1rem !important;
+  }
+  
+  /* Container volle Breite */
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  /* Bilder responsive */
+  .img-fluid.rounded-4 {
+    max-height: 300px !important;
+  }
+  
+  /* Abschnitte Padding */
+  section.py-5 {
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+  
+  /* Text-Abstände in Sektionen */
+  .ps-lg-5, .pe-lg-5 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Noch kleinere Überschriften auf sehr kleinen Screens */
+  .display-4 {
+    font-size: 1.75rem !important;
+  }
+  
+  .display-5 {
+    font-size: 1.5rem !important;
+  }
+  
+  .display-6 {
+    font-size: 1.25rem !important;
+  }
+  
+  /* Buttons */
+  .btn-lg {
+    padding: 0.6rem 1.5rem !important;
+    font-size: 1rem !important;
+  }
+  
+  /* Hero Cards im Stack */
+  .row.g-4 > [class*="col-md-4"] {
+    margin-bottom: 1rem;
+  }
+}

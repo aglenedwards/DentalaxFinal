@@ -1,0 +1,612 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<section class="pb-5" style="padding-top: 8rem;">
+  <div class="container">
+    <!-- Header-Bereich -->
+    <div class="row mb-4">
+      <div class="col-lg-7">
+        {% if seo_route and seo_h1 %}
+        <h1 class="fw-bold text-gradient mb-1">{{ seo_h1 }}</h1>
+        {% else %}
+        <h1 class="fw-bold text-gradient mb-1">Stellenangebote</h1>
+        {% endif %}
+        {% if seo_route and seo_intro %}
+        <p class="text-muted lead">{{ seo_intro }}</p>
+        {% else %}
+        <p class="text-muted lead">Die besten Jobs in der Zahnmedizin in ganz Deutschland</p>
+        {% endif %}
+      </div>
+      <div class="col-lg-5 d-flex justify-content-lg-end align-items-center mt-3 mt-lg-0">
+        <div class="d-flex gap-2">
+          <a href="/paketwahl" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus-circle me-1"></i> Job inserieren
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Haupt-Content-Layout -->
+    <div class="row">
+      <!-- Linke Spalte: Filter -->
+      <div class="col-lg-3 mb-4 mb-lg-0">
+        <div class="card border-0 shadow-sm sticky-lg-top" style="top: 100px; z-index: 10;">
+          <div class="card-header bg-white py-3 border-0">
+            <h5 class="m-0 fw-bold">
+              <i class="fas fa-filter me-2 text-primary"></i>Jobfilter
+            </h5>
+          </div>
+          <div class="card-body">
+            <form action="/stellenangebote" method="get">
+              <!-- Suchbegriff -->
+              <div class="mb-3">
+                <label for="suchbegriff" class="form-label small text-muted">Suchbegriff</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-white border-end-0">
+                    <i class="fas fa-search text-muted"></i>
+                  </span>
+                  <input type="text" class="form-control border-start-0" id="suchbegriff" name="query" placeholder="z.B. ZFA, Zahnarzt..." value="{{ query }}">
+                </div>
+              </div>
+              
+              <!-- Standort -->
+              <div class="mb-3">
+                <label for="ort" class="form-label small text-muted">Ort / PLZ</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-white border-end-0">
+                    <i class="fas fa-map-marker-alt text-muted"></i>
+                  </span>
+                  <input type="text" class="form-control border-start-0" id="ort" name="ort" placeholder="z.B. Berlin oder 10115" value="{{ ort }}">
+                </div>
+              </div>
+              
+              <!-- Umkreis -->
+              <div class="mb-3">
+                <label for="umkreis" class="form-label small text-muted">Umkreis</label>
+                <select id="umkreis" name="umkreis" class="form-select">
+                  <option value="5" {% if umkreis == 5 or umkreis == 5.0 %}selected{% endif %}>5 km</option>
+                  <option value="10" {% if umkreis == 10 or umkreis == 10.0 %}selected{% endif %}>10 km</option>
+                  <option value="25" {% if umkreis == 25 or umkreis == 25.0 or not umkreis %}selected{% endif %}>25 km</option>
+                  <option value="50" {% if umkreis == 50 or umkreis == 50.0 %}selected{% endif %}>50 km</option>
+                  <option value="100" {% if umkreis == 100 or umkreis == 100.0 %}selected{% endif %}>100 km</option>
+                </select>
+              </div>
+              
+              <!-- Position -->
+              <div class="mb-3">
+                <label for="position" class="form-label small text-muted">Position</label>
+                <select id="position" name="position" class="form-select">
+                  <option value="">Alle Positionen</option>
+                  <optgroup label="Fachpersonal">
+                    <option value="zfa" {% if position == 'zfa' %}selected{% endif %}>ZFA (Zahnmed. Fachangestellte)</option>
+                    <option value="zmf" {% if position == 'zmf' %}selected{% endif %}>ZMF (Fachassistentin)</option>
+                    <option value="zmv" {% if position == 'zmv' %}selected{% endif %}>ZMV (Verwaltungsassistentin)</option>
+                    <option value="zmp" {% if position == 'zmp' %}selected{% endif %}>ZMP (Prophylaxeassistentin)</option>
+                    <option value="dh" {% if position == 'dh' %}selected{% endif %}>Dentalhygieniker/in</option>
+                    <option value="prophylaxe" {% if position == 'prophylaxe' %}selected{% endif %}>Prophylaxe-Assistent/in</option>
+                  </optgroup>
+                  <optgroup label="Zahnärzte">
+                    <option value="zahnarzt" {% if position == 'zahnarzt' %}selected{% endif %}>Zahnarzt/Zahnärztin</option>
+                  </optgroup>
+                  <optgroup label="Spezialisten">
+                    <option value="kfo" {% if position == 'kfo' %}selected{% endif %}>Kieferorthopäde/in</option>
+                    <option value="oralchirurg" {% if position == 'oralchirurg' %}selected{% endif %}>Oralchirurg/in / MKG</option>
+                    <option value="implantologe" {% if position == 'implantologe' %}selected{% endif %}>Implantologe/in</option>
+                    <option value="endodontologe" {% if position == 'endodontologe' %}selected{% endif %}>Endodontologe/in</option>
+                    <option value="parodontologe" {% if position == 'parodontologe' %}selected{% endif %}>Parodontologe/in</option>
+                  </optgroup>
+                  <optgroup label="Labor & Technik">
+                    <option value="zahntechniker" {% if position == 'zahntechniker' %}selected{% endif %}>Zahntechniker/in</option>
+                  </optgroup>
+                  <optgroup label="Management & Verwaltung">
+                    <option value="praxismanager" {% if position == 'praxismanager' %}selected{% endif %}>Praxismanager/in</option>
+                    <option value="rezeption" {% if position == 'rezeption' %}selected{% endif %}>Rezeption / Empfang</option>
+                    <option value="abrechnung" {% if position == 'abrechnung' %}selected{% endif %}>Abrechnung</option>
+                    <option value="verwaltung" {% if position == 'verwaltung' %}selected{% endif %}>Verwaltung</option>
+                  </optgroup>
+                  <optgroup label="Ausbildung & Sonstige">
+                    <option value="azubi" {% if position == 'azubi' %}selected{% endif %}>Auszubildende/r</option>
+                    <option value="sonstige" {% if position == 'sonstige' %}selected{% endif %}>Sonstige</option>
+                  </optgroup>
+                </select>
+              </div>
+              
+              <!-- Anstellungsart -->
+              <div class="mb-3">
+                <label class="form-label small text-muted d-block">Anstellungsart</label>
+                <div class="d-flex flex-wrap gap-2">
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="vollzeit" name="vollzeit" {% if vollzeit_checked %}checked{% endif %}>
+                    <label class="form-check-label" for="vollzeit">Vollzeit</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="teilzeit" name="teilzeit" {% if teilzeit_checked %}checked{% endif %}>
+                    <label class="form-check-label" for="teilzeit">Teilzeit</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="ausbildung" name="ausbildung" {% if ausbildung_checked %}checked{% endif %}>
+                    <label class="form-check-label" for="ausbildung">Ausbildung</label>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Erfahrungslevel -->
+              <div class="mb-3">
+                <label class="form-label small text-muted d-block">Erfahrungslevel</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="berufseinsteiger" name="berufseinsteiger" checked>
+                  <label class="form-check-label" for="berufseinsteiger">Berufseinsteiger</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="erfahren" name="erfahren" checked>
+                  <label class="form-check-label" for="erfahren">Mit Berufserfahrung</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="leitend" name="leitend" checked>
+                  <label class="form-check-label" for="leitend">Leitende Position</label>
+                </div>
+              </div>
+              
+              <!-- Aktionsbuttons -->
+              <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-search me-1"></i> Jobs finden
+                </button>
+                <button type="reset" class="btn btn-outline-secondary">
+                  <i class="fas fa-undo me-1"></i> Filter zurücksetzen
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Rechte Spalte: Ergebnisse -->
+      <div class="col-lg-9">
+        <!-- Info-Box -->
+        <div class="alert alert-info border-0 bg-light d-flex align-items-center mb-4" role="alert">
+          <div class="me-3 fs-4 text-primary">
+            <i class="fas fa-search"></i>
+          </div>
+          <div>
+            <strong>{{ total_jobs }} Job{% if total_jobs != 1 %}s{% endif %} gefunden</strong> für deine Suche
+            {% if premium_count > 0 or extern_count > 0 %}
+            <span class="fw-normal">
+              ({{ premium_count }} Premium{% if extern_count > 0 %}, {{ extern_count }} weitere{% endif %})
+            </span>
+            {% endif %}
+          </div>
+        </div>
+        
+        <!-- Sortieroption und Anzeigemodus -->
+        {% set base_params = [] %}
+        {% if query %}{% set _ = base_params.append('query=' + query) %}{% endif %}
+        {% if position %}{% set _ = base_params.append('position=' + position) %}{% endif %}
+        {% if ort %}{% set _ = base_params.append('ort=' + ort) %}{% endif %}
+        {% if umkreis %}{% set _ = base_params.append('umkreis=' + (umkreis|string)) %}{% endif %}
+        {% if vollzeit_checked %}{% set _ = base_params.append('vollzeit=on') %}{% endif %}
+        {% if teilzeit_checked %}{% set _ = base_params.append('teilzeit=on') %}{% endif %}
+        {% if ausbildung_checked %}{% set _ = base_params.append('ausbildung=on') %}{% endif %}
+        {% set base_query = base_params|join('&') %}
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="dropdown">
+            <button class="btn btn-sm btn-light border dropdown-toggle shadow-sm" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-sort me-1"></i> Sortieren nach: 
+              <span class="fw-medium">
+                {% if sortierung == 'naechste' %}Nächste zuerst{% elif sortierung == 'relevanz' %}Relevanz{% else %}Neuste zuerst{% endif %}
+              </span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+              <li><a class="dropdown-item {% if not sortierung or sortierung == 'neuste' %}active{% endif %}" href="?{{ base_query }}{% if base_query %}&{% endif %}sortierung=neuste&ansicht={{ ansicht or 'liste' }}"><i class="fas fa-calendar-alt me-2"></i> Neuste zuerst</a></li>
+              {% if ort %}<li><a class="dropdown-item {% if sortierung == 'naechste' %}active{% endif %}" href="?{{ base_query }}{% if base_query %}&{% endif %}sortierung=naechste&ansicht={{ ansicht or 'liste' }}"><i class="fas fa-map-marker-alt me-2"></i> Nächste zuerst</a></li>{% endif %}
+              <li><a class="dropdown-item {% if sortierung == 'relevanz' %}active{% endif %}" href="?{{ base_query }}{% if base_query %}&{% endif %}sortierung=relevanz&ansicht={{ ansicht or 'liste' }}"><i class="fas fa-star me-2"></i> Relevanz</a></li>
+            </ul>
+          </div>
+          
+          <div class="btn-group" role="group" aria-label="Anzeigeoptionen">
+            <a href="?{{ base_query }}{% if base_query %}&{% endif %}sortierung={{ sortierung or 'neuste' }}&ansicht=liste" class="btn btn-sm btn-light border shadow-sm {% if not ansicht or ansicht == 'liste' %}active{% endif %}" aria-label="Listenansicht">
+              <i class="fas fa-list"></i>
+            </a>
+            <a href="?{{ base_query }}{% if base_query %}&{% endif %}sortierung={{ sortierung or 'neuste' }}&ansicht=kachel" class="btn btn-sm btn-light border shadow-sm {% if ansicht == 'kachel' %}active{% endif %}" aria-label="Kachelansicht">
+              <i class="fas fa-th-large"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Stellenangebote -->
+        {% if ansicht == 'kachel' %}
+        <!-- Kachel-Ansicht -->
+        <div class="row g-3 job-grid">
+          {% if jobs %}
+            {% for job in jobs %}
+            {% if job.ist_extern %}
+            <!-- Externes Inserat Kachel -->
+            <div class="col-md-6 col-lg-4">
+              <div class="card h-100" style="border: 2px dashed #adb5bd; background: #f8f9fa;">
+                <div class="card-body d-flex flex-column">
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-external-link-alt text-muted me-2"></i>
+                    <small class="text-muted fw-bold">{{ job.quelle or 'Extern' }}</small>
+                  </div>
+                  <div class="mb-2">
+                    {% if job.anstellungsart == 'vollzeit' %}
+                      <span class="badge bg-success small">{{ job.anstellungsart_display }}</span>
+                    {% elif job.anstellungsart == 'teilzeit' %}
+                      <span class="badge bg-info text-white small">{{ job.anstellungsart_display }}</span>
+                    {% else %}
+                      <span class="badge bg-secondary small">{{ job.anstellungsart_display }}</span>
+                    {% endif %}
+                  </div>
+                  <h6 class="card-title mb-2">
+                    <a href="{{ job.externe_url }}" target="_blank" rel="noopener" class="text-decoration-none text-dark">{{ job.titel[:50] }}{% if job.titel|length > 50 %}...{% endif %}</a>
+                  </h6>
+                  <p class="small text-muted mb-2">
+                    <i class="fas fa-building me-1"></i> {{ job.unternehmen[:30] }}{% if job.unternehmen|length > 30 %}...{% endif %}
+                  </p>
+                  {% if job.standort_stadt %}
+                  <p class="small text-muted mb-2">
+                    <i class="fas fa-map-marker-alt me-1"></i> {{ job.standort_stadt }}
+                  </p>
+                  {% endif %}
+                  <div class="mt-auto pt-2">
+                    <a href="{{ job.externe_url }}" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm w-100">
+                      <i class="fas fa-external-link-alt me-1"></i> Zu {{ job.quelle or 'Anzeige' }}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% else %}
+            <!-- Premium Kachel -->
+            <div class="col-md-6 col-lg-4">
+              <div class="card h-100 shadow-sm" style="border: 2px solid #17a2b8;">
+                <div class="card-body d-flex flex-column">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="badge text-white small" style="background: linear-gradient(135deg, #17a2b8, #138496);">
+                      <i class="fas fa-star me-1"></i> Premium
+                    </span>
+                    <small class="text-muted">{{ job.erstellt_am.strftime('%d.%m.%Y') }}</small>
+                  </div>
+                  <div class="mb-2">
+                    {% if job.anstellungsart == 'vollzeit' %}
+                      <span class="badge bg-success small">{{ job.anstellungsart_display }}</span>
+                    {% elif job.anstellungsart == 'teilzeit' %}
+                      <span class="badge bg-info text-white small">{{ job.anstellungsart_display }}</span>
+                    {% else %}
+                      <span class="badge bg-secondary small">{{ job.anstellungsart_display }}</span>
+                    {% endif %}
+                  </div>
+                  <h6 class="card-title mb-2 fw-bold">
+                    <a href="/stellenangebot/{{ job.slug }}" class="text-decoration-none text-dark">{{ job.titel[:50] }}{% if job.titel|length > 50 %}...{% endif %}</a>
+                  </h6>
+                  <p class="small text-muted mb-2">
+                    <i class="fas fa-building me-1 text-primary"></i> {{ job.praxis.name[:30] }}{% if job.praxis.name|length > 30 %}...{% endif %}
+                  </p>
+                  <p class="small text-muted mb-2">
+                    <i class="fas fa-map-marker-alt me-1 text-primary"></i> {{ job.standort_plz }} {{ job.standort_stadt }}
+                  </p>
+                  <div class="mt-auto pt-2">
+                    <a href="/stellenangebot/{{ job.slug }}" class="btn btn-primary btn-sm w-100">
+                      <i class="fas fa-paper-plane me-1"></i> Jetzt bewerben
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+          {% else %}
+            <div class="col-12">
+              <div class="alert alert-warning text-center py-5">
+                <i class="fas fa-search fa-3x mb-3 text-muted"></i>
+                <h4>Keine Stellenangebote gefunden</h4>
+                <p class="text-muted mb-0">Passe deine Suchkriterien an oder versuche es später erneut.</p>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <!-- Listen-Ansicht -->
+        <div class="job-listings">
+          {% if jobs %}
+            {% for job in jobs %}
+            <div class="job-card">
+              {% if job.ist_extern %}
+              <!-- Externes Inserat - deutlich anders gestylt -->
+              <div class="card mb-3 bg-light" style="border: 2px dashed #adb5bd; opacity: 0.9;">
+                <div class="card-body p-0">
+                  <div class="row g-0">
+                    <div class="col-md-2 p-3 text-center d-flex align-items-center justify-content-center" style="background: #e9ecef; border-right: 1px dashed #adb5bd;">
+                      <div class="text-center">
+                        <i class="fas fa-external-link-alt fa-2x mb-2" style="color: #6c757d;"></i>
+                        <div class="fw-bold" style="color: #495057; font-size: 0.85rem;">{{ job.quelle or 'Extern' }}</div>
+                      </div>
+                    </div>
+                    <div class="col-md-7 p-3">
+                      <div class="d-flex gap-2 mb-2 flex-wrap">
+                        {% if job.anstellungsart == 'vollzeit' %}
+                          <span class="badge bg-success">{{ job.anstellungsart_display }}</span>
+                        {% elif job.anstellungsart == 'teilzeit' %}
+                          <span class="badge bg-info text-white">{{ job.anstellungsart_display }}</span>
+                        {% elif job.anstellungsart == 'ausbildung' %}
+                          <span class="badge bg-warning text-dark">{{ job.anstellungsart_display }}</span>
+                        {% else %}
+                          <span class="badge bg-secondary">{{ job.anstellungsart_display }}</span>
+                        {% endif %}
+                        <span class="badge" style="background: #6c757d; color: white;">
+                          <i class="fas fa-external-link-alt me-1"></i> Weiterleitung zu {{ job.quelle or 'externer Seite' }}
+                        </span>
+                      </div>
+                      <h5 class="mb-1"><a href="{{ job.externe_url }}" target="_blank" rel="noopener" class="text-decoration-none" style="color: #495057;">{{ job.titel }}</a></h5>
+                      <p class="text-muted mb-2 company-name">
+                        <i class="fas fa-building me-1"></i> {{ job.unternehmen }}
+                        {% if job.standort_stadt %}
+                        <span class="ms-2 me-2">|</span>
+                        <i class="fas fa-map-marker-alt me-1"></i> {{ job.standort_stadt }}
+                        {% endif %}
+                      </p>
+                      <p class="job-snippet mb-0 small text-muted">{{ job.beschreibung[:150] if job.beschreibung else '' }}{% if job.beschreibung and job.beschreibung|length > 150 %}...{% endif %}</p>
+                      <div class="mt-2">
+                        <span class="badge bg-light text-dark border">{{ job.position_display }}</span>
+                      </div>
+                    </div>
+                    <div class="col-md-3 p-3 d-flex flex-column justify-content-between align-items-end" style="background: #e9ecef;">
+                      {% if job.veroeffentlicht_am %}
+                      <span class="small text-muted"><i class="far fa-calendar-alt me-1"></i> {{ job.veroeffentlicht_am.strftime('%d.%m.%Y') }}</span>
+                      {% elif job.abgerufen_am %}
+                      <span class="small text-muted"><i class="far fa-clock me-1"></i> Aktuell</span>
+                      {% endif %}
+                      <a href="{{ job.externe_url }}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm mt-auto">
+                        <i class="fas fa-external-link-alt me-1"></i> Zu {{ job.quelle or 'Stellenanzeige' }}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% else %}
+              <!-- Premium Dentalax Inserat - hervorgehoben -->
+              <div class="card shadow mb-3" style="border: 2px solid #17a2b8; background: linear-gradient(to right, rgba(23, 162, 184, 0.05), white);">
+                <div class="card-body p-0">
+                  <div class="row g-0">
+                    <div class="col-md-2 p-3 text-center border-end d-flex align-items-center justify-content-center" style="border-color: rgba(23, 162, 184, 0.3) !important;">
+                      {% set portrait = job.praxis.bilder|selectattr('typ', 'equalto', 'portrait')|first %}
+                      {% if portrait %}
+                        <img src="{{ portrait.pfad }}" alt="{{ job.praxis.name }}" class="img-fluid rounded" style="max-height: 80px; object-fit: cover;">
+                      {% else %}
+                        <img src="{{ url_for('static', filename='images/praxis-logo-placeholder.png') }}" alt="Praxislogo" class="img-fluid" style="max-height: 80px;">
+                      {% endif %}
+                    </div>
+                    <div class="col-md-7 p-3">
+                      <div class="d-flex gap-2 mb-2 flex-wrap">
+                        {% if job.anstellungsart == 'vollzeit' %}
+                          <span class="badge bg-success">{{ job.anstellungsart_display }}</span>
+                        {% elif job.anstellungsart == 'teilzeit' %}
+                          <span class="badge bg-info text-white">{{ job.anstellungsart_display }}</span>
+                        {% elif job.anstellungsart == 'ausbildung' %}
+                          <span class="badge bg-warning text-dark">{{ job.anstellungsart_display }}</span>
+                        {% else %}
+                          <span class="badge bg-secondary">{{ job.anstellungsart_display }}</span>
+                        {% endif %}
+                        <span class="badge text-white" style="background: linear-gradient(135deg, #17a2b8, #138496);">
+                          <i class="fas fa-star me-1"></i> Dentalax Premium
+                        </span>
+                        <span class="badge bg-light text-success border-success border">
+                          <i class="fas fa-check-circle me-1"></i> Direkt bewerben
+                        </span>
+                      </div>
+                      <h5 class="mb-1"><a href="/stellenangebot/{{ job.slug }}" class="job-title text-decoration-none text-dark fw-bold">{{ job.titel }}</a></h5>
+                      <p class="text-muted mb-2 company-name">
+                        <i class="fas fa-building me-1 text-primary"></i> {{ job.praxis.name }}
+                        <span class="ms-2 me-2">|</span>
+                        <i class="fas fa-map-marker-alt me-1 text-primary"></i> {{ job.standort_plz }} {{ job.standort_stadt }}
+                      </p>
+                      <p class="job-snippet mb-0 small">{{ job.ueber_uns[:200] if job.ueber_uns else '' }}{% if job.ueber_uns and job.ueber_uns|length > 200 %}...{% endif %}</p>
+                      <div class="mt-2 d-flex flex-wrap gap-2">
+                        {% if job.erfahrung_jahre and job.erfahrung_jahre > 0 %}
+                          <span class="badge bg-light text-dark">mind. {{ job.erfahrung_jahre }} Jahre Erfahrung</span>
+                        {% endif %}
+                        {% for tag in job.tags_liste[:3] %}
+                          <span class="badge bg-light text-dark">{{ tag }}</span>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    <div class="col-md-3 p-3 d-flex flex-column justify-content-between align-items-end" style="background: rgba(23, 162, 184, 0.08);">
+                      <span class="small text-muted"><i class="far fa-calendar-alt me-1"></i> {{ job.erstellt_am.strftime('%d.%m.%Y') }}</span>
+                      <a href="/stellenangebot/{{ job.slug }}" class="btn btn-primary btn-sm mt-auto">
+                        <i class="fas fa-paper-plane me-1"></i> Jetzt bewerben
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="alert alert-warning text-center py-5">
+              <i class="fas fa-search fa-3x mb-3 text-muted"></i>
+              <h4>Keine Stellenangebote gefunden</h4>
+              <p class="text-muted mb-0">Derzeit sind keine Stellenangebote verfügbar. Bitte versuchen Sie es später erneut oder passen Sie Ihre Suchkriterien an.</p>
+            </div>
+          {% endif %}
+        </div>
+        {% endif %}
+        
+        {% if jobs and total_pages > 1 %}
+        <!-- Pagination -->
+        {% set pagination_base = [] %}
+        {% if query %}{% set _ = pagination_base.append('query=' + query) %}{% endif %}
+        {% if position %}{% set _ = pagination_base.append('position=' + position) %}{% endif %}
+        {% if ort %}{% set _ = pagination_base.append('ort=' + ort) %}{% endif %}
+        {% if umkreis %}{% set _ = pagination_base.append('umkreis=' + (umkreis|string)) %}{% endif %}
+        {% if vollzeit_checked %}{% set _ = pagination_base.append('vollzeit=on') %}{% endif %}
+        {% if teilzeit_checked %}{% set _ = pagination_base.append('teilzeit=on') %}{% endif %}
+        {% if ausbildung_checked %}{% set _ = pagination_base.append('ausbildung=on') %}{% endif %}
+        {% if sortierung %}{% set _ = pagination_base.append('sortierung=' + sortierung) %}{% endif %}
+        {% if ansicht %}{% set _ = pagination_base.append('ansicht=' + ansicht) %}{% endif %}
+        {% set pagination_query = pagination_base|join('&') %}
+        
+        <nav aria-label="Seitennavigation" class="mt-5">
+          <div class="d-flex justify-content-center align-items-center gap-3 mb-3">
+            <small class="text-muted">Seite {{ page }} von {{ total_pages }} ({{ total_jobs }} Stellenangebote)</small>
+          </div>
+          <ul class="pagination justify-content-center flex-wrap">
+            {% if page > 1 %}
+            <li class="page-item">
+              <a class="page-link rounded-start" href="?{{ pagination_query }}{% if pagination_query %}&{% endif %}page={{ page - 1 }}">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+              <span class="page-link rounded-start"><i class="fas fa-chevron-left"></i></span>
+            </li>
+            {% endif %}
+            
+            {% set start_page = [1, page - 2]|max %}
+            {% set end_page = [total_pages, page + 2]|min %}
+            
+            {% if start_page > 1 %}
+            <li class="page-item">
+              <a class="page-link" href="?{{ pagination_query }}{% if pagination_query %}&{% endif %}page=1">1</a>
+            </li>
+            {% if start_page > 2 %}
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+            {% endif %}
+            {% endif %}
+            
+            {% for p in range(start_page, end_page + 1) %}
+            <li class="page-item {% if p == page %}active{% endif %}">
+              <a class="page-link" href="?{{ pagination_query }}{% if pagination_query %}&{% endif %}page={{ p }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if end_page < total_pages %}
+            {% if end_page < total_pages - 1 %}
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+            {% endif %}
+            <li class="page-item">
+              <a class="page-link" href="?{{ pagination_query }}{% if pagination_query %}&{% endif %}page={{ total_pages }}">{{ total_pages }}</a>
+            </li>
+            {% endif %}
+            
+            {% if page < total_pages %}
+            <li class="page-item">
+              <a class="page-link rounded-end" href="?{{ pagination_query }}{% if pagination_query %}&{% endif %}page={{ page + 1 }}">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+              <span class="page-link rounded-end"><i class="fas fa-chevron-right"></i></span>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+        
+        <!-- Info-Box am Ende -->
+        <div class="card border-0 shadow-sm bg-primary text-white mt-5">
+          <div class="card-body p-4">
+            <div class="row align-items-center">
+              <div class="col-lg-8">
+                <h3 class="fw-bold mb-2">Selbst ein Stellenangebot veröffentlichen?</h3>
+                <p class="mb-0">Als Zahnarztpraxis mit PremiumPlus-Paket können Sie unbegrenzt Stellenangebote veröffentlichen und tausende qualifizierte Fachkräfte in ganz Deutschland erreichen.</p>
+              </div>
+              <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <a href="/paketwahl" class="btn btn-light text-primary px-4 py-2 fw-medium shadow-sm">
+                  <i class="fas fa-plus-circle me-2"></i>Jetzt PremiumPlus buchen
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Beliebte Städte für SEO -->
+        <div class="card border-0 shadow-sm mt-4">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="fw-bold mb-0"><i class="fas fa-map-marked-alt me-2 text-primary"></i>Stellenangebote nach Stadt</h4>
+              <a href="/stellenangebote-nach-staedten" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-list me-1"></i>Alle Städte
+              </a>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              {% set seo_staedte = {'berlin': 'Berlin', 'muenchen': 'München', 'hamburg': 'Hamburg', 'koeln': 'Köln', 'frankfurt': 'Frankfurt', 'duesseldorf': 'Düsseldorf', 'stuttgart': 'Stuttgart', 'dortmund': 'Dortmund', 'essen': 'Essen', 'leipzig': 'Leipzig', 'bremen': 'Bremen', 'dresden': 'Dresden', 'hannover': 'Hannover', 'nuernberg': 'Nürnberg'} %}
+              {% set stadt_counts = {} %}
+              {% if staedte_mit_jobs %}
+                {% for stadt, count in staedte_mit_jobs %}
+                  {% if stadt %}
+                    {% set _ = stadt_counts.update({stadt: count}) %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+              {% for slug, name in seo_staedte.items() %}
+                {% set job_count = stadt_counts.get(name, 0) %}
+                <a href="/stellenangebote/{{ slug }}" class="btn btn-outline-secondary btn-sm">{{ name }}{% if job_count > 0 %} ({{ job_count }}){% endif %}</a>
+              {% endfor %}
+              {% if staedte_mit_jobs %}
+                {% for stadt, count in staedte_mit_jobs %}
+                  {% if stadt and stadt not in seo_staedte.values() %}
+                    <a href="/stellenangebote?ort={{ stadt|urlencode }}" class="btn btn-outline-secondary btn-sm">{{ stadt }} ({{ count }})</a>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    {% if seo_route and seo_h2 and seo_footer %}
+    <!-- SEO Footer Section -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <div class="card border-0 bg-light">
+          <div class="card-body p-4">
+            <h2 class="h4 fw-bold text-dark mb-3">{{ seo_h2 }}</h2>
+            <p class="text-muted mb-0">{{ seo_footer }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+  .job-card:hover .card {
+    box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.15)!important;
+    transition: all 0.3s ease;
+  }
+  
+  .job-title {
+    color: #0d6efd;
+  }
+  
+  .job-title:hover {
+    color: #0a58ca;
+    text-decoration: underline !important;
+  }
+  
+  .job-snippet {
+    color: #6c757d;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  @media (max-width: 768px) {
+    .col-md-2, .col-md-3, .col-md-7 {
+      text-align: left !important;
+    }
+    .sticky-lg-top {
+      position: relative;
+      top: 0;
+    }
+  }
+</style>
+{% endblock %}

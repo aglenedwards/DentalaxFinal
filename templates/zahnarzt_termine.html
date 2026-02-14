@@ -1,0 +1,635 @@
+{% extends "layout.html" %}
+
+{% block title %}Termine - {{ praxis.name }}{% endblock %}
+
+{% block styles %}
+<style>
+  .dashboard-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 0.6rem 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .dashboard-topbar-logo img {
+    transition: opacity 0.2s;
+  }
+  .dashboard-topbar-logo:hover img {
+    opacity: 0.8;
+  }
+
+  .kalender-grid { border-collapse: collapse; width: 100%; table-layout: fixed; }
+  .kalender-grid th { text-align: center; padding: 8px 4px; font-size: 0.8rem; font-weight: 600; color: #6c757d; text-transform: uppercase; }
+  .kalender-grid td { border: 1px solid #e9ecef; vertical-align: top; height: 80px; padding: 4px; cursor: pointer; transition: background-color 0.15s; }
+  .kalender-grid td:hover { background-color: #f0f7ff; }
+  .kalender-grid td.andere-monat { background-color: #fafafa; opacity: 0.5; }
+  .kalender-grid td.heute { background-color: #e8f4fd; border-color: #17a2b8; }
+  .kalender-grid td.ausgewaehlt { background-color: #17a2b8; border-color: #138496; }
+  .kalender-grid td.ausgewaehlt .tag-nummer { color: #fff; }
+  .kalender-grid td.ausgewaehlt .termin-dots .dot { border-color: #fff; }
+  .tag-nummer { font-weight: 600; font-size: 0.85rem; margin-bottom: 2px; }
+  .tag-nummer.heute-marker { color: #17a2b8; }
+  .termin-dots { display: flex; flex-wrap: wrap; gap: 2px; }
+  .termin-dots .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot-bestaetigt { background-color: #28a745; }
+  .dot-offen { background-color: #ffc107; }
+  .dot-abgesagt { background-color: #dc3545; }
+  .termin-count-badge { font-size: 0.7rem; padding: 1px 5px; border-radius: 10px; font-weight: 600; }
+  .filter-btn.active { font-weight: 600; }
+  .tages-header { border-bottom: 3px solid #17a2b8; padding-bottom: 10px; }
+  
+  .notiz-form textarea { resize: vertical; min-height: 32px; font-size: 0.8rem; }
+  .notiz-badge { font-size: 0.7rem; cursor: pointer; }
+  
+  .view-toggle .btn { font-size: 0.85rem; }
+  .view-toggle .btn.active { font-weight: 700; }
+  
+  .zeitleiste { position: relative; }
+  .zeitleiste-stunde { display: flex; min-height: 70px; border-bottom: 1px solid #e9ecef; }
+  .zeitleiste-zeit { width: 65px; flex-shrink: 0; padding: 4px 8px; font-size: 0.8rem; font-weight: 600; color: #6c757d; text-align: right; border-right: 2px solid #dee2e6; }
+  .zeitleiste-slots { flex: 1; padding: 4px 8px; position: relative; }
+  .zeitleiste-termin { background: #e8f4fd; border-left: 3px solid #17a2b8; border-radius: 4px; padding: 6px 10px; margin-bottom: 4px; font-size: 0.85rem; }
+  .zeitleiste-termin.status-bestaetigt { border-left-color: #28a745; background: #e8f5e9; }
+  .zeitleiste-termin.status-ausstehend { border-left-color: #ffc107; background: #fff8e1; }
+  .zeitleiste-termin.status-abgesagt { border-left-color: #dc3545; background: #fce4ec; opacity: 0.7; }
+  .zeitleiste-termin.status-erschienen { border-left-color: #17a2b8; background: #e0f7fa; }
+  .zeitleiste-leer { color: #ccc; font-size: 0.8rem; padding-top: 4px; }
+  
+  .wiederholung-optionen { display: none; }
+  .wiederholung-optionen.aktiv { display: block; }
+</style>
+{% endblock %}
+
+{% block navigation %}
+<nav class="dashboard-topbar">
+  <div class="d-flex align-items-center justify-content-between w-100">
+    <a href="/" class="dashboard-topbar-logo">
+      <img src="{{ url_for('static', filename='img/dentalax-logo.png') }}" alt="Dentalax Logo" style="height: 42px;">
+    </a>
+    <div class="d-flex align-items-center gap-2">
+      <a href="/" class="btn btn-sm btn-outline-secondary d-none d-md-inline-flex align-items-center">
+        <i class="fas fa-globe me-1"></i> Zur Website
+      </a>
+      <a href="/zahnarzt-dashboard" class="btn btn-sm btn-outline-primary d-none d-sm-inline-flex align-items-center">
+        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+      </a>
+      <div class="dropdown">
+        <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <i class="fas fa-user-circle me-1"></i> <span class="d-none d-sm-inline">Mein Konto</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><span class="dropdown-item-text small text-muted">{{ current_user.email }}</span></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="/"><i class="fas fa-globe me-2 text-primary"></i> Zur Website</a></li>
+          <li><a class="dropdown-item" href="/zahnarzt-dashboard"><i class="fas fa-tachometer-alt me-2 text-primary"></i> Dashboard</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Ausloggen</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+{% if praxis.terminbuchung_modus != 'dashboard' %}
+<div class="container-fluid py-4" style="padding-top: 80px !important;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-info-circle fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                    <h4 class="fw-bold mb-3">Terminverwaltung nicht aktiv</h4>
+                    <p class="text-muted mb-4">
+                        Die Terminverwaltung ist nur verfügbar, wenn der <strong>Dentalux-Kalender</strong> als Buchungsmodus ausgewählt ist.
+                        <br>Ihr aktueller Modus: 
+                        <span class="badge bg-secondary">
+                            {% if praxis.terminbuchung_modus == 'formular' %}Kontaktformular
+                            {% elif praxis.terminbuchung_modus == 'redirect' %}Externer Link
+                            {% elif praxis.terminbuchung_modus == 'fallback' %}Nur Kontaktdaten
+                            {% else %}{{ praxis.terminbuchung_modus }}{% endif %}
+                        </span>
+                    </p>
+                    <p class="text-muted small mb-4">Ihre bestehenden Termine und Einstellungen bleiben erhalten und sind sofort wieder da, wenn Sie zum Dentalux-Kalender wechseln.</p>
+                    <a href="/zahnarzt-dashboard?page=termine" class="btn btn-primary btn-lg">
+                        <i class="fas fa-cog me-2"></i> Buchungsmodus ändern
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="container-fluid py-4" style="padding-top: 80px !important;">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-calendar-alt text-primary me-2"></i>Navigation
+                    </h5>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('zahnarzt_dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Zurück zum Dashboard
+                        </a>
+                        <a href="{{ url_for('dashboard_bestandspatienten') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-users me-2"></i>Stammpatientenkartei
+                        </a>
+                        <a href="{{ url_for('dashboard_verfuegbarkeiten') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-clock me-2"></i>Verfügbarkeiten
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Statistiken</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Heute</span>
+                        <span class="badge bg-primary rounded-pill">{{ termine_heute }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Dieser Monat</span>
+                        <span class="badge bg-info rounded-pill">{{ termine_monat }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Offen</span>
+                        <span class="badge bg-warning rounded-pill">{{ ausstehende }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-cog text-primary me-2"></i>Terminmodus
+                    </h5>
+                    <form action="{{ url_for('dashboard_termin_modus_toggle') }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="autoConfirmToggle" 
+                                   name="auto_bestaetigen" value="1"
+                                   {{ 'checked' if praxis.termine_auto_bestaetigen else '' }}
+                                   onchange="this.form.submit()">
+                            <label class="form-check-label small" for="autoConfirmToggle">
+                                Automatisch bestätigen
+                            </label>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0">
+                            {% if praxis.termine_auto_bestaetigen %}
+                            <i class="fas fa-check-circle text-success me-1"></i>Termine werden sofort bestätigt
+                            {% else %}
+                            <i class="fas fa-clock text-warning me-1"></i>Termine müssen manuell bestätigt werden
+                            {% endif %}
+                        </p>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-filter text-primary me-2"></i>Filter
+                    </h5>
+                    <div class="d-grid gap-1">
+                        <a href="{{ url_for('dashboard_termine', datum=ausgewaehltes_datum.strftime('%Y-%m-%d'), filter='alle') }}" 
+                           class="btn btn-sm {% if status_filter == 'alle' %}btn-primary{% else %}btn-outline-secondary{% endif %} filter-btn">
+                            Alle Termine
+                        </a>
+                        <a href="{{ url_for('dashboard_termine', datum=ausgewaehltes_datum.strftime('%Y-%m-%d'), filter='offen') }}" 
+                           class="btn btn-sm {% if status_filter == 'offen' %}btn-warning{% else %}btn-outline-warning{% endif %} filter-btn">
+                            <i class="fas fa-clock me-1"></i>Offen
+                        </a>
+                        <a href="{{ url_for('dashboard_termine', datum=ausgewaehltes_datum.strftime('%Y-%m-%d'), filter='bestaetigt') }}" 
+                           class="btn btn-sm {% if status_filter == 'bestaetigt' %}btn-success{% else %}btn-outline-success{% endif %} filter-btn">
+                            <i class="fas fa-check me-1"></i>Bestätigt
+                        </a>
+                        <a href="{{ url_for('dashboard_termine', datum=ausgewaehltes_datum.strftime('%Y-%m-%d'), filter='abgesagt') }}" 
+                           class="btn btn-sm {% if status_filter == 'abgesagt' %}btn-danger{% else %}btn-outline-danger{% endif %} filter-btn">
+                            <i class="fas fa-times me-1"></i>Abgesagt
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-plus me-2"></i>Neuer Termin
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('dashboard_termin_erstellen') }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="mb-3">
+                            <label class="form-label small">Datum</label>
+                            <input type="date" name="datum" class="form-control form-control-sm" 
+                                   value="{{ ausgewaehltes_datum.strftime('%Y-%m-%d') }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Uhrzeit</label>
+                            <input type="time" name="uhrzeit" class="form-control form-control-sm" value="09:00" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Patient Name</label>
+                            <input type="text" name="gast_name" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Telefon</label>
+                            <input type="tel" name="gast_telefon" class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">E-Mail</label>
+                            <input type="email" name="gast_email" class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Behandlung</label>
+                            <select name="behandlungsart_id" class="form-select form-select-sm">
+                                <option value="">-- Keine --</option>
+                                {% for ba in behandlungsarten %}
+                                <option value="{{ ba.id }}">{{ ba.name }} ({{ ba.dauer_minuten }} Min.)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Dauer (Min.)</label>
+                            <select name="dauer_minuten" class="form-select form-select-sm">
+                                <option value="15">15 Minuten</option>
+                                <option value="30" selected>30 Minuten</option>
+                                <option value="45">45 Minuten</option>
+                                <option value="60">60 Minuten</option>
+                                <option value="90">90 Minuten</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Grund</label>
+                            <input type="text" name="grund" class="form-control form-control-sm" placeholder="z.B. Kontrolle">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Notizen</label>
+                            <textarea name="notizen" class="form-control form-control-sm" rows="2" placeholder="Interne Notiz..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Wiederholung</label>
+                            <select name="wiederholung" id="wiederholungSelect" class="form-select form-select-sm" onchange="toggleWiederholung()">
+                                <option value="">Einmalig</option>
+                                <option value="woechentlich">Wöchentlich</option>
+                                <option value="2wochen">Alle 2 Wochen</option>
+                                <option value="4wochen">Alle 4 Wochen</option>
+                                <option value="monatlich">Monatlich</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 wiederholung-optionen" id="wiederholungOptionen">
+                            <label class="form-label small">Anzahl Wiederholungen</label>
+                            <input type="number" name="wiederholung_anzahl" class="form-control form-control-sm" value="4" min="1" max="52">
+                            <small class="text-muted">Inkl. erster Termin</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-plus me-1"></i>Termin erstellen
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="{{ url_for('dashboard_termine', datum=vorheriger_monat) }}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                            <h4 class="mb-0 mx-2">{{ monatsname }} {{ monat_jahr }}</h4>
+                            <a href="{{ url_for('dashboard_termine', datum=naechster_monat) }}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                        <a href="{{ url_for('dashboard_termine') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-calendar-day me-1"></i>Heute
+                        </a>
+                    </div>
+
+                    <div class="d-flex gap-3 mb-3">
+                        <small><span class="dot dot-bestaetigt d-inline-block me-1"></span> Bestätigt</small>
+                        <small><span class="dot dot-offen d-inline-block me-1"></span> Offen</small>
+                        <small><span class="dot dot-abgesagt d-inline-block me-1"></span> Abgesagt</small>
+                    </div>
+
+                    <table class="kalender-grid">
+                        <thead>
+                            <tr>
+                                <th>Mo</th>
+                                <th>Di</th>
+                                <th>Mi</th>
+                                <th>Do</th>
+                                <th>Fr</th>
+                                <th>Sa</th>
+                                <th>So</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for woche in kalender_wochen %}
+                            <tr>
+                                {% for tag in woche %}
+                                <td class="{% if not tag.ist_aktueller_monat %}andere-monat{% endif %} {% if tag.ist_heute %}heute{% endif %} {% if tag.ist_ausgewaehlt %}ausgewaehlt{% endif %}"
+                                    onclick="window.location.href='{{ url_for('dashboard_termine', datum=tag.datum.strftime('%Y-%m-%d')) }}'">
+                                    <div class="tag-nummer {% if tag.ist_heute and not tag.ist_ausgewaehlt %}heute-marker{% endif %}">{{ tag.tag }}</div>
+                                    {% if tag.termine_gesamt > 0 %}
+                                    <div class="termin-dots">
+                                        {% for i in range(tag.termine_bestaetigt) %}
+                                        {% if loop.index <= 6 %}<span class="dot dot-bestaetigt"></span>{% endif %}
+                                        {% endfor %}
+                                        {% for i in range(tag.termine_offen) %}
+                                        {% if loop.index <= 6 %}<span class="dot dot-offen"></span>{% endif %}
+                                        {% endfor %}
+                                        {% for i in range(tag.termine_abgesagt) %}
+                                        {% if loop.index <= 3 %}<span class="dot dot-abgesagt"></span>{% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    {% if tag.termine_gesamt > 6 %}
+                                    <small class="text-muted" style="font-size: 0.65rem;">+{{ tag.termine_gesamt - 6 }} mehr</small>
+                                    {% endif %}
+                                    {% endif %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="tages-header d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="{{ url_for('dashboard_termine', datum=vorheriger_tag) }}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                            <h5 class="mb-0">
+                                <i class="fas fa-calendar-day text-primary me-2"></i>
+                                {{ ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'][ausgewaehltes_datum.weekday()] }}, {{ ausgewaehltes_datum.strftime('%d.%m.%Y') }}
+                            </h5>
+                            <a href="{{ url_for('dashboard_termine', datum=naechster_tag) }}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="view-toggle btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary active" id="btnListView" onclick="switchView('list')">
+                                    <i class="fas fa-list me-1"></i>Liste
+                                </button>
+                                <button class="btn btn-outline-primary" id="btnTimelineView" onclick="switchView('timeline')">
+                                    <i class="fas fa-clock me-1"></i>Zeitleiste
+                                </button>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">{{ termine|length }} Termin{{ 'e' if termine|length != 1 else '' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <form action="{{ url_for('dashboard_erinnerungen_senden') }}" method="POST" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-outline-info btn-sm" title="24h-Erinnerung an alle Patienten für morgen senden">
+                                <i class="fas fa-bell me-1"></i>24h-Erinnerungen senden (morgen)
+                            </button>
+                        </form>
+                    </div>
+
+                    {% if termine %}
+                    <div id="listView">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 90px;">Uhrzeit</th>
+                                    <th>Patient</th>
+                                    <th>Behandlung</th>
+                                    <th>Kontakt</th>
+                                    <th>Notiz</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for termin in termine %}
+                                <tr>
+                                    <td>
+                                        <span class="fw-bold">{{ termin.uhrzeit.strftime('%H:%M') }}</span>
+                                        <br>
+                                        <small class="text-muted">{{ termin.dauer_minuten }} Min.</small>
+                                    </td>
+                                    <td>
+                                        <div class="fw-medium">{{ termin.patient_name }}</div>
+                                        {% if termin.ist_bestandspatient %}
+                                        <a href="{{ url_for('dashboard_bestandspatient_detail', patient_id=termin.bestandspatient_id) }}" class="badge bg-primary text-white text-decoration-none">
+                                            <i class="fas fa-user-check me-1"></i>Stammpatient
+                                        </a>
+                                        {% elif termin.ist_gast %}
+                                        <form action="{{ url_for('dashboard_gast_zu_bestandspatient', termin_id=termin.id) }}" method="POST" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="badge bg-warning text-dark border-0" style="cursor: pointer;" title="Zum Stammpatient machen">
+                                                <i class="fas fa-user-plus me-1"></i>Gast &rarr; Stammpatient
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if termin.behandlungsart %}
+                                            {{ termin.behandlungsart.name }}
+                                        {% elif termin.grund %}
+                                            {{ termin.grund }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if termin.kontakt_telefon %}
+                                        <a href="tel:{{ termin.kontakt_telefon }}" class="text-decoration-none">
+                                            <i class="fas fa-phone text-muted me-1"></i>{{ termin.kontakt_telefon }}
+                                        </a>
+                                        {% endif %}
+                                        {% if termin.kontakt_email %}
+                                        <br>
+                                        <small class="text-muted">{{ termin.kontakt_email }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td style="min-width: 150px;">
+                                        {% if termin.notizen %}
+                                        <span class="badge bg-light text-dark notiz-badge" onclick="toggleNotiz({{ termin.id }})" title="{{ termin.notizen }}">
+                                            <i class="fas fa-sticky-note text-warning me-1"></i>{{ termin.notizen[:30] }}{% if termin.notizen|length > 30 %}...{% endif %}
+                                        </span>
+                                        {% endif %}
+                                        <div id="notiz-{{ termin.id }}" style="display: {% if not termin.notizen %}block{% else %}none{% endif %};">
+                                            <form action="{{ url_for('dashboard_termin_notiz', termin_id=termin.id) }}" method="POST" class="notiz-form">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <div class="input-group input-group-sm">
+                                                    <textarea name="notizen" class="form-control" rows="1" placeholder="Notiz...">{{ termin.notizen or '' }}</textarea>
+                                                    <button type="submit" class="btn btn-outline-secondary btn-sm" title="Speichern"><i class="fas fa-save"></i></button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if termin.status == 'ausstehend' %}
+                                        <span class="badge bg-warning text-dark">Offen</span>
+                                        {% elif termin.status == 'bestaetigt' %}
+                                        <span class="badge bg-success">Bestätigt</span>
+                                        {% elif termin.status == 'abgesagt' %}
+                                        <span class="badge bg-danger">Abgesagt</span>
+                                        {% elif termin.status == 'erschienen' %}
+                                        <span class="badge bg-info">Erschienen</span>
+                                        {% elif termin.status == 'nicht_erschienen' %}
+                                        <span class="badge bg-secondary">Nicht erschienen</span>
+                                        {% endif %}
+                                        {% if termin.erinnerung_gesendet %}
+                                        <br><small class="text-muted"><i class="fas fa-bell text-info"></i> Erinnert</small>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            {% if termin.status == 'ausstehend' %}
+                                            <form action="{{ url_for('dashboard_termin_bestaetigen', termin_id=termin.id) }}" method="POST" class="d-inline">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="btn btn-outline-success btn-sm" title="Bestätigen">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                            {% if termin.status in ['ausstehend', 'bestaetigt'] %}
+                                            <form action="{{ url_for('dashboard_termin_absagen', termin_id=termin.id) }}" method="POST" class="d-inline">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Absagen">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                            {% if termin.status == 'bestaetigt' %}
+                                            <form action="{{ url_for('dashboard_termin_erschienen', termin_id=termin.id) }}" method="POST" class="d-inline">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="btn btn-outline-info btn-sm" title="Erschienen">
+                                                    <i class="fas fa-user-check"></i>
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+
+                    <div id="timelineView" style="display: none;">
+                        <div class="zeitleiste">
+                            {% set stunden = range(7, 21) %}
+                            {% for stunde in stunden %}
+                            <div class="zeitleiste-stunde">
+                                <div class="zeitleiste-zeit">{{ '%02d' % stunde }}:00</div>
+                                <div class="zeitleiste-slots">
+                                    {% set ns = namespace(hat_termin=false) %}
+                                    {% for termin in termine %}
+                                    {% if termin.uhrzeit.hour == stunde %}
+                                    {% set ns.hat_termin = true %}
+                                    <div class="zeitleiste-termin status-{{ termin.status }}">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong>{{ termin.uhrzeit.strftime('%H:%M') }}</strong>
+                                                <span class="text-muted">({{ termin.dauer_minuten }} Min.)</span>
+                                                &mdash; <strong>{{ termin.patient_name }}</strong>
+                                                {% if termin.behandlungsart %}
+                                                <span class="text-muted ms-1">| {{ termin.behandlungsart.name }}</span>
+                                                {% elif termin.grund %}
+                                                <span class="text-muted ms-1">| {{ termin.grund }}</span>
+                                                {% endif %}
+                                                {% if termin.notizen %}
+                                                <br><small class="text-muted"><i class="fas fa-sticky-note text-warning me-1"></i>{{ termin.notizen[:60] }}{% if termin.notizen|length > 60 %}...{% endif %}</small>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                {% if termin.status == 'ausstehend' %}
+                                                <span class="badge bg-warning text-dark">Offen</span>
+                                                {% elif termin.status == 'bestaetigt' %}
+                                                <span class="badge bg-success">Bestätigt</span>
+                                                {% elif termin.status == 'abgesagt' %}
+                                                <span class="badge bg-danger">Abgesagt</span>
+                                                {% elif termin.status == 'erschienen' %}
+                                                <span class="badge bg-info">Erschienen</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% if not ns.hat_termin %}
+                                    <div class="zeitleiste-leer">&mdash;</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Keine Termine für diesen Tag{% if status_filter != 'alle' %} (Filter: {{ status_filter|capitalize }}){% endif %}</h5>
+                        <p class="text-muted">Erstellen Sie einen neuen Termin über das Formular links.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function switchView(view) {
+    var listView = document.getElementById('listView');
+    var timelineView = document.getElementById('timelineView');
+    var btnList = document.getElementById('btnListView');
+    var btnTimeline = document.getElementById('btnTimelineView');
+    
+    if (view === 'timeline') {
+        if (listView) listView.style.display = 'none';
+        if (timelineView) timelineView.style.display = 'block';
+        btnList.classList.remove('active');
+        btnTimeline.classList.add('active');
+    } else {
+        if (listView) listView.style.display = 'block';
+        if (timelineView) timelineView.style.display = 'none';
+        btnList.classList.add('active');
+        btnTimeline.classList.remove('active');
+    }
+}
+
+function toggleNotiz(terminId) {
+    var el = document.getElementById('notiz-' + terminId);
+    if (el) {
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+function toggleWiederholung() {
+    var sel = document.getElementById('wiederholungSelect');
+    var opt = document.getElementById('wiederholungOptionen');
+    if (sel.value) {
+        opt.classList.add('aktiv');
+    } else {
+        opt.classList.remove('aktiv');
+    }
+}
+</script>
+{% endif %}
+{% endblock %}

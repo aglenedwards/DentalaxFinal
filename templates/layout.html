@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>{% if meta_title %}{{ meta_title }}{% else %}Dentalax – Zahnarztsuche in ganz Deutschland{% endif %}</title>
+  <meta name="description" content="{% if meta_description %}{{ meta_description }}{% else %}Finden Sie jetzt den passenden Zahnarzt in Ihrer Nähe – einfach, schnell und zuverlässig mit Dentalax.{% endif %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="{{ meta_title or 'Dentalax – Zahnarztsuche' }}">
+  <meta property="og:description" content="{{ meta_description or 'Finden Sie jetzt den passenden Zahnarzt in Ihrer Nähe' }}">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="{{ url_for('static', filename='images/og-default.jpg', _external=True) }}">
+  <meta property="og:url" content="{{ canonical_url or request.url }}">
+  {% if canonical_url %}
+  <link rel="canonical" href="{{ canonical_url }}">
+  {% endif %}
+  {% if meta_robots %}
+  <meta name="robots" content="{{ meta_robots }}">
+  {% endif %}
+
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS - v2 für Cache-Busting -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom_v2.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/api_config.css') }}">
+  {% block styles %}{% endblock %}
+</head>
+<body>
+  {% block navigation %}
+  <!-- Desktop: Floating Pill Navigation -->
+  <nav class="floating-nav d-none d-lg-flex align-items-center justify-content-between" id="floatingNav">
+    <a href="/">
+      <img src="{{ url_for('static', filename='img/dentalax-logo.png') }}" alt="Dentalax Logo" style="height: 60px;">
+    </a>
+    
+    <div class="d-flex align-items-center">
+      <ul class="navbar-nav flex-row align-items-center mb-0 nav-main-links">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="zahnaerzteDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Zahnärzte
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="zahnaerzteDropdown">
+            <li><a class="dropdown-item" href="/fuer-zahnaerzte"><i class="fas fa-info-circle me-2 text-primary"></i> Für Zahnärzte</a></li>
+            <li><a class="dropdown-item" href="/paketwahl"><i class="fas fa-tags me-2 text-primary"></i> Pakete & Preise</a></li>
+          </ul>
+        </li>
+        <li class="nav-separator-item"><span class="nav-separator"></span></li>
+        <li class="nav-item">
+          <a class="nav-link" href="/stellenangebote">Stellenangebote</a>
+        </li>
+        <li class="nav-separator-item"><span class="nav-separator"></span></li>
+        <li class="nav-item">
+          <a class="nav-link" href="/ueber-uns">Über uns</a>
+        </li>
+      </ul>
+
+      <span class="nav-separator"></span>
+
+      <ul class="navbar-nav flex-row align-items-center mb-0 nav-account-links">
+        {% if current_user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdownDesktop" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user-circle me-1"></i> Mein Konto
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdownDesktop">
+            <li><a class="dropdown-item" href="/zahnarzt-dashboard"><i class="fas fa-tachometer-alt me-2 text-primary"></i> Dashboard</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2 text-danger"></i> Ausloggen</a></li>
+          </ul>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="/zahnarzt-login">Login</a>
+        </li>
+        <li class="nav-item ms-2">
+          <a class="btn button-shimmer rounded-3 px-4 py-2" href="/register">Registrieren</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Mobile: Fixed Top Header -->
+  <header class="mobile-nav-header d-lg-none" id="mobileNavHeader">
+    <div class="d-flex justify-content-between align-items-center">
+      <a href="/">
+        <img src="{{ url_for('static', filename='img/dentalax-logo.png') }}" alt="Dentalax Logo" style="height: 50px;">
+      </a>
+      <button class="btn btn-link p-0" type="button" id="mobileMenuBtn" aria-label="Menü öffnen" style="color: #2a8294;">
+        <i class="fas fa-bars fa-xl"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu-overlay d-lg-none" id="mobileMenuOverlay">
+    <button class="btn btn-link text-dark position-absolute p-0" style="top: 1.5rem; right: 1.5rem;" id="mobileMenuClose" aria-label="Menü schließen">
+      <i class="fas fa-times fa-xl"></i>
+    </button>
+    
+    <div class="mobile-menu-logo mb-4">
+      <a href="/">
+        <img src="{{ url_for('static', filename='img/dentalax-logo.png') }}" alt="Dentalax" style="height: 45px;">
+      </a>
+    </div>
+    
+    <nav class="mobile-menu-nav">
+      <div class="mobile-menu-group">
+        <a class="nav-link" href="/fuer-zahnaerzte">
+          <i class="fas fa-tooth me-3 text-primary"></i>Für Zahnärzte
+        </a>
+        <a class="nav-link" href="/paketwahl">
+          <i class="fas fa-gem me-3 text-primary"></i>Pakete & Preise
+        </a>
+        <a class="nav-link" href="/stellenangebote">
+          <i class="fas fa-briefcase me-3 text-primary"></i>Stellenangebote
+        </a>
+        <a class="nav-link" href="/ueber-uns">
+          <i class="fas fa-info-circle me-3 text-primary"></i>Über uns
+        </a>
+      </div>
+      
+      <div class="mobile-menu-divider"></div>
+      
+      <div class="mobile-menu-group">
+        {% if current_user.is_authenticated %}
+        <a class="nav-link" href="/zahnarzt-dashboard">
+          <i class="fas fa-columns me-3 text-primary"></i>Dashboard
+        </a>
+        <a class="nav-link text-danger" href="/logout">
+          <i class="fas fa-sign-out-alt me-3"></i>Ausloggen
+        </a>
+        {% else %}
+        <a class="nav-link" href="/zahnarzt-login">
+          <i class="fas fa-user-md me-3 text-primary"></i>Login
+        </a>
+        {% endif %}
+      </div>
+      
+      {% if not current_user.is_authenticated %}
+      <div class="mobile-menu-cta mt-4">
+        <a class="btn button-shimmer rounded-pill px-4 py-3 w-100 fw-semibold" href="/register">
+          <i class="fas fa-user-plus me-2"></i>Jetzt registrieren
+        </a>
+      </div>
+      {% endif %}
+    </nav>
+  </div>
+
+  <!-- Navigation JavaScript -->
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const floatingNav = document.getElementById('floatingNav');
+    const mobileNavHeader = document.getElementById('mobileNavHeader');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenuClose = document.getElementById('mobileMenuClose');
+    const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+    
+    // Scroll-Effekt
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 50) {
+        if (floatingNav) floatingNav.classList.add('scrolled');
+        if (mobileNavHeader) mobileNavHeader.classList.add('scrolled');
+      } else {
+        if (floatingNav) floatingNav.classList.remove('scrolled');
+        if (mobileNavHeader) mobileNavHeader.classList.remove('scrolled');
+      }
+    });
+    
+    // Mobile Menu Toggle
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', function() {
+        mobileMenuOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
+    }
+    
+    if (mobileMenuClose) {
+      mobileMenuClose.addEventListener('click', function() {
+        mobileMenuOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+    }
+  });
+  </script>
+  {% endblock %}
+
+  <!-- Main Content -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block footer %}
+  <!-- Footer -->
+  <footer class="pt-5 pb-3" style="background-color: #1e6370; color: white; border-top: 2px solid rgba(255, 255, 255, 0.2);">
+    <div class="container">
+      <!-- Logo & Slogan -->
+      <div class="row mb-4">
+        <div class="col-lg-4 mb-4 mb-lg-0">
+          <div class="d-flex flex-column">
+            <a href="/" class="mb-2 text-decoration-none">
+              <img src="{{ url_for('static', filename='img/dentalax-logo.png') }}" alt="Dentalax Logo" style="height: 50px; filter: brightness(0) invert(1);">
+            </a>
+            <p class="text-white-50 mb-3">Deutschlands Plattform für Zahnarztsuche und moderne Zahnarztpraxis-Kommunikation</p>
+            <div class="d-flex gap-3 mb-3">
+              <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
+              <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+              <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+              <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Populäre Städte -->
+        <div class="col-lg-2 col-md-4 mb-4 mb-lg-0">
+          <h6 class="fw-bold mb-3 text-white">Populäre Städte</h6>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="/zahnarzt-berlin" class="text-decoration-none text-white-50 hover-white">Berlin</a></li>
+            <li class="mb-2"><a href="/zahnarzt-hamburg" class="text-decoration-none text-white-50 hover-white">Hamburg</a></li>
+            <li class="mb-2"><a href="/zahnarzt-muenchen" class="text-decoration-none text-white-50 hover-white">München</a></li>
+            <li class="mb-2"><a href="/zahnarzt-koeln" class="text-decoration-none text-white-50 hover-white">Köln</a></li>
+            <li class="mb-2"><a href="/zahnarzt-frankfurt" class="text-decoration-none text-white-50 hover-white">Frankfurt</a></li>
+            <li class="mb-2"><a href="/zahnarzt-stuttgart" class="text-decoration-none text-white-50 hover-white">Stuttgart</a></li>
+          </ul>
+          <a href="/zahnaerzte-nach-staedten" class="btn btn-sm btn-outline-light mt-1">Alle Städte <i class="fas fa-arrow-right ms-1"></i></a>
+        </div>
+        
+        <!-- Leistungen -->
+        <div class="col-lg-2 col-md-4 mb-4 mb-lg-0">
+          <h6 class="fw-bold mb-3 text-white">Leistungen</h6>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="/implantologie-nach-staedten" class="text-decoration-none text-white-50 hover-white">Implantologie</a></li>
+            <li class="mb-2"><a href="/kieferorthopaedie-nach-staedten" class="text-decoration-none text-white-50 hover-white">Kieferorthopädie</a></li>
+            <li class="mb-2"><a href="/prophylaxe-nach-staedten" class="text-decoration-none text-white-50 hover-white">Prophylaxe</a></li>
+            <li class="mb-2"><a href="/parodontologie-nach-staedten" class="text-decoration-none text-white-50 hover-white">Parodontologie</a></li>
+            <li class="mb-2"><a href="/aesthetik-nach-staedten" class="text-decoration-none text-white-50 hover-white">Ästhetik</a></li>
+            <li class="mb-2"><a href="/angstpatienten-nach-staedten" class="text-decoration-none text-white-50 hover-white">Angstpatienten</a></li>
+          </ul>
+          <a href="/leistungen-uebersicht" class="btn btn-sm btn-outline-light mt-1">Alle Leistungen <i class="fas fa-arrow-right ms-1"></i></a>
+        </div>
+        
+        <!-- Kontakt & Links -->
+        <div class="col-lg-4 col-md-4">
+          <div class="row">
+            <div class="col-sm-6 col-lg-12 mb-4">
+              <h6 class="fw-bold mb-3 text-white">Kontakt</h6>
+              <ul class="list-unstyled">
+                <li class="mb-2 d-flex align-items-center">
+                  <i class="fas fa-map-marker-alt text-white me-2"></i>
+                  <span class="text-white-50">Zahnstraße 123, 10115 Berlin</span>
+                </li>
+                <li class="mb-2 d-flex align-items-center">
+                  <i class="fas fa-phone text-white me-2"></i>
+                  <span class="text-white-50">(030) 123 456 789</span>
+                </li>
+                <li class="mb-2 d-flex align-items-center">
+                  <i class="fas fa-envelope text-white me-2"></i>
+                  <span class="text-white-50">info@dentalax.de</span>
+                </li>
+              </ul>
+            </div>
+            <div class="col-sm-6 col-lg-12">
+              <h6 class="fw-bold mb-3 text-white">Wichtige Links</h6>
+              <div class="d-flex flex-wrap gap-3">
+                <a href="/fuer-zahnaerzte" class="text-decoration-none text-white-50 hover-white">Für Zahnärzte</a>
+                <a href="/paketwahl" class="text-decoration-none text-white-50 hover-white">Pakete & Preise</a>
+                <a href="/stellenangebote" class="text-decoration-none text-white-50 hover-white">Stellenangebote</a>
+                <a href="/zahnarzt-login" class="text-decoration-none text-white-50 hover-white">Login</a>
+                <a href="/register" class="text-decoration-none text-white-50 hover-white">Registrieren</a>
+                <a href="/ueber-uns" class="text-decoration-none text-white-50 hover-white">Über uns</a>
+                <a href="/impressum" class="text-decoration-none text-white-50 hover-white">Impressum</a>
+                <a href="/datenschutz" class="text-decoration-none text-white-50 hover-white">Datenschutz</a>
+                <a href="/agb" class="text-decoration-none text-white-50 hover-white">AGB</a>
+                <a href="/kontakt" class="text-decoration-none text-white-50 hover-white">Kontakt</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Copyright -->
+      <div class="border-top border-white border-opacity-25 pt-3">
+        <div class="row">
+          <div class="col-md-6 text-center text-md-start">
+            <p class="small text-white-50 mb-0">&copy; 2024 Dentalax. Alle Rechte vorbehalten.</p>
+          </div>
+          <div class="col-md-6 text-center text-md-end">
+            <p class="small text-white-50 mb-0">Verbinde Patienten mit Zahnärzten in ganz Deutschland</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+  {% endblock %}
+  
+  <style>
+    .text-white-50 {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+    .hover-white:hover {
+      color: #ffffff !important;
+      transition: color 0.2s ease;
+    }
+  </style>
+
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Custom JavaScript -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+  <!-- Geolocation + Umkreis Slider Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const rangeInput = document.getElementById("umkreisRange");
+      const rangeValue = document.getElementById("rangeValue");
+
+      if (rangeInput && rangeValue) {
+        rangeValue.textContent = `${rangeInput.value} km`;
+        rangeInput.addEventListener("input", () => {
+          rangeValue.textContent = `${rangeInput.value} km`;
+        });
+      }
+    });
+  </script>
+
+    <script>
+      // Geolocation Funktion
+      function sucheInDerNahe() {
+        const geoBtn = document.getElementById("geoBtn");
+        const geoLoader = document.getElementById("geoLoader");
+
+        geoBtn.disabled = true;  // Deaktiviere den Button während der Standortermittlung
+        geoLoader.style.display = "block";  // Spinner wird angezeigt
+
+        // Geolocation Anfrage
+        if (navigator.geolocation) {
+          console.log("Geolocation wird angefordert...");
+
+          navigator.geolocation.getCurrentPosition(success, error);
+        } else {
+          alert("Geolocation wird von deinem Browser nicht unterstützt.");
+          geoBtn.disabled = false;
+          geoLoader.style.display = "none"; // Spinner wird ausgeblendet
+        }
+
+        // Erfolgsfall
+        function success(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          // Umkreis-Wert vom Slider lesen (falls vorhanden)
+          const umkreisSlider = document.getElementById("umkreisRange");
+          const umkreis = umkreisSlider ? umkreisSlider.value : 25;
+
+          console.log("Standort erfolgreich ermittelt: ", lat, lng, "Umkreis:", umkreis);  // Debugging
+
+          // Ausgewählte Leistungen sammeln
+          let leistungParams = '';
+          
+          // 1. Prüfe auf Dropdown-Select (inputLeistung)
+          const leistungSelect = document.getElementById("inputLeistung");
+          if (leistungSelect && leistungSelect.value && leistungSelect.value !== '') {
+            leistungParams += `&leistung=${encodeURIComponent(leistungSelect.value)}`;
+          }
+          
+          // 2. Prüfe auf aktive Leistungs-Chips (Button mit active class)
+          const activeChips = document.querySelectorAll('.leistung-chip.active');
+          activeChips.forEach(chip => {
+            const value = chip.getAttribute('data-value');
+            if (value) {
+              leistungParams += `&leistung=${encodeURIComponent(value)}`;
+            }
+          });
+          
+          // 3. Prüfe auch auf Checkbox-basierte Leistungen
+          const leistungCheckboxes = document.querySelectorAll('input[name="leistung"]:checked');
+          leistungCheckboxes.forEach(checkbox => {
+            leistungParams += `&leistung=${encodeURIComponent(checkbox.value)}`;
+          });
+
+          // Weiterleitung zur /suche Route mit den Koordinaten, Umkreis und Leistungen
+          window.location.href = `/suche?lat=${lat}&lng=${lng}&umkreis=${umkreis}${leistungParams}`;
+        }
+
+        // Fehlerfall (bei nicht ermittelbarem Standort)
+        function error(err) {
+          console.log("Fehler bei Geolocation:", err);  // Fehler-Log
+          geoBtn.disabled = false;  // Button aktivieren
+          geoLoader.style.display = "none";  // Spinner ausblenden
+
+          if (err.code === 1) {
+            alert("Standortberechtigung verweigert. Bitte erlaube den Zugriff auf deinen Standort.");
+          } else if (err.code === 2) {
+            alert("Standort konnte nicht ermittelt werden.");
+          } else {
+            alert("Ein unbekannter Fehler ist aufgetreten.");
+          }
+        }
+      }
+    </script>
+
+    <script>
+      // Beim Laden der Seite sicherstellen, dass der Spinner ausgeblendet ist
+      window.addEventListener("DOMContentLoaded", function () {
+        const geoLoader = document.getElementById("geoLoader");
+        const geoBtn = document.getElementById("geoBtn");
+
+        // Spinner verstecken, Button aktivieren
+        if (geoLoader) geoLoader.style.display = "none";  // Spinner verstecken
+        if (geoBtn) geoBtn.disabled = false;  // Button wieder aktivieren
+      });
+    </script>
+  
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 800,
+      once: true
+    });
+  </script>
+
+  {% block scripts %}{% endblock %}
+
+</body>
+</html>

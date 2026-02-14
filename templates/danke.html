@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<section class="py-5 text-center bg-white">
+  <div class="container p-4 rounded shadow-sm">
+    <h1 class="mb-4 text-success">🎉 Registrierung abgeschlossen</h1>
+    <p class="lead">Vielen Dank, <strong>{{ praxisname }}</strong>!</p>
+    <p>Sie haben erfolgreich das <strong>{{ paket }}</strong>-Paket gewählt und Ihre Praxis registriert.</p>
+    <p>Wir werden Ihre Angaben prüfen und Sie in Kürze kontaktieren.</p>
+
+    <div class="mt-4">
+      <a href="/" class="btn btn-primary">Zurück zur Startseite</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

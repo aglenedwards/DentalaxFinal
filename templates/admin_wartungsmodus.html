@@ -1,0 +1,122 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Wartungsmodus | Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2><i class="fas fa-tools me-2"></i> Wartungsmodus</h2>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="card-title mb-0"><i class="fas fa-power-off me-2"></i> Status</h5>
+          {% if maintenance_active %}
+            <span class="badge bg-danger fs-6"><i class="fas fa-exclamation-triangle me-1"></i> AKTIV</span>
+          {% else %}
+            <span class="badge bg-success fs-6"><i class="fas fa-check me-1"></i> Deaktiviert</span>
+          {% endif %}
+        </div>
+        
+        <p class="text-muted mb-3">
+          {% if maintenance_active %}
+            Die Website ist aktuell im Wartungsmodus. Besucher sehen eine Wartungsseite.
+            Admins und Besucher mit dem richtigen Passwort können die Seite weiterhin nutzen.
+          {% else %}
+            Die Website ist für alle Besucher normal erreichbar.
+          {% endif %}
+        </p>
+        
+        <form action="{{ url_for('admin_wartungsmodus') }}" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="action" value="toggle">
+          {% if maintenance_active %}
+            <button type="submit" class="btn btn-success btn-lg w-100">
+              <i class="fas fa-toggle-on me-2"></i> Wartungsmodus deaktivieren
+            </button>
+          {% else %}
+            <button type="submit" class="btn btn-danger btn-lg w-100">
+              <i class="fas fa-toggle-off me-2"></i> Wartungsmodus aktivieren
+            </button>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-6 mb-4">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <h5 class="card-title mb-3"><i class="fas fa-key me-2"></i> Zugangspasswort</h5>
+        <p class="text-muted mb-3">
+          Mit diesem Passwort können Sie oder andere die Website auch im Wartungsmodus ansehen.
+          Das Passwort wird auf der Wartungsseite abgefragt.
+        </p>
+        
+        <form action="{{ url_for('admin_wartungsmodus') }}" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="action" value="set_password">
+          <div class="input-group mb-3">
+            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+            <input type="text" class="form-control" name="maintenance_password" 
+                   value="{{ maintenance_password }}" placeholder="Zugangspasswort festlegen">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i> Speichern
+            </button>
+          </div>
+          {% if maintenance_password %}
+            <div class="alert alert-info mb-0 py-2">
+              <i class="fas fa-info-circle me-1"></i> Aktuelles Passwort: <strong>{{ maintenance_password }}</strong>
+            </div>
+          {% else %}
+            <div class="alert alert-warning mb-0 py-2">
+              <i class="fas fa-exclamation-triangle me-1"></i> Kein Passwort gesetzt. Bitte legen Sie eines fest, bevor Sie den Wartungsmodus aktivieren.
+            </div>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <h5 class="card-title mb-3"><i class="fas fa-info-circle me-2"></i> Hinweise</h5>
+        <div class="row">
+          <div class="col-md-4 mb-3 mb-md-0">
+            <div class="d-flex">
+              <div class="me-3"><i class="fas fa-shield-alt text-primary fa-2x"></i></div>
+              <div>
+                <strong>Admin-Zugang</strong>
+                <p class="text-muted mb-0 small">Das Admin-Panel ist immer erreichbar, unabhängig vom Wartungsmodus.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3 mb-md-0">
+            <div class="d-flex">
+              <div class="me-3"><i class="fas fa-key text-warning fa-2x"></i></div>
+              <div>
+                <strong>Passwort-Zugang</strong>
+                <p class="text-muted mb-0 small">Besucher können auf der Wartungsseite das Passwort eingeben, um die Seite zu sehen.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex">
+              <div class="me-3"><i class="fas fa-eye text-success fa-2x"></i></div>
+              <div>
+                <strong>Vorschau</strong>
+                <p class="text-muted mb-0 small">Nach Eingabe des Passworts wird die Seite normal angezeigt, bis die Session endet.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

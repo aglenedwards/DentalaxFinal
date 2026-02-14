@@ -1,0 +1,225 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Leistung + Stadt SEO-Texte{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+  <h2 class="mb-0">Leistung + Stadt SEO-Texte</h2>
+  <div>
+    <form action="/admin/leistung-seo-texte/batch-generieren" method="post" class="d-flex flex-wrap gap-2 align-items-center" id="batchForm" onsubmit="startBatchSpinner()">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <select name="leistung_slug" class="form-select form-select-sm" style="width: auto; min-width: 140px;" required>
+        {% for slug, leistung in leistungen.items() %}
+        <option value="{{ slug }}">{{ leistung.name }}</option>
+        {% endfor %}
+      </select>
+      <select name="anzahl" class="form-select form-select-sm" style="width: auto;">
+        <option value="10">10 Städte</option>
+        <option value="20" selected>20 Städte</option>
+        <option value="30">30 Städte</option>
+        <option value="50">50 Städte (Max)</option>
+      </select>
+      <button type="submit" class="btn btn-primary btn-sm" id="batchBtn">
+        <i class="fas fa-magic me-1" id="batchIcon"></i>
+        <span id="batchText">Batch generieren</span>
+        <span class="spinner-border spinner-border-sm ms-1 d-none" id="batchSpinner" role="status"></span>
+      </button>
+      <small class="text-muted" id="batchHint">(ca. 15-30 Sek.)</small>
+    </form>
+    <script>
+    function startBatchSpinner() {
+      document.getElementById('batchBtn').disabled = true;
+      document.getElementById('batchIcon').classList.add('d-none');
+      document.getElementById('batchText').textContent = 'Generierung läuft...';
+      document.getElementById('batchSpinner').classList.remove('d-none');
+      document.getElementById('batchHint').textContent = 'Bitte warten...';
+    }
+    </script>
+  </div>
+</div>
+
+<div class="nav-tabs-wrapper" style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 1rem;">
+  <ul class="nav nav-tabs flex-nowrap" style="min-width: max-content;">
+    {% for slug, leistung in leistungen.items() %}
+    <li class="nav-item">
+      <a class="nav-link {% if selected_leistung == slug %}active{% endif %} text-nowrap" href="/admin/leistung-seo-texte?leistung={{ slug }}">
+        {{ leistung.name }}
+        <span class="badge bg-secondary ms-1">{{ counts.get(slug, 0) }}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white py-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+        <h5 class="mb-0">{{ leistungen[selected_leistung].name }} SEO-Texte ({{ pagination.total }})</h5>
+        <form action="/admin/leistung-seo-texte" method="get" class="d-flex gap-2">
+          <input type="hidden" name="leistung" value="{{ selected_leistung }}">
+          <input type="text" name="search" class="form-control form-control-sm" placeholder="Stadt suchen..." value="{{ search_query }}" style="width: 150px;">
+          <button type="submit" class="btn btn-outline-primary btn-sm"><i class="fas fa-search"></i></button>
+          {% if search_query %}
+          <a href="/admin/leistung-seo-texte?leistung={{ selected_leistung }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a>
+          {% endif %}
+        </form>
+      </div>
+      <div class="card-body p-0">
+        {% if seo_eintraege %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Stadt</th>
+                <th>URL</th>
+                <th>FAQ</th>
+                <th>Meta</th>
+                <th>Aktualisiert</th>
+                <th>Aktion</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for seo in seo_eintraege %}
+              <tr>
+                <td><strong>{{ seo.stadt_name }}</strong></td>
+                <td><code>/{{ seo.leistung_slug }}-{{ seo.stadt_slug }}</code></td>
+                <td>
+                  {% if seo.faq_json %}
+                  <span class="badge bg-success"><i class="fas fa-check"></i></span>
+                  {% else %}
+                  <span class="badge bg-secondary"><i class="fas fa-minus"></i></span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if seo.meta_title %}
+                  <span class="badge bg-success"><i class="fas fa-check"></i></span>
+                  {% else %}
+                  <span class="badge bg-secondary"><i class="fas fa-minus"></i></span>
+                  {% endif %}
+                </td>
+                <td>{{ seo.aktualisiert_am.strftime('%d.%m.%Y') if seo.aktualisiert_am else (seo.erstellt_am.strftime('%d.%m.%Y') if seo.erstellt_am else '-') }}</td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <a href="/{{ seo.leistung_slug }}-{{ seo.stadt_slug }}" target="_blank" class="btn btn-outline-primary" title="Ansehen">
+                      <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    <form action="/admin/leistung-seo-texte/regenerieren/{{ seo.id }}" method="post" class="d-inline">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="btn btn-outline-warning" title="Regenerieren" onclick="return confirm('SEO-Texte für {{ seo.leistung_name }} {{ seo.stadt_name }} neu generieren?');">
+                        <i class="fas fa-sync-alt"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+          <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+          <p class="text-muted">{% if search_query %}Keine Ergebnisse für "{{ search_query }}"{% else %}Noch keine SEO-Texte für {{ leistungen[selected_leistung].name }} generiert.{% endif %}</p>
+        </div>
+        {% endif %}
+      </div>
+      {% if pagination.pages > 1 %}
+      <div class="card-footer bg-white py-3">
+        <nav class="d-flex justify-content-between align-items-center">
+          <small class="text-muted">Seite {{ pagination.page }} von {{ pagination.pages }} ({{ pagination.total }} Einträge)</small>
+          <ul class="pagination pagination-sm mb-0">
+            {% if pagination.has_prev %}
+            <li class="page-item">
+              <a class="page-link" href="/admin/leistung-seo-texte?leistung={{ selected_leistung }}&page={{ pagination.prev_num }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            </li>
+            {% endif %}
+            {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+              {% if p %}
+              <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                <a class="page-link" href="/admin/leistung-seo-texte?leistung={{ selected_leistung }}&page={{ p }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ p }}</a>
+              </li>
+              {% else %}
+              <li class="page-item disabled"><span class="page-link">...</span></li>
+              {% endif %}
+            {% endfor %}
+            {% if pagination.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="/admin/leistung-seo-texte?leistung={{ selected_leistung }}&page={{ pagination.next_num }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white py-3">
+        <h5 class="mb-0">Einzelne Stadt generieren</h5>
+      </div>
+      <div class="card-body">
+        <form action="/admin/leistung-seo-texte/generieren" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="mb-3">
+            <label class="form-label">Leistung</label>
+            <select name="leistung_slug" class="form-select" required>
+              {% for slug, leistung in leistungen.items() %}
+              <option value="{{ slug }}" {% if selected_leistung == slug %}selected{% endif %}>{{ leistung.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Stadt auswählen</label>
+            <select name="stadt_name" class="form-select" required>
+              <option value="">-- Stadt wählen --</option>
+              {% for stadt in staedte_liste %}
+              <option value="{{ stadt }}">{{ stadt }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-success w-100">
+            <i class="fas fa-magic me-1"></i> SEO-Text generieren
+          </button>
+        </form>
+      </div>
+    </div>
+    
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h5 class="mb-0">Statistik</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+          <span>Gesamt Einträge:</span>
+          <strong class="text-success">{{ total_count }}</strong>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span>{{ leistungen[selected_leistung].name }}:</span>
+          <strong class="text-primary">{{ counts.get(selected_leistung, 0) }} von {{ total_staedte }}</strong>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span>Noch offen:</span>
+          <strong class="text-warning">{{ offene_staedte }}</strong>
+        </div>
+        <div class="progress mt-2 mb-1" style="height: 8px;">
+          {% set percentage = (counts.get(selected_leistung, 0) / total_staedte * 100) if total_staedte > 0 else 0 %}
+          <div class="progress-bar bg-success" style="width: {{ percentage }}%"></div>
+        </div>
+        <small class="text-muted">{{ percentage|round(1) }}% abgedeckt</small>
+        <hr>
+        <small class="text-muted">
+          <i class="fas fa-info-circle me-1"></i>
+          Bei {{ total_staedte }} Städten und {{ leistungen|length }} Leistungen sind max. {{ total_staedte * leistungen|length }} Kombinationen möglich.
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

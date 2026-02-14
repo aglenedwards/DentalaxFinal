@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<section class="py-5 text-center">
+  <div class="container">
+    <h1 class="mb-4">🎉 Registrierung erfolgreich</h1>
+    <p class="lead">Vielen Dank, <strong>{{ praxisname }}</strong>, für Ihre Registrierung bei Dentalax!</p>
+    <p>Ihre Zahnarztpraxis wurde erfolgreich aufgenommen und ist nun Teil unseres Netzwerks.</p>
+
+    <div class="mt-4">
+      <a href="/" class="btn btn-outline-primary">Zurück zur Startseite</a>
+      <a href="/login" class="btn btn-primary">Zum Login</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

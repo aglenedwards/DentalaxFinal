@@ -1,0 +1,4 @@
+vorname,nachname,name,email,telefon,webseite,plz,stadt,straße,lat,lng,beansprucht,paket,registriert_am
+hammel,bammel,Test6,rammelbammel@test.de,1323242442422,https://testtest.de,12334,Musterstadt12,rammelstraße 3,50.9668571,3.9775028,ja,Basis,2025-03-28 00:01
+Testname,Testnachname,Test,info@testmail.de,09809892032,https://www.test.de,82782,Teststadt,Mustermannstraße 980,16.94186,42.7186073,ja,PraxisPro,2025-03-28 12:56
+Alvin,Edwards,TestPraxis,alvinglenedwards@gmail.com,1234567890,https://test.de,55294,Bodenheim,Am Kümmerling 20,49.925801,8.3213736,ja,premiumplus,monatlich,2026-01-12 15:51:42,scrypt:32768:8:1$NZvSgJNTn0g13mYU$60da280572e937ff409a95810f52007f5af1044c1f993c993f6681dd5155ec03c50163af9de593a1a255d77766da2391ca60f70ba40bb97c8287b4cf2566d579,nein,fKKHHtorZ3hlWNevhM9QmnDYtC31kL868eP-4EvoKqU,2026-01-13 15:51:42,on

@@ -1,0 +1,2 @@
+vorname,nachname,email,telefon,passwort_hash,plz,ort,registriert_am,bestätigt,bestätigungs_token,token_gültig_bis,
+Alvin,Edwards,test@test.de,787027309,scrypt:32768:8:1$uWASvnYTQMBoaXeS$f6add495f2d1451953b113ec22e672d77c405a6536395c632ef142800d3f218f245d384d8daf4a856043ce23e266cd4ea64279da1224d009c12120e57776313e,79877,Ort,2025-04-02 22:16:53,ja,,2025-04-03 22:16:53,['ja']

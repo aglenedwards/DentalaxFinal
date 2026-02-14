@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Rechnung – Dentalax</title>
+  <style>
+    body {
+      font-family: 'Roboto', 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      font-size: 14px;
+      color: #333;
+      background-color: #fff;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+      position: relative;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 50px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #40bfd8;
+    }
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .logo {
+      width: 180px;
+      height: auto;
+    }
+    .document-title {
+      background-color: #2a8294;
+      color: white;
+      padding: 10px 20px;
+      display: inline-block;
+      border-radius: 4px;
+      margin-top: 15px;
+    }
+    .info-box {
+      text-align: right;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      border-left: 4px solid #40bfd8;
+    }
+    .rechnungsnummer {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #2a8294;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+    .section-title {
+      color: #2a8294;
+      font-size: 18px;
+      margin-bottom: 15px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #eee;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    thead {
+      background-color: #40bfd8;
+      color: white;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+    tbody tr:hover {
+      background-color: #f9f9f9;
+    }
+    .total-table td {
+      border: none;
+      padding: 8px 15px;
+    }
+    .total-row {
+      font-weight: bold;
+      font-size: 16px;
+      background-color: #f0f8ff;
+    }
+    .total-label {
+      text-align: right;
+    }
+    .total-value {
+      text-align: left;
+      color: #2a8294;
+    }
+    .footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+      font-size: 12px;
+      color: #777;
+      text-align: center;
+    }
+    .payment-info {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 30px;
+      border-left: 4px solid #40bfd8;
+      line-height: 1.6;
+    }
+    .contact-info {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #777;
+    }
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .container {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-container">
+        <img src="static/images/Dentalax Logo Neu.png" class="logo" alt="Dentalax Logo">
+        <h1 class="document-title">Rechnung</h1>
+      </div>
+      <div class="info-box">
+        <p class="rechnungsnummer">Rechnungs-Nr.: {{ rechnungsnummer }}</p>
+        <p><strong>Datum:</strong> {{ heute }}</p>
+        <p><strong>Rechnung an:</strong><br>
+        {{ praxisname }}<br>
+        {{ email }}</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Leistungsübersicht</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Leistung</th>
+            <th>Dauer</th>
+            <th>Preis (netto)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ paket }}</td>
+            <td>{{ details["dauer"] }} Monat(e)</td>
+            <td>{{ details["netto"] }} €</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Zusammenfassung</h2>
+      <table class="total-table">
+        <tbody>
+          <tr>
+            <td class="total-label">Netto</td>
+            <td class="total-value">{{ details["gesamt_netto"] }} €</td>
+          </tr>
+          <tr>
+            <td class="total-label">zzgl. 19 % MwSt.</td>
+            <td class="total-value">{{ details["mwst"] }} €</td>
+          </tr>
+          <tr class="total-row">
+            <td class="total-label">Gesamtbetrag</td>
+            <td class="total-value">{{ details["gesamt_brutto"] }} €</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="payment-info">
+      <strong>Zahlungsart:</strong> {{ methode }}<br>
+      <strong>Zahlungsbedingungen:</strong> Zahlbar innerhalb von 14 Tagen ohne Abzug
+    </div>
+
+    <div class="footer">
+      <p>Diese Rechnung wurde elektronisch erstellt und ist ohne Unterschrift gültig.</p>
+      <div class="contact-info">
+        <p>Dentalax GmbH · Zahnstraße 123 · 10115 Berlin · Deutschland</p>
+        <p>Tel: (030) 123 456 789 · E-Mail: info@dentalax.de · Web: www.dentalax.de</p>
+        <p>Steuernummer: DE123456789 · Geschäftsführer: Max Mustermann</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

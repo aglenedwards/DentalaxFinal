@@ -1,0 +1,73 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<section class="impressive-gradient position-relative overflow-hidden" style="padding: 12rem 0 4rem;">
+  <div class="container position-relative" style="z-index: 1;">
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-8" data-aos="fade-up">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4" 
+            style="width: 80px; height: 80px; background-color: rgba(255, 255, 255, 0.2);">
+          <i class="fas fa-key text-white fa-2x"></i>
+        </div>
+        <h1 class="display-4 fw-bold mb-3 text-white">Neues Passwort</h1>
+        <p class="lead fs-4 mb-0" style="color: rgba(255,255,255,0.9);">Legen Sie Ihr neues Passwort fest</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container py-4">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden" data-aos="fade-up">
+          <div class="card-body p-4 p-md-5">
+            <div class="text-center mb-4">
+              <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 mb-3">
+                <i class="fas fa-shield-alt me-2"></i> Sicherheit
+              </span>
+              <h2 class="h4 fw-bold" style="color: var(--dental-dark);">Neues Passwort festlegen</h2>
+              <p class="text-secondary mb-0">Ihr neues Passwort muss mindestens 8 Zeichen lang sein.</p>
+            </div>
+            
+            <form method="post" action="/zahnarzt-passwort-reset/{{ token }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="mb-4">
+                <div class="form-floating">
+                  <input type="password" class="form-control" id="passwort" name="passwort" placeholder="Neues Passwort" required minlength="8" autocomplete="new-password">
+                  <label for="passwort">Neues Passwort</label>
+                </div>
+              </div>
+              
+              <div class="mb-4">
+                <div class="form-floating">
+                  <input type="password" class="form-control" id="passwort_bestaetigen" name="passwort_bestaetigen" placeholder="Passwort bestätigen" required minlength="8" autocomplete="new-password">
+                  <label for="passwort_bestaetigen">Passwort bestätigen</label>
+                </div>
+              </div>
+              
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill">
+                  <i class="fas fa-save me-2"></i> Passwort speichern
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

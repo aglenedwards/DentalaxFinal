@@ -1,0 +1,234 @@
+{% extends 'layout.html' %}
+
+{% block styles %}
+<style>
+  .dashboard-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 0.6rem 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .dashboard-topbar-logo img {
+    transition: opacity 0.2s;
+  }
+  .dashboard-topbar-logo:hover img {
+    opacity: 0.8;
+  }
+</style>
+{% endblock %}
+
+{% block navigation %}
+<nav class="dashboard-topbar">
+  <div class="d-flex align-items-center justify-content-between w-100">
+    <a href="/" class="dashboard-topbar-logo">
+      <img src="{{ url_for('static', filename='img/dentalax-logo.png') }}" alt="Dentalax Logo" style="height: 42px;">
+    </a>
+    <div class="d-flex align-items-center gap-2">
+      <a href="/" class="btn btn-sm btn-outline-secondary d-none d-md-inline-flex align-items-center">
+        <i class="fas fa-globe me-1"></i> Zur Website
+      </a>
+      <a href="/zahnarzt-dashboard" class="btn btn-sm btn-outline-primary d-none d-sm-inline-flex align-items-center">
+        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+      </a>
+      <div class="dropdown">
+        <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <i class="fas fa-user-circle me-1"></i> <span class="d-none d-sm-inline">Mein Konto</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><span class="dropdown-item-text small text-muted">{{ current_user.email }}</span></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="/"><i class="fas fa-globe me-2 text-primary"></i> Zur Website</a></li>
+          <li><a class="dropdown-item" href="/zahnarzt-dashboard"><i class="fas fa-tachometer-alt me-2 text-primary"></i> Dashboard</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Ausloggen</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+<section class="py-5" style="padding-top: 80px !important;">
+  <div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('zahnarzt_dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('zahnarzt_dashboard', page='stellenangebote') }}" class="text-decoration-none">Stellenangebote</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Bewerbung von {{ bewerbung.vorname }} {{ bewerbung.nachname }}</li>
+      </ol>
+    </nav>
+    
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="card-title m-0 fw-bold">
+              <i class="fas fa-user me-2 text-primary"></i>Bewerbung
+            </h5>
+            <span class="badge bg-{{ bewerbung.status_farbe }}">{{ bewerbung.status_display }}</span>
+          </div>
+          <div class="card-body">
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <h6 class="fw-bold mb-3">Persönliche Daten</h6>
+                <p class="mb-1"><strong>Name:</strong> {{ bewerbung.vorname }} {{ bewerbung.nachname }}</p>
+                <p class="mb-1"><strong>E-Mail:</strong> <a href="mailto:{{ bewerbung.email }}">{{ bewerbung.email }}</a></p>
+                {% if bewerbung.telefon %}
+                <p class="mb-1"><strong>Telefon:</strong> <a href="tel:{{ bewerbung.telefon }}">{{ bewerbung.telefon }}</a></p>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <h6 class="fw-bold mb-3">Bewerbungsdetails</h6>
+                <p class="mb-1"><strong>Eingegangen:</strong> {{ bewerbung.eingegangen_am.strftime('%d.%m.%Y um %H:%M Uhr') }}</p>
+                {% if bewerbung.gelesen_am %}
+                <p class="mb-1"><strong>Gelesen:</strong> {{ bewerbung.gelesen_am.strftime('%d.%m.%Y um %H:%M Uhr') }}</p>
+                {% endif %}
+                <p class="mb-1"><strong>Stelle:</strong> {{ bewerbung.stellenangebot.titel }}</p>
+              </div>
+            </div>
+            
+            {% if bewerbung.adresse or bewerbung.plz or bewerbung.ort %}
+            <hr>
+            <h6 class="fw-bold mb-3">Adresse</h6>
+            <p class="mb-1">
+              {% if bewerbung.adresse %}{{ bewerbung.adresse }}<br>{% endif %}
+              {% if bewerbung.plz or bewerbung.ort %}{{ bewerbung.plz }} {{ bewerbung.ort }}{% endif %}
+            </p>
+            {% endif %}
+            
+            {% if bewerbung.berufserfahrung or bewerbung.fruehester_eintritt or bewerbung.gehaltsvorstellung or bewerbung.nachricht %}
+            <hr>
+            <h6 class="fw-bold mb-3">Zusätzliche Informationen</h6>
+            {% if bewerbung.berufserfahrung %}
+            <p class="mb-1"><strong>Berufserfahrung:</strong> {{ bewerbung.berufserfahrung }} Jahre</p>
+            {% endif %}
+            {% if bewerbung.fruehester_eintritt %}
+            <p class="mb-1"><strong>Frühester Eintrittstermin:</strong> {{ bewerbung.fruehester_eintritt }}</p>
+            {% endif %}
+            {% if bewerbung.gehaltsvorstellung %}
+            <p class="mb-1"><strong>Gehaltsvorstellung:</strong> {{ bewerbung.gehaltsvorstellung }}</p>
+            {% endif %}
+            {% if bewerbung.nachricht %}
+            <p class="mb-1"><strong>Nachricht:</strong></p>
+            <div class="bg-light p-3 rounded">
+              {{ bewerbung.nachricht|replace('\n', '<br>')|safe }}
+            </div>
+            {% endif %}
+            {% endif %}
+            
+            {% if bewerbung.anschreiben_pfad %}
+            <hr>
+            <h6 class="fw-bold mb-3">Anschreiben</h6>
+            <a href="{{ bewerbung.anschreiben_pfad }}" class="btn btn-outline-primary" target="_blank">
+              <i class="fas fa-file-pdf me-2"></i>Anschreiben herunterladen
+            </a>
+            {% endif %}
+            
+            {% if bewerbung.lebenslauf_pfad %}
+            <hr>
+            <h6 class="fw-bold mb-3">Lebenslauf</h6>
+            <a href="{{ bewerbung.lebenslauf_pfad }}" class="btn btn-outline-primary" target="_blank">
+              <i class="fas fa-file-pdf me-2"></i>Lebenslauf herunterladen
+            </a>
+            {% endif %}
+            
+            {% if bewerbung.zeugnisse_pfad %}
+            <hr>
+            <h6 class="fw-bold mb-3">Zeugnisse</h6>
+            <a href="{{ bewerbung.zeugnisse_pfad }}" class="btn btn-outline-primary" target="_blank">
+              <i class="fas fa-file-pdf me-2"></i>Zeugnisse herunterladen
+            </a>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white py-3">
+            <h5 class="card-title m-0 fw-bold">
+              <i class="fas fa-tasks me-2 text-primary"></i>Status ändern
+            </h5>
+          </div>
+          <div class="card-body">
+            <form action="{{ url_for('dashboard_bewerbung_status', bewerbung_id=bewerbung.id) }}" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="row g-3 align-items-end">
+                <div class="col-md-6">
+                  <label for="status" class="form-label">Neuer Status</label>
+                  <select class="form-select" id="status" name="status">
+                    <option value="neu" {% if bewerbung.status == 'neu' %}selected{% endif %}>Neu</option>
+                    <option value="gesehen" {% if bewerbung.status == 'gesehen' %}selected{% endif %}>Gesehen</option>
+                    <option value="kontaktiert" {% if bewerbung.status == 'kontaktiert' %}selected{% endif %}>Kontaktiert</option>
+                    <option value="abgelehnt" {% if bewerbung.status == 'abgelehnt' %}selected{% endif %}>Abgelehnt</option>
+                    <option value="eingestellt" {% if bewerbung.status == 'eingestellt' %}selected{% endif %}>Eingestellt</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Status speichern
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white py-3">
+            <h6 class="card-title m-0 fw-bold">
+              <i class="fas fa-briefcase me-2 text-primary"></i>Stellenangebot
+            </h6>
+          </div>
+          <div class="card-body">
+            <h6 class="fw-bold">{{ bewerbung.stellenangebot.titel }}</h6>
+            <p class="text-muted small mb-2">{{ bewerbung.stellenangebot.position_display }}</p>
+            <p class="mb-2">
+              <span class="badge bg-info">{{ bewerbung.stellenangebot.anstellungsart_display }}</span>
+            </p>
+            <p class="text-muted small mb-0">
+              <i class="fas fa-map-marker-alt me-1"></i>{{ bewerbung.stellenangebot.standort_plz }} {{ bewerbung.stellenangebot.standort_stadt }}
+            </p>
+            <hr>
+            <a href="/stellenangebot/{{ bewerbung.stellenangebot.slug }}" class="btn btn-outline-primary btn-sm w-100" target="_blank">
+              <i class="fas fa-external-link-alt me-1"></i> Stellenangebot ansehen
+            </a>
+          </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white py-3">
+            <h6 class="card-title m-0 fw-bold">
+              <i class="fas fa-envelope me-2 text-primary"></i>Schnellaktionen
+            </h6>
+          </div>
+          <div class="card-body">
+            <a href="mailto:{{ bewerbung.email }}?subject=Ihre Bewerbung bei {{ bewerbung.stellenangebot.praxis.name }}" class="btn btn-outline-primary btn-sm w-100 mb-2">
+              <i class="fas fa-envelope me-1"></i> E-Mail schreiben
+            </a>
+            {% if bewerbung.telefon %}
+            <a href="tel:{{ bewerbung.telefon }}" class="btn btn-outline-success btn-sm w-100">
+              <i class="fas fa-phone me-1"></i> Anrufen
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <a href="{{ url_for('zahnarzt_dashboard', page='stellenangebote') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Zurück zu Stellenangebote
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

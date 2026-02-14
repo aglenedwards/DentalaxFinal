@@ -1,0 +1,251 @@
+                            <div class="tab-pane fade" id="step5" role="tabpanel" aria-labelledby="step5-tab">
+                                <div class="mb-4">
+                                    <h4>Terminbuchung</h4>
+                                    <p class="text-muted">Legen Sie fest, wie Patienten Termine in Ihrer Praxis buchen können.</p>
+                                </div>
+
+                                <div class="booking-options-container mb-5">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4">
+                                            <div class="booking-option-card" data-option="dashboard">
+                                                <div class="option-icon">
+                                                    <i class="fas fa-calendar-check"></i>
+                                                </div>
+                                                <h5>Dentalax-Dashboard</h5>
+                                                <p>Verwalten Sie Termine direkt über unser integriertes System. Patienten können Termine online buchen, die Sie in Ihrem Dashboard bestätigen.</p>
+                                                <input class="form-check-input visually-hidden" type="radio" name="terminbuchung_modus" id="terminbuchung_modus_dashboard" value="dashboard" checked>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-4">
+                                            <div class="booking-option-card" data-option="redirect">
+                                                <div class="option-icon">
+                                                    <i class="fas fa-external-link-alt"></i>
+                                                </div>
+                                                <h5>Externes Buchungssystem</h5>
+                                                <p>Nutzen Sie bereits Doctolib, Jameda oder ein anderes System? Patienten werden direkt zu Ihrem bevorzugten Buchungstool weitergeleitet.</p>
+                                                <input class="form-check-input visually-hidden" type="radio" name="terminbuchung_modus" id="terminbuchung_modus_redirect" value="redirect">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-4">
+                                            <div class="booking-option-card" data-option="api">
+                                                <div class="option-icon">
+                                                    <i class="fas fa-code"></i>
+                                                </div>
+                                                <h5>API-Integration</h5>
+                                                <p>Verbinden Sie Ihre eigene Software über unsere API. Ideal für Praxen mit bestehenden Terminbuchungssystemen, die eine tiefere Integration wünschen.</p>
+                                                <input class="form-check-input visually-hidden" type="radio" name="terminbuchung_modus" id="terminbuchung_modus_api" value="api">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-4">
+                                            <div class="booking-option-card" data-option="formular">
+                                                <div class="option-icon">
+                                                    <i class="fas fa-envelope"></i>
+                                                </div>
+                                                <h5>Kontaktformular</h5>
+                                                <p>Ein einfaches Formular, über das Patienten Terminanfragen stellen können. Sie erhalten eine E-Mail und können die Anfrage manuell bearbeiten.</p>
+                                                <input class="form-check-input visually-hidden" type="radio" name="terminbuchung_modus" id="terminbuchung_modus_formular" value="formular">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Konfigurationsbereich für Externes Buchungssystem -->
+                                <div id="redirect_config" class="config-section mb-4" style="display: none;">
+                                    <div class="card border-light">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0"><i class="fas fa-external-link-alt me-2"></i>Externes Buchungssystem konfigurieren</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="terminbuchung_url" class="form-label">URL Ihres Buchungssystems</label>
+                                                <input type="url" class="form-control" id="terminbuchung_url" name="terminbuchung_url"
+                                                    value="{{ praxis.terminbuchung_url if praxis and praxis.terminbuchung_url }}" 
+                                                    placeholder="https://www.doctolib.de/arztpraxis/ihre-praxis">
+                                                <div class="form-text">Vollständige URL zu Ihrem externen Terminbuchungssystem (z.B. Doctolib, Jameda, etc.)</div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="extern_anbieter" class="form-label">Anbieter (optional)</label>
+                                                <select class="form-select" id="extern_anbieter" name="extern_anbieter">
+                                                    <option value="">Bitte wählen...</option>
+                                                    <option value="doctolib" {{ 'selected' if praxis and praxis.extern_anbieter == 'doctolib' }}>Doctolib</option>
+                                                    <option value="jameda" {{ 'selected' if praxis and praxis.extern_anbieter == 'jameda' }}>Jameda</option>
+                                                    <option value="samedi" {{ 'selected' if praxis and praxis.extern_anbieter == 'samedi' }}>Samedi</option>
+                                                    <option value="terminland" {{ 'selected' if praxis and praxis.extern_anbieter == 'terminland' }}>Terminland</option>
+                                                    <option value="andere" {{ 'selected' if praxis and praxis.extern_anbieter == 'andere' }}>Anderer Anbieter</option>
+                                                </select>
+                                                <div class="form-text">Die Auswahl des Anbieters hilft uns, die Integration zu optimieren.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Konfigurationsbereich für API-Integration -->
+                                <div id="api_config" class="config-section mb-4" style="display: none;">
+                                    <div class="card border-light">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0"><i class="fas fa-plug me-2"></i>API-Integration konfigurieren</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="api_anbieter" class="form-label">Ihre Praxissoftware</label>
+                                                <select class="form-select" id="api_anbieter" name="api_anbieter">
+                                                    <option value="">Bitte wählen...</option>
+                                                    <option value="medatixx" {{ 'selected' if praxis and praxis.api_anbieter == 'medatixx' }}>Medatixx</option>
+                                                    <option value="doctolib" {{ 'selected' if praxis and praxis.api_anbieter == 'doctolib' }}>Doctolib</option>
+                                                    <option value="cgm" {{ 'selected' if praxis and praxis.api_anbieter == 'cgm' }}>CGM (CompuGroup Medical)</option>
+                                                    <option value="medistar" {{ 'selected' if praxis and praxis.api_anbieter == 'medistar' }}>Medistar</option>
+                                                    <option value="turbomed" {{ 'selected' if praxis and praxis.api_anbieter == 'turbomed' }}>Turbomed</option>
+                                                    <option value="andere" {{ 'selected' if praxis and praxis.api_anbieter == 'andere' }}>Andere Software</option>
+                                                </select>
+                                                <div class="form-text">Wählen Sie Ihre Praxisverwaltungssoftware für eine optimale Integration.</div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="api_key" class="form-label">Dentalax API-Schlüssel</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="api_key" name="api_key" 
+                                                        value="{{ praxis.api_key if praxis and praxis.api_key is defined else '' }}" 
+                                                        placeholder="Ihr API-Schlüssel wird automatisch generiert">
+                                                    <button class="btn btn-outline-secondary" type="button" id="generate_api_key">
+                                                        <i class="fas fa-sync-alt"></i> Neu generieren
+                                                    </button>
+                                                </div>
+                                                <div class="form-text">Dieser Schlüssel wird für die Authentifizierung Ihrer API-Anfragen verwendet.</div>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <h6 class="mb-2">Verfügbare Endpunkte</h6>
+                                                <div class="api-endpoint-box">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <strong>Termine abrufen</strong>
+                                                        <i class="fas fa-copy copy-btn" data-endpoint="GET /api/v1/praxis/{praxis_id}/termine"></i>
+                                                    </div>
+                                                    <code>GET /api/v1/praxis/{praxis_id}/termine</code>
+                                                </div>
+
+                                                <div class="api-endpoint-box">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <strong>Termin erstellen</strong>
+                                                        <i class="fas fa-copy copy-btn" data-endpoint="POST /api/v1/praxis/{praxis_id}/termine"></i>
+                                                    </div>
+                                                    <code>POST /api/v1/praxis/{praxis_id}/termine</code>
+                                                </div>
+                                            </div>
+
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                <strong>Hinweis:</strong> Eine vollständige API-Dokumentation finden Sie in Ihrem Praxis-Dashboard nach der Einrichtung.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Konfigurationsbereich für Kontaktformular -->
+                                <div id="formular_config" class="config-section mb-4" style="display: none;">
+                                    <div class="card border-light">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>Kontaktformular konfigurieren</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="formular_email" class="form-label">E-Mail für Terminanfragen</label>
+                                                <input type="email" class="form-control" id="formular_email" name="formular_email"
+                                                    value="{{ praxis.formular_email if praxis and praxis.formular_email else praxis.email if praxis else '' }}" 
+                                                    placeholder="termine@ihre-praxis.de">
+                                                <div class="form-text">An diese E-Mail-Adresse werden alle Terminanfragen gesendet.</div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label d-block">Benötigte Informationen</label>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="formular_telefon" name="formular_felder[]" value="telefon" checked disabled>
+                                                    <label class="form-check-label" for="formular_telefon">Telefon</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="formular_email_patient" name="formular_felder[]" value="email" checked disabled>
+                                                    <label class="form-check-label" for="formular_email_patient">E-Mail</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="formular_grund" name="formular_felder[]" value="grund" checked>
+                                                    <label class="form-check-label" for="formular_grund">Termingrund</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="formular_versicherung" name="formular_felder[]" value="versicherung">
+                                                    <label class="form-check-label" for="formular_versicherung">Versicherung</label>
+                                                </div>
+                                                <div class="form-text">Telefon und E-Mail sind Pflichtfelder für die Kontaktaufnahme.</div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="formular_text" class="form-label">Zusätzlicher Hinweistext (optional)</label>
+                                                <textarea class="form-control" id="formular_text" name="formular_text" rows="3" 
+                                                    placeholder="z.B. 'Bitte beachten Sie, dass wir nur Terminanfragen während unserer Öffnungszeiten bearbeiten können.'">{{ praxis.formular_text if praxis and praxis.formular_text else '' }}</textarea>
+                                                <div class="form-text">Dieser Text wird im Terminanfrage-Formular angezeigt.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Konfigurationsbereich für Dentalax-Dashboard -->
+                                <div id="dashboard_config" class="config-section" style="display: none;">
+                                    <div class="card border-light">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Dentalax-Dashboard konfigurieren</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="alert alert-success">
+                                                <i class="fas fa-check-circle me-2"></i>
+                                                <strong>Perfekt!</strong> Das Dentalax-Dashboard ist bereits für Sie eingerichtet. Sie können es nach Abschluss der Praxiseinrichtung verwenden.
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label">Standardeinstellungen</label>
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="termin_dauer" class="form-label small text-muted">Standard-Termindauer</label>
+                                                        <select class="form-select" id="termin_dauer" name="termin_dauer">
+                                                            <option value="15" {{ 'selected' if praxis and praxis.termin_dauer == 15 }}>15 Minuten</option>
+                                                            <option value="20" {{ 'selected' if praxis and praxis.termin_dauer == 20 }}>20 Minuten</option>
+                                                            <option value="30" {{ 'selected' if praxis and praxis.termin_dauer == 30 or not praxis }}>30 Minuten</option>
+                                                            <option value="45" {{ 'selected' if praxis and praxis.termin_dauer == 45 }}>45 Minuten</option>
+                                                            <option value="60" {{ 'selected' if praxis and praxis.termin_dauer == 60 }}>60 Minuten</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="vorlaufzeit" class="form-label small text-muted">Vorlaufzeit für Buchungen</label>
+                                                        <select class="form-select" id="vorlaufzeit" name="vorlaufzeit">
+                                                            <option value="0" {{ 'selected' if praxis and praxis.vorlaufzeit == 0 }}>Keine (sofortige Buchung)</option>
+                                                            <option value="1" {{ 'selected' if praxis and praxis.vorlaufzeit == 1 }}>1 Tag</option>
+                                                            <option value="2" {{ 'selected' if praxis and praxis.vorlaufzeit == 2 or not praxis }}>2 Tage</option>
+                                                            <option value="3" {{ 'selected' if praxis and praxis.vorlaufzeit == 3 }}>3 Tage</option>
+                                                            <option value="7" {{ 'selected' if praxis and praxis.vorlaufzeit == 7 }}>1 Woche</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="buchungshorizont" class="form-label small text-muted">Buchungshorizont (Wochen)</label>
+                                                        <select class="form-select" id="buchungshorizont" name="buchungshorizont">
+                                                            {% for w in range(1, 13) %}
+                                                            <option value="{{ w }}" {% if praxis and praxis.buchungshorizont == w or (not praxis or not praxis.buchungshorizont) and w == 4 %}selected{% endif %}>{{ w }} {% if w == 1 %}Woche{% else %}Wochen{% endif %}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                        <div class="form-text">Wie weit im Voraus können Patienten Termine buchen?</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="form-text mb-3">
+                                                Die detaillierten Einstellungen für Terminarten, Zeitfenster und weitere Optionen können Sie später in Ihrem Dashboard anpassen.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between mt-4">
+                                    <button type="button" class="btn btn-outline-primary prev-step" data-target="step4-tab">Zurück</button>
+                                    <button type="button" class="btn btn-primary next-step" data-target="step6-tab">Weiter</button>
+                                </div>
+                            </div>

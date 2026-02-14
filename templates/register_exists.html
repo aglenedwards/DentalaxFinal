@@ -1,0 +1,260 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="position-relative overflow-hidden" style="padding: 6rem 0 3rem; background: linear-gradient(135deg, rgba(231, 249, 252, 0.9) 0%, rgba(255, 255, 255, 0.95) 100%);">
+  <div class="position-absolute top-0 end-0 w-100 h-100" style="background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI3NSIgY3k9IjI1IiByPSIyMCIgZmlsbD0icmdiYSg2MywgMTkxLCAyMTYsIDAuMDgpIi8+PGNpcmNsZSBjeD0iMjUiIGN5PSI3NSIgcj0iMTUiIGZpbGw9InJnYmEoNjMsIDE5MSwgMjE2LCAwLjA2KSIvPjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9IjEwIiBmaWxsPSJyZ2JhKDYzLCAxOTEsIDIxNiwgMC4xKSIvPjwvc3ZnPg==') no-repeat; opacity: 0.6; z-index: 0;"></div>
+  <div class="container position-relative" style="z-index: 1;">
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-8" data-aos="fade-up">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4" 
+            style="width: 80px; height: 80px; background-color: rgba(255, 193, 7, 0.15);">
+          <i class="fas fa-exclamation-triangle text-warning fa-2x"></i>
+        </div>
+        <h1 class="display-4 fw-bold mb-3" style="color: var(--dental-dark)">Praxis bereits vorhanden</h1>
+        <p class="lead fs-4 text-secondary mb-0">Wir haben Informationen zu dieser Praxis in unserem System gefunden</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container py-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="card border-0 shadow-sm rounded-4" data-aos="fade-up">
+          <div class="card-body p-4 p-md-5">
+            
+            <!-- Praxisinformationen -->
+            <div class="d-flex align-items-center mb-4">
+              <div class="d-inline-flex align-items-center justify-content-center rounded-circle me-4" 
+                  style="width: 64px; height: 64px; background-color: rgba(63, 191, 216, 0.1);">
+                <i class="fas fa-clinic-medical text-primary fa-lg"></i>
+              </div>
+              <div>
+                <h3 class="h4 fw-bold mb-1">{{ praxisname }}</h3>
+                <p class="mb-0 text-secondary">{{ strasse }}, {{ plz }} {{ stadt }}</p>
+              </div>
+            </div>
+            
+            <hr class="my-4">
+            
+            {% if beansprucht == "ja" %}
+            
+              <div class="alert alert-warning rounded-4 border-0" role="alert">
+                <div class="d-flex">
+                  <div class="me-3">
+                    <i class="fas fa-info-circle fa-2x text-warning"></i>
+                  </div>
+                  <div>
+                    <h4 class="alert-heading h5 fw-bold">Diese Praxis wurde bereits beansprucht</h4>
+                    <p class="mb-0">Wenn Sie der rechtmäßige Inhaber sind, kontaktieren Sie uns bitte direkt über unser Kontaktformular.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                <a href="/kontakt" class="btn btn-primary btn-lg rounded-pill px-4">
+                  <i class="fas fa-envelope me-2"></i> Kontakt aufnehmen
+                </a>
+                <a href="/register" class="btn btn-outline-secondary btn-lg rounded-pill px-4">
+                  <i class="fas fa-arrow-left me-2"></i> Zurück zur Registrierung
+                </a>
+              </div>
+
+            {% else %}
+            
+              <div class="alert alert-info rounded-4 border-0" role="alert">
+                <div class="d-flex">
+                  <div class="me-3">
+                    <i class="fas fa-info-circle fa-2x text-info"></i>
+                  </div>
+                  <div>
+                    <h4 class="alert-heading h5 fw-bold">Praxis in unserem System gefunden</h4>
+                    <p class="mb-0">Sind Sie der Inhaber dieser Praxis? Sie können den Eintrag übernehmen und Ihre Praxisdaten aktualisieren.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-grid gap-3 mt-4 mb-4">
+                <button id="showClaimFormBtn" class="btn btn-primary btn-lg rounded-pill" onclick="showClaimForm()">
+                  <i class="fas fa-check-circle me-2"></i> Ja, das ist meine Praxis – Eintrag übernehmen
+                </button>
+                <a href="/register" class="btn btn-outline-secondary rounded-pill">
+                  <i class="fas fa-times-circle me-2"></i> Nein, ich möchte eine neue Praxis registrieren
+                </a>
+              </div>
+              
+              <!-- Claim-Formular -->
+              <div id="claimFormContainer" class="mt-5" style="display: none;">
+                <h3 class="h5 fw-bold mb-4" style="color: var(--dental-dark);">
+                  <i class="fas fa-user-check me-2 text-primary"></i> Praxis übernehmen
+                </h3>
+                
+                <form id="claimForm" method="POST" action="/claim" class="needs-validation" novalidate>
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="praxisname" value="{{ praxisname }}">
+                  <input type="hidden" name="strasse" value="{{ strasse }}">
+                  <input type="hidden" name="plz" value="{{ plz }}">
+                  <input type="hidden" name="stadt" value="{{ stadt }}">
+                  
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="vorname" name="vorname" placeholder="Vorname" required>
+                        <label for="vorname">Vorname</label>
+                        <div class="invalid-feedback">Bitte geben Sie Ihren Vornamen ein.</div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="nachname" name="nachname" placeholder="Nachname" required>
+                        <label for="nachname">Nachname</label>
+                        <div class="invalid-feedback">Bitte geben Sie Ihren Nachnamen ein.</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-floating mb-3">
+                    <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+                    <label for="email">E-Mail-Adresse</label>
+                    <div class="invalid-feedback">Bitte geben Sie eine gültige E-Mail-Adresse ein.</div>
+                  </div>
+                  
+                  <!-- Passwort Felder -->
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="passwort" name="passwort" placeholder="Passwort" required>
+                        <label for="passwort">Passwort</label>
+                        <div class="invalid-feedback">Bitte geben Sie ein sicheres Passwort ein.</div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="passwort_bestaetigen" name="passwort_bestaetigen" placeholder="Passwort bestätigen" required>
+                        <label for="passwort_bestaetigen">Passwort bestätigen</label>
+                        <div class="invalid-feedback">Die Passwörter stimmen nicht überein.</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-floating mb-4">
+                    <textarea class="form-control" id="nachricht" name="nachricht" placeholder="Nachricht (optional)" style="height: 100px"></textarea>
+                    <label for="nachricht">Nachricht (optional)</label>
+                  </div>
+                  
+                  <!-- Datenschutz & AGB -->
+                  <div class="mb-4 form-check">
+                    <input type="checkbox" class="form-check-input" id="datenschutz" name="datenschutz" required>
+                    <label class="form-check-label" for="datenschutz">
+                      Ich habe die <a href="/datenschutz" target="_blank">Datenschutzerklärung</a> und <a href="/agb" target="_blank">AGB</a> gelesen und stimme diesen zu.
+                    </label>
+                    <div class="invalid-feedback">Sie müssen den Datenschutzbestimmungen und AGB zustimmen, um fortzufahren.</div>
+                  </div>
+                  
+                  <div class="mb-5 form-check">
+                    <input type="checkbox" class="form-check-input" id="marketing" name="marketing">
+                    <label class="form-check-label" for="marketing">
+                      Ich möchte Neuigkeiten und spezielle Angebote für Zahnärzte per E-Mail erhalten.
+                    </label>
+                  </div>
+
+                  <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill">
+                      <i class="fas fa-check-circle me-2"></i> Praxis übernehmen
+                    </button>
+                  </div>
+                </form>
+              </div>
+              
+            {% endif %}
+            
+          </div>
+        </div>
+        
+        {% if not beansprucht == "ja" %}
+        <div class="mt-5">
+          <div class="card border-0 shadow-sm rounded-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card-body p-4">
+              <h4 class="fw-bold h5 mb-3" style="color: var(--dental-dark);">
+                <i class="fas fa-shield-alt me-2 text-primary"></i> Warum sollte ich meine Praxis übernehmen?
+              </h4>
+              <p class="mb-3 text-secondary">Als verifizierter Inhaber können Sie:</p>
+              <ul class="text-secondary mb-0">
+                <li>Ihre Praxisdaten aktualisieren und vervollständigen</li>
+                <li>Bewertungen erhalten und darauf reagieren</li>
+                <li>Spezielle Leistungen und Behandlungen hervorheben</li>
+                <li>Online-Terminbuchungen aktivieren</li>
+                <li>Von mehr Sichtbarkeit bei potenziellen Patienten profitieren</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function showClaimForm() {
+    document.getElementById('showClaimFormBtn').style.display = 'none';
+    document.getElementById('claimFormContainer').style.display = 'block';
+    
+    // Sanft zum Formular scrollen
+    document.getElementById('claimFormContainer').scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    // AOS Initialisierung, falls vorhanden
+    if (typeof AOS !== 'undefined') {
+      AOS.init({
+        duration: 800,
+        once: true
+      });
+    }
+    
+    // Formularvalidierung
+    var forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function(form) {
+      form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        
+        // Überprüfen, ob Passwörter übereinstimmen
+        const passwort = document.getElementById('passwort');
+        const passwortBestaetigen = document.getElementById('passwort_bestaetigen');
+        
+        if (passwort && passwortBestaetigen && passwort.value !== passwortBestaetigen.value) {
+          passwortBestaetigen.setCustomValidity('Die Passwörter stimmen nicht überein');
+          event.preventDefault();
+          event.stopPropagation();
+        } else if (passwortBestaetigen) {
+          passwortBestaetigen.setCustomValidity('');
+        }
+        
+        form.classList.add('was-validated');
+      }, false);
+    });
+  });
+</script>
+{% endblock %}

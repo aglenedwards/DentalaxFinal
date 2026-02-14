@@ -1,0 +1,75 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="mb-3">
+  <input type="text" id="sucheInput" class="form-control" placeholder="🔍 Suchen nach Praxisname, Stadt, E-Mail ..." onkeyup="filterTabelle()">
+</div>
+
+<section class="py-5">
+  <div class="container">
+    <h1 class="mb-4">Neue Praxen (nicht in Hauptliste)</h1>
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Vorname</th>
+            <th>Nachname</th>
+            <th>Praxisname</th>
+            <th>E-Mail</th>
+            <th>Telefon</th>
+            <th>Webseite</th>
+            <th>PLZ</th>
+            <th>Stadt</th>
+            <th>Straße</th>
+            <th>Beansprucht</th>
+            <th>Paket</th>
+            <th>Registriert am</th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for praxis in praxen %}
+          <tr>
+            <td>{{ praxis.vorname }}</td>
+            <td>{{ praxis.nachname }}</td>
+            <td>{{ praxis.name }}</td>
+            <td>{{ praxis.email }}</td>
+            <td>{{ praxis.telefon }}</td>
+            <td>
+              {% if praxis.webseite %}
+              <a href="{{ praxis.webseite }}" target="_blank">Website</a>
+              {% else %}
+              <span class="text-muted">–</span>
+              {% endif %}
+            </td>
+            <td>{{ praxis.plz }}</td>
+            <td>{{ praxis.stadt }}</td>
+            <td>{{ praxis.straße }}</td>
+            <td>{{ praxis.beansprucht }}</td>
+            <td>{{ praxis.paket }}</td>
+            <td>{{ praxis.registriert_am }}</td>
+            <td class="text-center">
+              <a href="/admin/praxen/bearbeiten/{{ praxis.name | urlencode }}" class="btn btn-sm btn-outline-secondary me-1">📝</a>
+              <a href="/admin/praxen/loeschen/{{ praxis.name | urlencode }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Eintrag wirklich löschen?');">🗑️</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<script>
+function filterTabelle() {
+  const input = document.getElementById("sucheInput");
+  const filter = input.value.toLowerCase();
+  const rows = document.querySelectorAll("tbody tr");
+
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(filter) ? "" : "none";
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,401 @@
+/* Wizard CSS - Version 2025-12-25 */
+
+/* Bootstrap Tab Override - Sicherstellen dass nur aktiver Tab sichtbar ist */
+.tab-pane {
+    display: none !important;
+}
+.tab-pane.active.show {
+    display: block !important;
+}
+
+/* Wizard Container */
+.wizard-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.wizard-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.wizard-header {
+    background: linear-gradient(135deg, #40bfd8 0%, #2a8294 100%);
+    padding: 2rem;
+    text-align: center;
+}
+
+.wizard-header h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.wizard-header p {
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+.wizard-body {
+    padding: 2rem 2.5rem 2.5rem;
+}
+
+/* Fortschrittsanzeige und Navigationskreise */
+.progress-step-container {
+    margin-bottom: 2.5rem;
+    padding: 0 1rem;
+}
+
+.progress {
+    height: 6px;
+    border-radius: 3px;
+    background-color: #e9ecef;
+    margin-bottom: 2rem;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #40bfd8 0%, #2a8294 100%);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+.step-circles {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+}
+
+.step-circles .nav-item {
+    flex: 1;
+    text-align: center;
+}
+
+.step-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #fff;
+    background-color: #dee2e6;
+    margin: 0 auto 12px;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.step-circle:hover {
+    transform: scale(1.05);
+}
+
+.step-circle.active {
+    background: linear-gradient(135deg, #40bfd8 0%, #2a8294 100%);
+    box-shadow: 0 4px 15px rgba(64, 191, 216, 0.4);
+}
+
+.step-circle.completed {
+    background-color: #28a745;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    color: #6c757d;
+    max-width: 80px;
+    margin: 0 auto;
+    line-height: 1.3;
+}
+
+.nav-item:has(.step-circle.active) .step-label {
+    color: #2a8294;
+    font-weight: 600;
+}
+
+/* Step Content Styling */
+.step-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.step-header h4 {
+    color: #2a8294;
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.step-header p {
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+/* Form Styling */
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #40bfd8;
+    box-shadow: 0 0 0 3px rgba(64, 191, 216, 0.15);
+}
+
+.form-text {
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+/* Navigation Buttons */
+.wizard-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #e9ecef;
+}
+
+.btn-wizard {
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-wizard-primary {
+    background: linear-gradient(135deg, #40bfd8 0%, #2a8294 100%);
+    border: none;
+    color: #fff;
+}
+
+.btn-wizard-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(64, 191, 216, 0.4);
+    color: #fff;
+}
+
+.btn-wizard-secondary {
+    background-color: #f8f9fa;
+    border: 2px solid #dee2e6;
+    color: #495057;
+}
+
+.btn-wizard-secondary:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+/* Kachelkarten für Terminbuchungsoptionen */
+.booking-option-card {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 20px;
+    height: 100%;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background-color: #fff;
+}
+
+.booking-option-card:hover {
+    border-color: #40bfd8;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.booking-option-card.selected {
+    border-color: #40bfd8;
+    background-color: #f0fafc;
+    box-shadow: 0 5px 15px rgba(64, 191, 216, 0.2);
+}
+
+.booking-option-card .option-icon {
+    font-size: 2.2rem;
+    margin-bottom: 15px;
+    color: #40bfd8;
+}
+
+.booking-option-card h5 {
+    margin-bottom: 10px;
+    color: #2a8294;
+}
+
+.booking-option-card p {
+    color: #6c757d;
+    flex-grow: 1;
+    font-size: 0.9rem;
+}
+
+/* API-Endpunkte Stil */
+.api-endpoint-box {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.api-endpoint-box code {
+    display: block;
+    color: #2a8294;
+    font-size: 0.9rem;
+}
+
+.copy-btn {
+    cursor: pointer;
+    color: #40bfd8;
+    transition: color 0.2s;
+}
+
+.copy-btn:hover {
+    color: #2a8294;
+}
+
+/* Konfigurationsbereich ein-/ausblenden */
+.config-section {
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Paket-Badge */
+.package-badge {
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.badge-basic {
+    background-color: #6c757d;
+}
+
+.badge-pro {
+    background-color: #40bfd8;
+}
+
+.badge-plus {
+    background-color: #2a8294;
+}
+
+/* ============================================= */
+/* MOBILE RESPONSIVE STYLES - WICHTIG!          */
+/* ============================================= */
+@media (max-width: 768px) {
+    .wizard-container {
+        padding: 1rem 0;
+    }
+    
+    .wizard-header {
+        padding: 1.5rem 1rem;
+    }
+    
+    .wizard-header h3 {
+        font-size: 1.25rem;
+    }
+    
+    .wizard-body {
+        padding: 1.5rem 1rem;
+    }
+    
+    .progress-step-container {
+        margin-bottom: 1.5rem;
+        padding: 0;
+    }
+    
+    .step-circles {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 0.5rem;
+        gap: 0.25rem;
+    }
+    
+    .step-circles .nav-item {
+        flex: 0 0 auto;
+        min-width: 50px;
+    }
+    
+    .step-circle {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+    }
+    
+    /* LABELS AUSBLENDEN AUF MOBILE */
+    .step-label {
+        display: none !important;
+    }
+    
+    .step-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+    }
+    
+    .step-header h4 {
+        font-size: 1.2rem;
+    }
+    
+    .wizard-nav {
+        flex-direction: column-reverse;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+    }
+    
+    .btn-wizard {
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        text-align: center;
+    }
+    
+    .booking-option-card {
+        padding: 15px;
+    }
+    
+    .booking-option-card .option-icon {
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .step-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+        border-width: 2px;
+    }
+    
+    .step-circles .nav-item {
+        min-width: 42px;
+    }
+    
+    .form-control, .form-select {
+        padding: 0.65rem 0.85rem;
+        font-size: 16px;
+    }
+}

@@ -1,0 +1,67 @@
+{% extends 'layout.html' %}
+
+{% block title %}Zahnärztliche Leistungen | Zahnarzt nach Fachgebiet finden | Dentalax{% endblock %}
+
+{% block meta_description %}Finden Sie Zahnärzte nach Spezialisierung: Implantologie, Kieferorthopädie, Prophylaxe, Parodontologie und mehr. Dentalax - Ihr Zahnarztverzeichnis.{% endblock %}
+
+{% block content %}
+<section class="pb-5 bg-light" style="padding-top: 140px;">
+  <div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Startseite</a></li>
+        <li class="breadcrumb-item active">Leistungen</li>
+      </ol>
+    </nav>
+    
+    <div class="text-center mb-5">
+      <h1 class="display-5 fw-bold text-primary mb-3">Zahnärztliche Leistungen</h1>
+      <p class="lead text-muted col-lg-8 mx-auto">
+        Finden Sie Zahnarztpraxen nach Spezialisierung. Wählen Sie eine Leistungskategorie 
+        und finden Sie Spezialisten in Ihrer Stadt.
+      </p>
+    </div>
+    
+    <div class="row g-4">
+      {% for slug, leistung in leistungen.items() %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 border-0 shadow-sm hover-lift">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center mb-3">
+                <div class="rounded-circle me-3" style="min-width: 52px; min-height: 52px; display: flex; align-items: center; justify-content: center; background-color: rgba(63, 191, 216, 0.15);">
+                  <i class="fas {{ leistung.icon }} fa-lg" style="color: #3fbfd8;"></i>
+                </div>
+                <h3 class="h5 mb-0">{{ leistung.name }}</h3>
+              </div>
+              <p class="text-muted small mb-3">{{ leistung.intro.format(stadt='Ihrer Stadt') }}</p>
+              <a href="{{ url_for('seo_leistung_staedte_uebersicht', leistung_slug=slug) }}" 
+                 class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-search me-1"></i>{{ leistung.name }} finden
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    
+    <div class="mt-5 p-4 bg-white rounded shadow-sm">
+      <h2 class="h4 text-primary mb-3">Spezialisierte Zahnärzte finden</h2>
+      <p class="text-muted mb-0">
+        Auf Dentalax können Sie gezielt nach Zahnarztpraxen suchen, die sich auf bestimmte 
+        Behandlungen spezialisiert haben. Von Implantologie über Kieferorthopädie bis hin 
+        zur Kinderzahnheilkunde - finden Sie den richtigen Spezialisten für Ihre Bedürfnisse.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+</style>
+{% endblock %}

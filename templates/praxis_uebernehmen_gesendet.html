@@ -1,0 +1,61 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        
+        <div class="card shadow-sm border-0 text-center">
+          <div class="card-body p-5">
+            <div class="mb-4">
+              <div class="bg-success text-white rounded-circle d-inline-flex justify-content-center align-items-center" style="width: 80px; height: 80px;">
+                <i class="fas fa-envelope-open-text fa-2x"></i>
+              </div>
+            </div>
+            
+            <h3 class="mb-3 text-primary">E-Mail wurde gesendet!</h3>
+            
+            <p class="lead text-muted mb-4">
+              Wir haben eine Bestätigungs-E-Mail an <strong>{{ email }}</strong> gesendet.
+            </p>
+            
+            <div class="alert alert-light border mb-4">
+              <h6 class="mb-2">
+                <i class="fas fa-tooth text-primary me-2"></i>
+                {{ praxis.name }}
+              </h6>
+              <p class="mb-0 small text-muted">
+                {{ praxis.strasse }}, {{ praxis.plz }} {{ praxis.stadt }}
+              </p>
+            </div>
+            
+            <div class="bg-light rounded p-4 mb-4 text-start">
+              <h6 class="mb-3">Was Sie jetzt tun sollten:</h6>
+              <ol class="mb-0">
+                <li class="mb-2">Prüfen Sie Ihren E-Mail-Eingang (auch den Spam-Ordner)</li>
+                <li class="mb-2">Klicken Sie auf den Bestätigungslink in der E-Mail</li>
+                <li>Wählen Sie Ihr gewünschtes Paket aus</li>
+              </ol>
+            </div>
+            
+            <p class="small text-muted mb-4">
+              Der Link ist 24 Stunden gültig. Falls Sie keine E-Mail erhalten, 
+              überprüfen Sie bitte Ihren Spam-Ordner oder 
+              <a href="{{ url_for('praxis_uebernehmen', praxis_id=praxis.id) }}" class="text-decoration-none">
+                fordern Sie einen neuen Link an
+              </a>.
+            </p>
+            
+            
+            <a href="/" class="btn btn-outline-primary">
+              <i class="fas fa-home me-2"></i>Zur Startseite
+            </a>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

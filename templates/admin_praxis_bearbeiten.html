@@ -1,0 +1,340 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Praxis bearbeiten{% endblock %}
+{% block page_title %}Praxis bearbeiten: {{ praxis.name }}{% endblock %}
+
+{% block header_actions %}
+<div class="d-flex gap-2">
+  {% if praxis.slug %}
+  <a href="/zahnarzt/{{ praxis.slug }}" target="_blank" class="btn btn-outline-primary btn-sm">
+    <i class="fas fa-eye me-1"></i> Landingpage ansehen
+  </a>
+  {% endif %}
+  <a href="/admin/praxen" class="btn btn-outline-secondary btn-sm">
+    <i class="fas fa-arrow-left me-1"></i> Zurück
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<form method="POST" action="/admin/praxis/{{ praxis.id }}/bearbeiten">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="data-card mb-4">
+        <div class="data-card-header">
+          <h3><i class="fas fa-clinic-medical me-2"></i>Grunddaten</h3>
+        </div>
+        <div class="data-card-body p-4">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label fw-bold">Praxisname</label>
+              <input type="text" class="form-control" name="name" value="{{ praxis.name }}" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Slug</label>
+              <input type="text" class="form-control" name="slug" value="{{ praxis.slug }}" required>
+              <small class="text-muted">URL: /zahnarzt/{{ praxis.slug }}</small>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">E-Mail</label>
+              <input type="email" class="form-control" name="email" value="{{ praxis.email }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Telefon</label>
+              <input type="text" class="form-control" name="telefon" value="{{ praxis.telefon }}" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold">Webseite</label>
+              <input type="text" class="form-control" name="webseite" value="{{ praxis.webseite or '' }}">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-card mb-4">
+        <div class="data-card-header">
+          <h3><i class="fas fa-map-marker-alt me-2"></i>Adresse</h3>
+        </div>
+        <div class="data-card-body p-4">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-bold">Straße</label>
+              <input type="text" class="form-control" name="strasse" value="{{ praxis.strasse }}" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">PLZ</label>
+              <input type="text" class="form-control" name="plz" value="{{ praxis.plz }}" required>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label fw-bold">Stadt</label>
+              <input type="text" class="form-control" name="stadt" value="{{ praxis.stadt }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Breitengrad</label>
+              <input type="number" step="any" class="form-control" name="latitude" value="{{ praxis.latitude or '' }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Längengrad</label>
+              <input type="number" step="any" class="form-control" name="longitude" value="{{ praxis.longitude or '' }}">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-card mb-4">
+        <div class="data-card-header">
+          <h3><i class="fas fa-align-left me-2"></i>Beschreibung & SEO</h3>
+        </div>
+        <div class="data-card-body p-4">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-bold">Beschreibung</label>
+              <textarea class="form-control" name="beschreibung" rows="4">{{ praxis.beschreibung or '' }}</textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold">Hero Titel</label>
+              <input type="text" class="form-control" name="hero_titel" value="{{ praxis.hero_titel or '' }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold">Hero Untertitel</label>
+              <input type="text" class="form-control" name="hero_untertitel" value="{{ praxis.hero_untertitel or '' }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Hero Button Text</label>
+              <input type="text" class="form-control" name="hero_button_text" value="{{ praxis.hero_button_text or 'Termin vereinbaren' }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Über-uns Titel</label>
+              <input type="text" class="form-control" name="ueber_uns_titel" value="{{ praxis.ueber_uns_titel or '' }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold">Über-uns Text</label>
+              <textarea class="form-control" name="ueber_uns_text" rows="3">{{ praxis.ueber_uns_text or '' }}</textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold">Leistungsschwerpunkte</label>
+              <input type="text" class="form-control" name="leistungsschwerpunkte" value="{{ praxis.leistungsschwerpunkte or '' }}">
+              <small class="text-muted">Kommagetrennt, z.B.: implantologie,kieferorthopaedie,prophylaxe</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">SEO Titel</label>
+              <input type="text" class="form-control" name="seo_titel" value="{{ praxis.seo_titel or '' }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">SEO Beschreibung</label>
+              <input type="text" class="form-control" name="seo_beschreibung" value="{{ praxis.seo_beschreibung or '' }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">SEO Keywords</label>
+              <input type="text" class="form-control" name="seo_keywords" value="{{ praxis.seo_keywords or '' }}">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-card mb-4">
+        <div class="data-card-header">
+          <h3><i class="fas fa-calendar-check me-2"></i>Terminbuchung</h3>
+        </div>
+        <div class="data-card-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Terminbuchungs-Modus</label>
+              <select class="form-select" name="terminbuchung_modus">
+                <option value="dashboard" {{ 'selected' if praxis.terminbuchung_modus == 'dashboard' }}>Dashboard (intern)</option>
+                <option value="redirect" {{ 'selected' if praxis.terminbuchung_modus == 'redirect' }}>Extern (Weiterleitung)</option>
+                <option value="formular" {{ 'selected' if praxis.terminbuchung_modus == 'formular' }}>Kontaktformular</option>
+                <option value="kontakt" {{ 'selected' if praxis.terminbuchung_modus == 'kontakt' }}>Nur Kontaktdaten</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" name="terminbuchung_aktiv" id="terminbuchung_aktiv" {{ 'checked' if praxis.terminbuchung_aktiv }}>
+                <label class="form-check-label" for="terminbuchung_aktiv">Terminbuchung aktiv</label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Redirect-URL</label>
+              <input type="text" class="form-control" name="terminbuchung_url" value="{{ praxis.terminbuchung_url or '' }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Formular E-Mail</label>
+              <input type="email" class="form-control" name="formular_email" value="{{ praxis.formular_email or '' }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold">Formular Text</label>
+              <textarea class="form-control" name="formular_text" rows="2">{{ praxis.formular_text or '' }}</textarea>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Extern-Anbieter</label>
+              <select class="form-select" name="extern_anbieter">
+                <option value="" {{ 'selected' if not praxis.extern_anbieter }}>-</option>
+                <option value="doctolib" {{ 'selected' if praxis.extern_anbieter == 'doctolib' }}>Doctolib</option>
+                <option value="jameda" {{ 'selected' if praxis.extern_anbieter == 'jameda' }}>Jameda</option>
+                <option value="andere" {{ 'selected' if praxis.extern_anbieter == 'andere' }}>Andere</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Termin-Dauer (Min.)</label>
+              <input type="number" class="form-control" name="termin_dauer" value="{{ praxis.termin_dauer or 30 }}" min="5" max="180">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Vorlaufzeit (Tage)</label>
+              <input type="number" class="form-control" name="vorlaufzeit" value="{{ praxis.vorlaufzeit or 2 }}" min="0" max="30">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Buchungshorizont (Wochen)</label>
+              <select class="form-select" name="buchungshorizont">
+                {% for w in range(1, 13) %}
+                <option value="{{ w }}" {% if praxis.buchungshorizont == w or (not praxis.buchungshorizont and w == 4) %}selected{% endif %}>{{ w }} {% if w == 1 %}Woche{% else %}Wochen{% endif %}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="data-card mb-4">
+        <div class="data-card-header">
+          <h3><i class="fas fa-cog me-2"></i>Status & Paket</h3>
+        </div>
+        <div class="data-card-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Paket</label>
+            <select class="form-select" name="paket">
+              <option value="basic" {{ 'selected' if praxis.paket and praxis.paket.lower() == 'basic' or not praxis.paket }}>Basis (Kostenlos)</option>
+              <option value="premium" {{ 'selected' if praxis.paket and praxis.paket.lower() == 'premium' }}>Premium (59€/Monat)</option>
+              <option value="premiumplus" {{ 'selected' if praxis.paket and praxis.paket.lower() == 'premiumplus' }}>PremiumPlus (89€/Monat)</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Zahlungsart</label>
+            <select class="form-select" name="zahlungsart">
+              <option value="" {{ 'selected' if not praxis.zahlungsart }}>-</option>
+              <option value="monatlich" {{ 'selected' if praxis.zahlungsart == 'monatlich' }}>Monatlich</option>
+              <option value="jaehrlich" {{ 'selected' if praxis.zahlungsart == 'jaehrlich' }}>Jährlich</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Farbschema</label>
+            <select class="form-select" name="farbschema">
+              <option value="blau" {{ 'selected' if praxis.farbschema == 'blau' }}>Blau</option>
+              <option value="gruen" {{ 'selected' if praxis.farbschema == 'gruen' }}>Grün</option>
+              <option value="rot" {{ 'selected' if praxis.farbschema == 'rot' }}>Rot</option>
+              <option value="violett" {{ 'selected' if praxis.farbschema == 'violett' }}>Violett</option>
+              <option value="orange" {{ 'selected' if praxis.farbschema == 'orange' }}>Orange</option>
+            </select>
+          </div>
+          <hr>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" name="ist_verifiziert" id="ist_verifiziert" {{ 'checked' if praxis.ist_verifiziert }}>
+            <label class="form-check-label fw-bold" for="ist_verifiziert">
+              <i class="fas fa-check-circle text-success me-1"></i> Verifiziert
+            </label>
+          </div>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" name="landingpage_aktiv" id="landingpage_aktiv" {{ 'checked' if praxis.landingpage_aktiv }}>
+            <label class="form-check-label fw-bold" for="landingpage_aktiv">
+              <i class="fas fa-globe text-primary me-1"></i> Landingpage aktiv
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-card mb-4">
+        <div class="data-card-header">
+          <h3><i class="fas fa-tags me-2"></i>Matching-Merkmale</h3>
+        </div>
+        <div class="data-card-body p-4">
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" name="angstpatientenfreundlich" id="angstpatientenfreundlich" {{ 'checked' if praxis.angstpatientenfreundlich }}>
+            <label class="form-check-label" for="angstpatientenfreundlich">Angstpatienten-freundlich</label>
+          </div>
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" name="kinderfreundlich" id="kinderfreundlich" {{ 'checked' if praxis.kinderfreundlich }}>
+            <label class="form-check-label" for="kinderfreundlich">Kinderfreundlich</label>
+          </div>
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" name="barrierefrei" id="barrierefrei" {{ 'checked' if praxis.barrierefrei }}>
+            <label class="form-check-label" for="barrierefrei">Barrierefrei</label>
+          </div>
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" name="abendsprechstunde" id="abendsprechstunde" {{ 'checked' if praxis.abendsprechstunde }}>
+            <label class="form-check-label" for="abendsprechstunde">Abendsprechstunde</label>
+          </div>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" name="samstagssprechstunde" id="samstagssprechstunde" {{ 'checked' if praxis.samstagssprechstunde }}>
+            <label class="form-check-label" for="samstagssprechstunde">Samstagssprechstunde</label>
+          </div>
+          <div class="mb-0">
+            <label class="form-label fw-bold">Sprachen</label>
+            <input type="text" class="form-control" name="sprachen" value="{{ praxis.sprachen or '' }}">
+            <small class="text-muted">Kommagetrennt: Deutsch,Englisch,Türkisch</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-card mb-4">
+        <div class="data-card-header">
+          <h3><i class="fab fa-stripe me-2"></i>Stripe-Info</h3>
+        </div>
+        <div class="data-card-body p-4">
+          <div class="mb-2">
+            <small class="text-muted">Customer ID</small>
+            <div class="text-break">{{ praxis.stripe_customer_id or '-' }}</div>
+          </div>
+          <div class="mb-2">
+            <small class="text-muted">Subscription ID</small>
+            <div class="text-break">{{ praxis.stripe_subscription_id or '-' }}</div>
+          </div>
+          <div class="mb-0">
+            <small class="text-muted">Subscription Status</small>
+            <div>
+              {% if praxis.stripe_subscription_status == 'active' %}
+                <span class="badge bg-success">Aktiv</span>
+              {% elif praxis.stripe_subscription_status %}
+                <span class="badge bg-secondary">{{ praxis.stripe_subscription_status }}</span>
+              {% else %}
+                -
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-card mb-4">
+        <div class="data-card-header">
+          <h3><i class="fas fa-info-circle me-2"></i>Metadaten</h3>
+        </div>
+        <div class="data-card-body p-4">
+          <div class="mb-2">
+            <small class="text-muted">Erstellt am</small>
+            <div>{{ praxis.erstelldatum.strftime('%d.%m.%Y %H:%M') if praxis.erstelldatum else '-' }}</div>
+          </div>
+          <div class="mb-2">
+            <small class="text-muted">Zuletzt aktualisiert</small>
+            <div>{{ praxis.aktualisiert_am.strftime('%d.%m.%Y %H:%M') if praxis.aktualisiert_am else '-' }}</div>
+          </div>
+          <div class="mb-0">
+            <small class="text-muted">Zahnarzt ID</small>
+            <div>{{ praxis.zahnarzt_id or '-' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between mb-4">
+    <a href="/admin/praxen" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left me-1"></i> Abbrechen
+    </a>
+    <button type="submit" class="btn btn-admin btn-lg">
+      <i class="fas fa-save me-2"></i> Änderungen speichern
+    </button>
+  </div>
+</form>
+{% endblock %}

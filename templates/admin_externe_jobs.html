@@ -1,0 +1,93 @@
+{% extends "admin_base.html" %}
+
+{% block title %}TheirStack Jobs{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1>TheirStack Jobs</h1>
+    <p class="text-muted mb-0">Externe Stellenangebote von deutschen Job-Portalen</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/admin/externe-jobs-sync" class="btn btn-admin">
+      <i class="fas fa-sync-alt me-2"></i>Jobs synchronisieren
+    </a>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="stat-value">{{ externe_jobs | length }}</div>
+          <div class="stat-label">Externe Jobs</div>
+        </div>
+        <div class="stat-icon bg-info">
+          <i class="fas fa-globe"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="stat-value">{{ letzte_sync or 'Nie' }}</div>
+          <div class="stat-label">Letzte Synchronisierung</div>
+        </div>
+        <div class="stat-icon bg-primary">
+          <i class="fas fa-clock"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="data-card">
+  <div class="data-card-header">
+    <h3><i class="fas fa-globe me-2 text-info"></i>Alle TheirStack Jobs ({{ externe_jobs | length }})</h3>
+  </div>
+  <div class="data-card-body">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Titel</th>
+          <th>Unternehmen</th>
+          <th>Standort</th>
+          <th>Kategorie</th>
+          <th>Quelle</th>
+          <th>Hinzugefügt</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in externe_jobs %}
+        <tr>
+          <td>
+            <strong>{{ job.titel[:60] }}{% if job.titel|length > 60 %}...{% endif %}</strong>
+            <br><a href="{{ job.externe_url }}" target="_blank" class="small text-muted">
+              <i class="fas fa-external-link-alt"></i> Zur Quelle
+            </a>
+          </td>
+          <td>{{ job.unternehmen }}</td>
+          <td>{{ job.standort_stadt or job.standort or '-' }}</td>
+          <td><span class="badge bg-secondary">{{ job.position_kategorie or '-' }}</span></td>
+          <td><small class="text-muted">{{ job.quelle or 'TheirStack' }}</small></td>
+          <td><small>{{ job.abgerufen_am.strftime('%d.%m.%Y %H:%M') if job.abgerufen_am else '-' }}</small></td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center text-muted py-4">
+            <i class="fas fa-inbox fa-2x mb-3 d-block"></i>
+            Keine externen Jobs vorhanden.<br>
+            <a href="/admin/externe-jobs-sync" class="btn btn-admin btn-sm mt-3">
+              <i class="fas fa-sync-alt me-1"></i> Jetzt synchronisieren
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

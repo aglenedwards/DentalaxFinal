@@ -1,0 +1,397 @@
+{% extends "layout.html" %}
+
+{% block title %}Verfügbarkeiten - {{ praxis.name }}{% endblock %}
+
+{% block styles %}
+<style>
+  .dashboard-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 0.6rem 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .dashboard-topbar-logo img {
+    transition: opacity 0.2s;
+  }
+  .dashboard-topbar-logo:hover img {
+    opacity: 0.8;
+  }
+</style>
+{% endblock %}
+
+{% block navigation %}
+<nav class="dashboard-topbar">
+  <div class="d-flex align-items-center justify-content-between w-100">
+    <a href="/" class="dashboard-topbar-logo">
+      <img src="{{ url_for('static', filename='img/dentalax-logo.png') }}" alt="Dentalax Logo" style="height: 42px;">
+    </a>
+    <div class="d-flex align-items-center gap-2">
+      <a href="/" class="btn btn-sm btn-outline-secondary d-none d-md-inline-flex align-items-center">
+        <i class="fas fa-globe me-1"></i> Zur Website
+      </a>
+      <a href="/zahnarzt-dashboard" class="btn btn-sm btn-outline-primary d-none d-sm-inline-flex align-items-center">
+        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+      </a>
+      <div class="dropdown">
+        <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <i class="fas fa-user-circle me-1"></i> <span class="d-none d-sm-inline">Mein Konto</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><span class="dropdown-item-text small text-muted">{{ current_user.email }}</span></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="/"><i class="fas fa-globe me-2 text-primary"></i> Zur Website</a></li>
+          <li><a class="dropdown-item" href="/zahnarzt-dashboard"><i class="fas fa-tachometer-alt me-2 text-primary"></i> Dashboard</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Ausloggen</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+{% if praxis.terminbuchung_modus != 'dashboard' %}
+<div class="container-fluid py-4" style="padding-top: 80px !important;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-info-circle fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                    <h4 class="fw-bold mb-3">Verfügbarkeiten nicht aktiv</h4>
+                    <p class="text-muted mb-4">
+                        Die Verfügbarkeiten-Verwaltung ist nur verfügbar, wenn der <strong>Dentalux-Kalender</strong> als Buchungsmodus ausgewählt ist.
+                        <br>Ihr aktueller Modus: 
+                        <span class="badge bg-secondary">
+                            {% if praxis.terminbuchung_modus == 'formular' %}Kontaktformular
+                            {% elif praxis.terminbuchung_modus == 'redirect' %}Externer Link
+                            {% elif praxis.terminbuchung_modus == 'fallback' %}Nur Kontaktdaten
+                            {% else %}{{ praxis.terminbuchung_modus }}{% endif %}
+                        </span>
+                    </p>
+                    <p class="text-muted small mb-4">Ihre bestehenden Verfügbarkeiten bleiben erhalten und sind sofort wieder da, wenn Sie zum Dentalux-Kalender wechseln.</p>
+                    <a href="/zahnarzt-dashboard?page=termine" class="btn btn-primary btn-lg">
+                        <i class="fas fa-cog me-2"></i> Buchungsmodus ändern
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="container-fluid py-4" style="padding-top: 80px !important;">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-clock text-primary me-2"></i>Navigation
+                    </h5>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('zahnarzt_dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Zurück zum Dashboard
+                        </a>
+                        <a href="{{ url_for('dashboard_termine') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-calendar-alt me-2"></i>Termine
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-sliders-h me-2"></i>Buchungseinstellungen
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('dashboard_buchungseinstellungen_speichern') }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold"><i class="fas fa-hourglass-half me-1 text-info"></i> Vorlaufzeit (Tage)</label>
+                            <select name="vorlaufzeit" class="form-select form-select-sm">
+                                {% for d in range(0, 8) %}
+                                <option value="{{ d }}" {% if praxis.vorlaufzeit == d %}selected{% endif %}>{{ d }} {% if d == 0 %}(sofort buchbar){% elif d == 1 %}Tag{% else %}Tage{% endif %}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Frühester Termin ab heute</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold"><i class="fas fa-calendar-week me-1 text-info"></i> Buchungshorizont</label>
+                            <select name="buchungshorizont" class="form-select form-select-sm">
+                                {% for w in range(1, 13) %}
+                                <option value="{{ w }}" {% if (praxis.buchungshorizont or 4) == w %}selected{% endif %}>{{ w }} {% if w == 1 %}Woche{% else %}Wochen{% endif %}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Wie weit im Voraus können Patienten buchen?</div>
+                        </div>
+                        <button type="submit" class="btn btn-info btn-sm w-100 text-white">
+                            <i class="fas fa-save me-1"></i>Speichern
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-plus me-2"></i>Neue Verfügbarkeit
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('dashboard_verfuegbarkeit_speichern') }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="mb-3">
+                            <label class="form-label small">Wochentag</label>
+                            <select name="wochentag" class="form-select form-select-sm" required>
+                                {% for tag in wochentage %}
+                                <option value="{{ loop.index0 }}">{{ tag }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">Von</label>
+                                <input type="time" name="start_zeit" class="form-control form-control-sm" value="08:00" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Bis</label>
+                                <input type="time" name="end_zeit" class="form-control form-control-sm" value="17:00" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Slot-Dauer (Min.)</label>
+                            <select name="slot_dauer" class="form-select form-select-sm">
+                                <option value="15">15 Minuten</option>
+                                <option value="20">20 Minuten</option>
+                                <option value="30" selected>30 Minuten</option>
+                                <option value="45">45 Minuten</option>
+                                <option value="60">60 Minuten</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-plus me-1"></i>Hinzufügen
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-tooth me-2"></i>Neue Behandlungsart
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('dashboard_behandlungsart_speichern') }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="mb-3">
+                            <label class="form-label small">Name</label>
+                            <input type="text" name="name" class="form-control form-control-sm" placeholder="z.B. Kontrolle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Dauer (Min.)</label>
+                            <select name="dauer_minuten" class="form-select form-select-sm">
+                                <option value="15">15 Minuten</option>
+                                <option value="20">20 Minuten</option>
+                                <option value="30" selected>30 Minuten</option>
+                                <option value="45">45 Minuten</option>
+                                <option value="60">60 Minuten</option>
+                                <option value="90">90 Minuten</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Farbe</label>
+                            <input type="color" name="farbe" class="form-control form-control-color form-control-sm w-100" value="#4ECDC4">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Beschreibung</label>
+                            <textarea name="beschreibung" class="form-control form-control-sm" rows="2" placeholder="Optional"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-sm w-100">
+                            <i class="fas fa-plus me-1"></i>Hinzufügen
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-check text-primary me-2"></i>Wöchentliche Verfügbarkeiten
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for i in range(7) %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card h-100 {% if i >= 5 %}bg-light{% endif %}">
+                                <div class="card-header py-2">
+                                    <strong>{{ wochentage[i] }}</strong>
+                                </div>
+                                <div class="card-body py-2">
+                                    {% if i in verfuegbarkeiten_dict %}
+                                        {% for v in verfuegbarkeiten_dict[i] %}
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="badge bg-primary">
+                                                {{ v.start_zeit.strftime('%H:%M') }} - {{ v.end_zeit.strftime('%H:%M') }}
+                                            </span>
+                                            <span class="small text-muted">{{ v.slot_dauer }} Min.</span>
+                                            <form action="{{ url_for('dashboard_verfuegbarkeit_loeschen', id=v.id) }}" method="POST" class="d-inline">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="btn btn-link btn-sm text-danger p-0">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="text-muted small mb-0">Keine Zeiten</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-tooth text-success me-2"></i>Behandlungsarten
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if behandlungsarten %}
+                            <div class="table-responsive">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Behandlung</th>
+                                            <th>Dauer</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ba in behandlungsarten %}
+                                        <tr>
+                                            <td>
+                                                <span class="badge me-1" style="background-color: {{ ba.farbe }};">
+                                                    <i class="fas {{ ba.icon }}"></i>
+                                                </span>
+                                                {{ ba.name }}
+                                            </td>
+                                            <td>{{ ba.dauer_minuten }} Min.</td>
+                                            <td class="text-end">
+                                                <form action="{{ url_for('dashboard_behandlungsart_loeschen', id=ba.id) }}" method="POST" class="d-inline">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                    <button type="submit" class="btn btn-link btn-sm text-danger p-0">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p class="text-muted text-center mb-0">Noch keine Behandlungsarten definiert.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-calendar-times text-danger me-2"></i>Ausnahmen
+                            </h5>
+                            <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#ausnahmeModal">
+                                <i class="fas fa-plus me-1"></i>Neu
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            {% if ausnahmen %}
+                            <div class="table-responsive">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Datum</th>
+                                            <th>Grund</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for a in ausnahmen %}
+                                        <tr>
+                                            <td>{{ a.datum.strftime('%d.%m.%Y') }}</td>
+                                            <td>{{ a.grund or 'Geschlossen' }}</td>
+                                            <td class="text-end">
+                                                <form action="{{ url_for('dashboard_ausnahme_loeschen', id=a.id) }}" method="POST" class="d-inline">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                    <button type="submit" class="btn btn-link btn-sm text-danger p-0">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p class="text-muted text-center mb-0">Keine Ausnahmen geplant.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ausnahmeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-calendar-times text-danger me-2"></i>Ausnahme hinzufügen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('dashboard_ausnahme_speichern') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Datum</label>
+                        <input type="date" name="datum" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Grund</label>
+                        <input type="text" name="grund" class="form-control" placeholder="z.B. Urlaub, Fortbildung">
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="ganztags" id="ganztags" class="form-check-input" checked>
+                        <label class="form-check-label" for="ganztags">Ganztägig geschlossen</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-danger">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

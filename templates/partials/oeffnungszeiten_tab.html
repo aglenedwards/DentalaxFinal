@@ -1,0 +1,66 @@
+<div class="tab-pane fade" id="step3" role="tabpanel" aria-labelledby="step3-tab">
+    <div class="mb-4">
+        <h4>Öffnungszeiten</h4>
+        <p class="text-muted">Legen Sie die Öffnungszeiten Ihrer Praxis fest.</p>
+    </div>
+
+    <div class="opening-hours-container">
+        {% set wochentage = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'] %}
+        
+        {% for tag in wochentage %}
+            <div class="mb-3 opening-hours-row">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-2">
+                        <label class="form-check-label">
+                            {% set geschlossen = false %}
+                            {% for oz in oeffnungszeiten %}
+                                {% if oz.tag == tag and oz.geschlossen %}
+                                    {% set geschlossen = true %}
+                                {% endif %}
+                            {% endfor %}
+                            <input type="checkbox" class="form-check-input me-2 closed-day" name="closed_{{ tag|lower }}" value="1" {% if geschlossen %}checked{% endif %}>
+                            {{ tag }}
+                        </label>
+                    </div>
+                    
+                    <div class="col-md-10">
+                        <div class="row time-input-group" {% if geschlossen %}style="display: none;"{% endif %}>
+                            {% set von = '' %}
+                            {% set bis = '' %}
+                            {% for oz in oeffnungszeiten %}
+                                {% if oz.tag == tag and not oz.geschlossen %}
+                                    {% set von = oz.von|string %}
+                                    {% set bis = oz.bis|string %}
+                                {% endif %}
+                            {% endfor %}
+                            
+                            <div class="col-md-5">
+                                <label class="form-label small" for="{{ tag|lower }}_von">Von</label>
+                                <input type="time" class="form-control" id="{{ tag|lower }}_von" name="{{ tag|lower }}_von" value="{{ von }}">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label small" for="{{ tag|lower }}_bis">Bis</label>
+                                <input type="time" class="form-control" id="{{ tag|lower }}_bis" name="{{ tag|lower }}_bis" value="{{ bis }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">&nbsp;</label>
+                                <button type="button" class="btn btn-outline-secondary form-control add-time-slot" data-day="{{ tag|lower }}" title="Weitere Zeitslots hinzufügen">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="additional-time-slots" id="{{ tag|lower }}_additional_slots">
+                            <!-- Hier werden dynamisch weitere Zeitslots eingefügt -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+        <button type="button" class="btn btn-outline-primary prev-step" data-target="step2-tab">Zurück</button>
+        <button type="button" class="btn btn-primary next-step" data-target="step4-tab">Weiter</button>
+    </div>
+</div>

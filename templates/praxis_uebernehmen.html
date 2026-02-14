@@ -1,0 +1,170 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<section class="pb-5 bg-light" style="padding-top: 140px;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        
+        <nav aria-label="breadcrumb" class="mb-4">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Startseite</a></li>
+            <li class="breadcrumb-item"><a href="/suche?ort={{ praxis.stadt }}" class="text-decoration-none">Zahnärzte in {{ praxis.stadt }}</a></li>
+            <li class="breadcrumb-item active">Praxis übernehmen</li>
+          </ol>
+        </nav>
+        
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-primary text-white py-3">
+            <h4 class="mb-0">
+              <i class="fas fa-user-plus me-2"></i>
+              Praxis übernehmen
+            </h4>
+          </div>
+          
+          <div class="card-body p-4">
+            <div class="alert alert-info border-0 mb-4">
+              <div class="d-flex align-items-start">
+                <i class="fas fa-info-circle fs-4 me-3 mt-1"></i>
+                <div>
+                  <h6 class="mb-1">Sind Sie der Inhaber dieser Praxis?</h6>
+                  <p class="mb-0 small">
+                    Übernehmen Sie Ihren Eintrag und verwalten Sie Ihre Praxisdaten selbst. 
+                    So können Sie Ihre Öffnungszeiten aktualisieren, Bewertungen beantworten 
+                    und mit einem Premium-Paket mehr Patienten erreichen.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-light rounded p-4 mb-4">
+              <h5 class="text-primary mb-3">
+                <i class="fas fa-tooth me-2"></i>
+                {{ praxis.name }}
+              </h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <p class="mb-2">
+                    <i class="fas fa-map-marker-alt text-secondary me-2"></i>
+                    {{ praxis.strasse }}, {{ praxis.plz }} {{ praxis.stadt }}
+                  </p>
+                  <p class="mb-0">
+                    <i class="fas fa-phone text-secondary me-2"></i>
+                    {{ praxis.telefon }}
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  {% if praxis.email %}
+                  <p class="mb-2">
+                    <i class="fas fa-envelope text-secondary me-2"></i>
+                    {{ praxis.email }}
+                  </p>
+                  {% endif %}
+                  {% if praxis.webseite %}
+                  <p class="mb-0">
+                    <i class="fas fa-globe text-secondary me-2"></i>
+                    <a href="{{ praxis.webseite }}" target="_blank" class="text-decoration-none">Website</a>
+                  </p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            
+            <h5 class="mb-3">So funktioniert die Übernahme:</h5>
+            <div class="row mb-4">
+              <div class="col-md-4 text-center mb-3 mb-md-0">
+                <div class="rounded-circle bg-primary text-white d-inline-flex justify-content-center align-items-center mb-3" style="width: 50px; height: 50px;">
+                  <span class="fw-bold">1</span>
+                </div>
+                <h6>E-Mail eingeben</h6>
+                <p class="small text-muted">Geben Sie Ihre geschäftliche E-Mail-Adresse ein</p>
+              </div>
+              <div class="col-md-4 text-center mb-3 mb-md-0">
+                <div class="rounded-circle bg-primary text-white d-inline-flex justify-content-center align-items-center mb-3" style="width: 50px; height: 50px;">
+                  <span class="fw-bold">2</span>
+                </div>
+                <h6>E-Mail bestätigen</h6>
+                <p class="small text-muted">Klicken Sie auf den Bestätigungslink in der E-Mail</p>
+              </div>
+              <div class="col-md-4 text-center">
+                <div class="rounded-circle bg-primary text-white d-inline-flex justify-content-center align-items-center mb-3" style="width: 50px; height: 50px;">
+                  <span class="fw-bold">3</span>
+                </div>
+                <h6>Paket wählen</h6>
+                <p class="small text-muted">Wählen Sie Ihr gewünschtes Paket aus</p>
+              </div>
+            </div>
+            
+            <hr class="my-4">
+            
+            {% if praxis.id %}
+            <form method="post" action="{{ url_for('praxis_uebernehmen', praxis_id=praxis.id) }}">
+            {% else %}
+            <form method="post" action="{{ url_for('praxis_uebernehmen_csv', csv_id=praxis.csv_id) }}">
+            {% endif %}
+              <h5 class="mb-3">Ihre Kontaktdaten</h5>
+              
+              <div class="mb-3">
+                <label for="email" class="form-label">
+                  E-Mail-Adresse <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text bg-white">
+                    <i class="fas fa-envelope text-primary"></i>
+                  </span>
+                  <input type="email" class="form-control" id="email" name="email" 
+                         required placeholder="praxis@beispiel.de"
+                         value="{{ praxis.email or '' }}">
+                </div>
+                <div class="form-text">
+                  <i class="fas fa-lock text-muted me-1"></i>
+                  Wir senden einen Bestätigungslink an diese Adresse
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="vorname" class="form-label">Vorname (optional)</label>
+                  <input type="text" class="form-control" id="vorname" name="vorname" 
+                         placeholder="Dr. Max">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="nachname" class="form-label">Nachname (optional)</label>
+                  <input type="text" class="form-control" id="nachname" name="nachname" 
+                         placeholder="Mustermann">
+                </div>
+              </div>
+              
+              <div class="form-check mb-4">
+                <input class="form-check-input" type="checkbox" id="agb" name="agb" required>
+                <label class="form-check-label small" for="agb">
+                  Ich bestätige, dass ich berechtigt bin, diese Praxis zu verwalten und akzeptiere die 
+                  <a href="/agb" class="text-decoration-none">AGB</a> und 
+                  <a href="/datenschutz" class="text-decoration-none">Datenschutzbestimmungen</a>.
+                </label>
+              </div>
+              
+              <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                <a href="/suche?ort={{ praxis.stadt }}" class="btn btn-outline-secondary">
+                  <i class="fas fa-arrow-left me-2"></i>Zurück zur Suche
+                </a>
+                <button type="submit" class="btn btn-primary px-4">
+                  <i class="fas fa-paper-plane me-2"></i>Bestätigungslink anfordern
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <div class="text-center mt-4">
+          <p class="text-muted small">
+            <i class="fas fa-question-circle me-1"></i>
+            Fragen zur Übernahme? <a href="/kontakt" class="text-decoration-none">Kontaktieren Sie uns</a>
+          </p>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

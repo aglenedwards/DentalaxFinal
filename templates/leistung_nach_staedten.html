@@ -1,0 +1,63 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ leistung.name }} in Deutschland | Zahnarzt finden | Dentalax{% endblock %}
+
+{% block meta_description %}{{ leistung.name }} in Ihrer Stadt finden. Dentalax listet Zahnarztpraxen mit Schwerpunkt {{ leistung.name }} in ganz Deutschland.{% endblock %}
+
+{% block content %}
+<section class="pb-5 bg-light" style="padding-top: 140px;">
+  <div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Startseite</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('leistungen_uebersicht') }}">Leistungen</a></li>
+        <li class="breadcrumb-item active">{{ leistung.name }}</li>
+      </ol>
+    </nav>
+    
+    <div class="text-center mb-5">
+      <h1 class="display-5 fw-bold text-primary mb-3">{{ leistung.name }} in Deutschland</h1>
+      <p class="lead text-muted col-lg-8 mx-auto">
+        Finden Sie Zahnarztpraxen mit Schwerpunkt {{ leistung.name }} in Ihrer Stadt. 
+        Wählen Sie eine Stadt aus der Liste, um passende Praxen zu finden.
+      </p>
+    </div>
+    
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
+      {% for stadt in staedte %}
+        {% set slug = stadt_zu_slug(stadt) %}
+        <div class="col">
+          <a href="{{ url_for('seo_leistung_stadt', full_slug=leistung_slug ~ '-' ~ slug) }}" 
+             class="card h-100 text-decoration-none hover-lift border-0 shadow-sm">
+            <div class="card-body text-center py-3">
+              <i class="fas fa-map-marker-alt text-primary mb-2"></i>
+              <h6 class="card-title mb-0 text-dark">{{ stadt }}</h6>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+    
+    <div class="mt-5 p-4 bg-white rounded shadow-sm">
+      <h2 class="h4 text-primary mb-3">{{ leistung.name }} - Was ist das?</h2>
+      <p class="text-muted mb-0">{{ leistung.footer.format(stadt='Deutschland') }}</p>
+    </div>
+    
+    <div class="mt-4 text-center">
+      <a href="{{ url_for('leistungen_uebersicht') }}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>Alle Leistungen anzeigen
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+</style>
+{% endblock %}

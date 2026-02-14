@@ -1,0 +1,26 @@
+<div class="tab-pane fade" id="step2" role="tabpanel" aria-labelledby="step2-tab">
+    <div class="mb-4">
+        <h4>Adresse</h4>
+        <p class="text-muted">Geben Sie die Anschrift Ihrer Praxis ein.</p>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-8 mb-3">
+            <label for="strasse" class="form-label">Straße und Hausnummer</label>
+            <input type="text" class="form-control" id="strasse" name="strasse" value="{{ praxis.strasse if praxis else stammdaten.strasse if stammdaten else '' }}" required>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="plz" class="form-label">Postleitzahl</label>
+            <input type="text" class="form-control" id="plz" name="plz" value="{{ praxis.plz if praxis else stammdaten.plz if stammdaten else '' }}" required>
+        </div>
+        <div class="col-md-12 mb-3">
+            <label for="stadt" class="form-label">Stadt</label>
+            <input type="text" class="form-control" id="stadt" name="stadt" value="{{ praxis.stadt if praxis else stammdaten.stadt if stammdaten else '' }}" required>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+        <button type="button" class="btn btn-outline-primary prev-step" data-target="step1-tab">Zurück</button>
+        <button type="button" class="btn btn-primary next-step" data-target="step3-tab">Weiter</button>
+    </div>
+</div>

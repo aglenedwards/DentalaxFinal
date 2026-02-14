@@ -1,0 +1,229 @@
+{% extends "layout.html" %}
+
+{% block title %}Bestandspatienten - {{ praxis.name }}{% endblock %}
+
+{% block styles %}
+<style>
+  .dashboard-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 0.6rem 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .dashboard-topbar-logo img {
+    transition: opacity 0.2s;
+  }
+  .dashboard-topbar-logo:hover img {
+    opacity: 0.8;
+  }
+</style>
+{% endblock %}
+
+{% block navigation %}
+<nav class="dashboard-topbar">
+  <div class="d-flex align-items-center justify-content-between w-100">
+    <a href="/" class="dashboard-topbar-logo">
+      <img src="{{ url_for('static', filename='img/dentalax-logo.png') }}" alt="Dentalax Logo" style="height: 42px;">
+    </a>
+    <div class="d-flex align-items-center gap-2">
+      <a href="/" class="btn btn-sm btn-outline-secondary d-none d-md-inline-flex align-items-center">
+        <i class="fas fa-globe me-1"></i> Zur Website
+      </a>
+      <a href="/zahnarzt-dashboard" class="btn btn-sm btn-outline-primary d-none d-sm-inline-flex align-items-center">
+        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+      </a>
+      <div class="dropdown">
+        <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <i class="fas fa-user-circle me-1"></i> <span class="d-none d-sm-inline">Mein Konto</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><span class="dropdown-item-text small text-muted">{{ current_user.email }}</span></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="/"><i class="fas fa-globe me-2 text-primary"></i> Zur Website</a></li>
+          <li><a class="dropdown-item" href="/zahnarzt-dashboard"><i class="fas fa-tachometer-alt me-2 text-primary"></i> Dashboard</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Ausloggen</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" style="padding-top: 80px !important;">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-users text-primary me-2"></i>Navigation
+                    </h5>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('zahnarzt_dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Zurück zum Dashboard
+                        </a>
+                        <a href="{{ url_for('dashboard_termine') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-calendar-alt me-2"></i>Termine
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-search text-primary me-2"></i>Suche
+                    </h5>
+                    <form method="GET" action="{{ url_for('dashboard_bestandspatienten') }}">
+                        <div class="input-group">
+                            <input type="text" name="suche" class="form-control form-control-sm" placeholder="Name, E-Mail, Telefon..." value="{{ suche or '' }}">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        {% if suche %}
+                        <a href="{{ url_for('dashboard_bestandspatienten') }}" class="btn btn-outline-secondary btn-sm w-100 mt-2">
+                            <i class="fas fa-times me-1"></i>Filter zurücksetzen
+                        </a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Statistiken</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Gesamt</span>
+                        <span class="badge bg-primary rounded-pill">{{ patienten|length }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Recall fällig</span>
+                        <span class="badge bg-warning rounded-pill">{{ recall_faellig }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0 fw-bold">
+                    <i class="fas fa-users text-primary me-2"></i>Bestandspatienten
+                    <span class="badge bg-primary ms-2">{{ patienten|length }}</span>
+                </h4>
+            </div>
+
+            {% if recall_faellig > 0 %}
+            <div class="alert alert-warning d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <i class="fas fa-bell me-2"></i>
+                    <strong>{{ recall_faellig }} Recall-Erinnerungen fällig</strong>
+                </div>
+                <form action="{{ url_for('dashboard_recall_senden') }}" method="POST" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-warning btn-sm">
+                        <i class="fas fa-paper-plane me-1"></i>Recalls senden
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    {% if patienten %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Name</th>
+                                    <th>E-Mail</th>
+                                    <th>Telefon</th>
+                                    <th>Letzter Besuch</th>
+                                    <th>Nächster Recall</th>
+                                    <th>Status</th>
+                                    <th class="text-end pe-3">Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for patient in patienten %}
+                                <tr>
+                                    <td class="ps-3">
+                                        <span class="fw-medium">{{ patient.voller_name }}</span>
+                                        <br><small class="text-muted">{{ patient.termine_count }} Termine</small>
+                                    </td>
+                                    <td>
+                                        {% if patient.email %}
+                                        <a href="mailto:{{ patient.email }}" class="text-decoration-none">{{ patient.email }}</a>
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if patient.telefon %}
+                                        <a href="tel:{{ patient.telefon }}" class="text-decoration-none">{{ patient.telefon }}</a>
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if patient.letzter_besuch %}
+                                        {{ patient.letzter_besuch.strftime('%d.%m.%Y') }}
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if patient.naechster_recall %}
+                                        {{ patient.naechster_recall.strftime('%d.%m.%Y') }}
+                                        {% if patient.recall_gesendet %}
+                                        <br><small class="badge bg-info">Gesendet</small>
+                                        {% endif %}
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if patient.recall_aktiv %}
+                                        <span class="badge bg-success">Recall aktiv</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Kein Recall</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-3">
+                                        <a href="{{ url_for('dashboard_bestandspatient_detail', patient_id=patient.id) }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye me-1"></i>Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Keine Bestandspatienten gefunden</h5>
+                        {% if suche %}
+                        <p class="text-muted">Keine Ergebnisse für "{{ suche }}"</p>
+                        <a href="{{ url_for('dashboard_bestandspatienten') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-times me-1"></i>Suche zurücksetzen
+                        </a>
+                        {% else %}
+                        <p class="text-muted">Patienten werden automatisch nach Terminbuchungen angelegt.</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

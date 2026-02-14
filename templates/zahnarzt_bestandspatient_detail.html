@@ -1,0 +1,274 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ patient.voller_name }} - Bestandspatient{% endblock %}
+
+{% block styles %}
+<style>
+  .dashboard-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 0.6rem 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .dashboard-topbar-logo img {
+    transition: opacity 0.2s;
+  }
+  .dashboard-topbar-logo:hover img {
+    opacity: 0.8;
+  }
+</style>
+{% endblock %}
+
+{% block navigation %}
+<nav class="dashboard-topbar">
+  <div class="d-flex align-items-center justify-content-between w-100">
+    <a href="/" class="dashboard-topbar-logo">
+      <img src="{{ url_for('static', filename='img/dentalax-logo.png') }}" alt="Dentalax Logo" style="height: 42px;">
+    </a>
+    <div class="d-flex align-items-center gap-2">
+      <a href="/" class="btn btn-sm btn-outline-secondary d-none d-md-inline-flex align-items-center">
+        <i class="fas fa-globe me-1"></i> Zur Website
+      </a>
+      <a href="/zahnarzt-dashboard" class="btn btn-sm btn-outline-primary d-none d-sm-inline-flex align-items-center">
+        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+      </a>
+      <div class="dropdown">
+        <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <i class="fas fa-user-circle me-1"></i> <span class="d-none d-sm-inline">Mein Konto</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><span class="dropdown-item-text small text-muted">{{ current_user.email }}</span></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="/"><i class="fas fa-globe me-2 text-primary"></i> Zur Website</a></li>
+          <li><a class="dropdown-item" href="/zahnarzt-dashboard"><i class="fas fa-tachometer-alt me-2 text-primary"></i> Dashboard</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Ausloggen</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" style="padding-top: 80px !important;">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-user text-primary me-2"></i>Navigation
+                    </h5>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('dashboard_bestandspatienten') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Zurück zur Übersicht
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Statistiken</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Termine gesamt</span>
+                        <span class="badge bg-primary rounded-pill">{{ patient.termine_count }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Letzter Besuch</span>
+                        <span class="text-muted small">
+                            {% if patient.letzter_besuch %}
+                            {{ patient.letzter_besuch.strftime('%d.%m.%Y') }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Patient seit</span>
+                        <span class="text-muted small">
+                            {% if patient.erstellt_am %}
+                            {{ patient.erstellt_am.strftime('%d.%m.%Y') }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            {% if patient.email %}
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-bell text-primary me-2"></i>Recall
+                    </h5>
+                    <form action="{{ url_for('dashboard_recall_einzeln', patient_id=patient.id) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-warning btn-sm w-100">
+                            <i class="fas fa-paper-plane me-1"></i>Recall manuell senden
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-9">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title m-0 fw-bold">
+                        <i class="fas fa-user-edit text-primary me-2"></i>{{ patient.voller_name }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('dashboard_bestandspatient_bearbeiten', patient_id=patient.id) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="vorname" class="form-label">Vorname</label>
+                                <input type="text" class="form-control" id="vorname" name="vorname" value="{{ patient.vorname or '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="nachname" class="form-label">Nachname</label>
+                                <input type="text" class="form-control" id="nachname" name="nachname" value="{{ patient.nachname or '' }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">E-Mail</label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ patient.email or '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="telefon" class="form-label">Telefon</label>
+                                <input type="tel" class="form-control" id="telefon" name="telefon" value="{{ patient.telefon or '' }}">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notizen" class="form-label">Notizen</label>
+                            <textarea class="form-control" id="notizen" name="notizen" rows="3">{{ patient.notizen or '' }}</textarea>
+                        </div>
+                        <hr>
+                        <h6 class="fw-bold mb-3"><i class="fas fa-bell text-primary me-2"></i>Recall-Einstellungen</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="recall_aktiv" name="recall_aktiv" value="1" {{ 'checked' if patient.recall_aktiv else '' }}>
+                                    <label class="form-check-label" for="recall_aktiv">Recall aktiv</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="recall_intervall_monate" class="form-label">Recall-Intervall</label>
+                                <select class="form-select" id="recall_intervall_monate" name="recall_intervall_monate">
+                                    <option value="3" {{ 'selected' if patient.recall_intervall_monate == 3 else '' }}>3 Monate</option>
+                                    <option value="6" {{ 'selected' if patient.recall_intervall_monate == 6 else '' }}>6 Monate</option>
+                                    <option value="9" {{ 'selected' if patient.recall_intervall_monate == 9 else '' }}>9 Monate</option>
+                                    <option value="12" {{ 'selected' if patient.recall_intervall_monate == 12 else '' }}>12 Monate</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Nächster Recall</label>
+                                <p class="form-control-plaintext">
+                                    {% if patient.naechster_recall %}
+                                    {{ patient.naechster_recall.strftime('%d.%m.%Y') }}
+                                    {% if patient.recall_gesendet %}
+                                    <span class="badge bg-info ms-1">Gesendet</span>
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Speichern
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title m-0 fw-bold">
+                        <i class="fas fa-history text-primary me-2"></i>Terminhistorie
+                    </h5>
+                    <span class="badge bg-primary rounded-pill">{{ termine|length }} Termine</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if termine %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Datum</th>
+                                    <th>Uhrzeit</th>
+                                    <th>Behandlung / Grund</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for termin in termine %}
+                                <tr>
+                                    <td class="ps-3">
+                                        {% if termin.datum %}
+                                        {{ termin.datum.strftime('%d.%m.%Y') }}
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if termin.uhrzeit %}
+                                        {{ termin.uhrzeit.strftime('%H:%M') }}
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if termin.behandlungsart %}
+                                        {{ termin.behandlungsart.name }}
+                                        {% elif termin.grund %}
+                                        {{ termin.grund }}
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if termin.status == 'ausstehend' %}
+                                        <span class="badge bg-warning text-dark">Ausstehend</span>
+                                        {% elif termin.status == 'bestaetigt' %}
+                                        <span class="badge bg-success">Bestätigt</span>
+                                        {% elif termin.status == 'abgesagt' %}
+                                        <span class="badge bg-danger">Abgesagt</span>
+                                        {% elif termin.status == 'erschienen' %}
+                                        <span class="badge bg-info">Erschienen</span>
+                                        {% elif termin.status == 'nicht_erschienen' %}
+                                        <span class="badge bg-secondary">Nicht erschienen</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Keine Termine vorhanden</h5>
+                        <p class="text-muted">Für diesen Patienten wurden noch keine Termine erfasst.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

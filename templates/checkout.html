@@ -1,0 +1,75 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<section class="bg-light pb-5" style="padding-top: 10rem;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow rounded-4">
+          <div class="card-body p-5">
+            <h2 class="mb-4 text-center">Zahlung abschließen</h2>
+
+            <!-- Paket-Infos -->
+            <div class="mb-4">
+              <h5 class="text-muted">Ihr gewähltes Paket:</h5>
+              <div class="border rounded p-3 bg-white">
+                <strong>{{ paket }}</strong><br>
+                <span class="text-primary">
+                  {% if zahlweise == 'jährlich' %}
+                    {{ preis_brutto }} € / Jahr
+                  {% else %}
+                    {{ preis_brutto }} € / Monat
+                  {% endif %}
+                </span><br>
+                <small class="text-muted">
+                  (Netto: {{ preis_netto }} €, MwSt: {{ preis_mwst }} €)
+                </small>
+              </div>
+            </div>
+
+            <!-- Praxisdaten -->
+            <div class="mb-4">
+              <h5 class="text-muted d-flex justify-content-between align-items-center">
+                <span>Ihre Praxisdaten:</span>
+                <a href="/register" class="btn btn-sm btn-outline-secondary">✏️ Bearbeiten</a>
+              </h5>
+              <div class="border rounded p-3 bg-white">
+                <strong>{{ praxisname }}</strong><br>
+                {{ vorname }} {{ nachname }}<br>
+                {{ strasse }}<br>
+                {{ plz }} {{ stadt }}<br>
+                {{ email }}
+              </div>
+            </div>
+
+            <!-- Zahlungsart -->
+            <form method="POST" action="/zahlung-abschliessen">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="mb-4 text-center">
+                <p class="text-muted mb-2"><i class="fas fa-lock me-2"></i>Sichere Zahlung via Stripe</p>
+                <div class="d-flex justify-content-center gap-2">
+                  <i class="fab fa-cc-visa fa-2x text-muted"></i>
+                  <i class="fab fa-cc-mastercard fa-2x text-muted"></i>
+                  <i class="fab fa-cc-amex fa-2x text-muted"></i>
+                  <i class="fab fa-cc-apple-pay fa-2x text-muted"></i>
+                  <i class="fab fa-google-pay fa-2x text-muted"></i>
+                </div>
+              </div>
+
+              <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary px-5 py-3 rounded-pill shadow">
+                  <i class="fas fa-credit-card me-2"></i>Jetzt bezahlen
+                </button>
+              </div>
+            </form>
+
+            <p class="text-center mt-4 text-muted small">
+              Ihre Daten sind sicher. DSGVO-konform & Made in Germany.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

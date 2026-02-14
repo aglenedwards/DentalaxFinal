@@ -1,0 +1,221 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Hero Banner -->
+<section class="position-relative" style="margin-bottom: 4rem;">
+  <div class="hero-image position-relative" 
+       style="height: 400px; background: linear-gradient(135deg, #40bfd8 0%, #2a8294 100%); border-radius: 0 0 50% 50% / 12%; overflow: hidden;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.1);"></div>
+    <div class="container position-relative h-100 d-flex flex-column justify-content-center">
+      <div class="text-center" data-aos="fade-up" data-aos-duration="1000">
+        <h1 class="display-4 fw-bold mb-4 text-white">Dental Jobs nach Städten</h1>
+        <p class="fs-4 text-white mb-4" style="opacity: 0.9;">Finden Sie Stellenangebote in der Zahnmedizin in Ihrer Stadt</p>
+        <div class="row justify-content-center">
+          <div class="col-md-7">
+            <div class="input-group input-group-lg mb-0">
+              <input type="text" id="stadtSearch" class="form-control form-control-lg border-0 py-3" placeholder="Stadt suchen..." style="box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+              <span class="input-group-text bg-white text-primary border-0 px-4">
+                <i class="fas fa-search"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Anzahl Ergebnisse und Info -->
+<section class="mb-5">
+  <div class="container">
+    <div class="row align-items-center mb-4">
+      <div class="col-md-7">
+        <h2 class="h3 mb-0"><span id="stadtCount"></span> Städte mit Dental-Stellenangeboten</h2>
+      </div>
+      <div class="col-md-5 text-md-end">
+        <p class="text-muted mb-0">Klicken Sie auf eine Stadt, um Jobs zu finden</p>
+      </div>
+    </div>
+    <hr class="mb-4">
+  </div>
+</section>
+
+<!-- Städte Grid -->
+<section class="mb-5">
+  <div class="container">
+    <div id="staedteGrid" class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3">
+    </div>
+  </div>
+</section>
+
+<!-- Info-Sektion -->
+<section class="bg-light py-5 mb-5 rounded-3">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-4 mb-lg-0">
+        <h2 class="h3 mb-4" style="color: var(--dental-dark);">Deutschlands Dental-Jobportal</h2>
+        <p class="mb-4">Dentalax verbindet qualifizierte Fachkräfte mit Top-Arbeitgebern in der Zahnmedizin. Finden Sie attraktive Stellenangebote als ZFA, ZMF, Zahnarzt, Dentalhygieniker und mehr.</p>
+        <div class="d-flex">
+          <div class="me-4 text-center">
+            <div class="fs-1 fw-bold mb-1" style="color: var(--dental-primary);">{{ staedte|length }}+</div>
+            <div class="small text-muted">Städte</div>
+          </div>
+          <div class="me-4 text-center">
+            <div class="fs-1 fw-bold mb-1" style="color: var(--dental-primary);">{{ total_jobs }}+</div>
+            <div class="small text-muted">Jobs</div>
+          </div>
+          <div class="text-center">
+            <div class="fs-1 fw-bold mb-1" style="color: var(--dental-primary);">8+</div>
+            <div class="small text-muted">Berufsfelder</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="p-4 rounded-4 bg-white shadow-sm">
+          <h3 class="h5 mb-3">Wie finde ich den passenden Job?</h3>
+          <ul class="list-unstyled">
+            <li class="d-flex mb-3">
+              <div class="me-3">
+                <div class="d-flex align-items-center justify-content-center rounded-circle bg-primary text-white" style="width: 30px; height: 30px;">1</div>
+              </div>
+              <div>
+                <strong>Stadt auswählen</strong>
+                <p class="text-muted mb-0 small">Wählen Sie Ihre Wunschstadt aus der Liste</p>
+              </div>
+            </li>
+            <li class="d-flex mb-3">
+              <div class="me-3">
+                <div class="d-flex align-items-center justify-content-center rounded-circle bg-primary text-white" style="width: 30px; height: 30px;">2</div>
+              </div>
+              <div>
+                <strong>Stellenangebote durchsuchen</strong>
+                <p class="text-muted mb-0 small">Entdecken Sie Premium- und externe Jobangebote</p>
+              </div>
+            </li>
+            <li class="d-flex">
+              <div class="me-3">
+                <div class="d-flex align-items-center justify-content-center rounded-circle bg-primary text-white" style="width: 30px; height: 30px;">3</div>
+              </div>
+              <div>
+                <strong>Bewerben</strong>
+                <p class="text-muted mb-0 small">Senden Sie Ihre Bewerbung direkt an den Arbeitgeber</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA für Arbeitgeber -->
+<section class="mb-5">
+  <div class="container">
+    <div class="card border-0 shadow-sm bg-primary text-white">
+      <div class="card-body p-4">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <h3 class="fw-bold mb-2">Sie sind Zahnarztpraxis und suchen Mitarbeiter?</h3>
+            <p class="mb-0">Mit dem PremiumPlus-Paket veröffentlichen Sie unbegrenzt Stellenangebote und erreichen tausende qualifizierte Fachkräfte.</p>
+          </div>
+          <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+            <a href="/paketwahl" class="btn btn-light text-primary px-4 py-2 fw-medium shadow-sm">
+              <i class="fas fa-plus-circle me-2"></i>Jetzt inserieren
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const staedte = {{ staedte|tojson|safe }};
+    const stadtSlugs = {{ stadt_slugs|tojson|safe }};
+
+    document.getElementById('stadtCount').textContent = staedte.length;
+
+    function normalize(str) {
+      return str.toLowerCase()
+                .replace(/\u00e4/g, 'ae')
+                .replace(/\u00f6/g, 'oe')
+                .replace(/\u00fc/g, 'ue')
+                .replace(/\u00df/g, 'ss');
+    }
+
+    function renderStaedte(filtered = null) {
+      const container = document.getElementById('staedteGrid');
+      container.innerHTML = '';
+      
+      const displayList = filtered || staedte;
+      document.getElementById('stadtCount').textContent = displayList.length;
+      
+      displayList.forEach((stadt, index) => {
+        const slug = stadtSlugs[staedte.indexOf(stadt)] || normalize(stadt).replace(/\s+/g, '-');
+        
+        const col = document.createElement('div');
+        col.className = 'col';
+        
+        const card = document.createElement('a');
+        card.href = `/stellenangebote/${slug}`;
+        card.dataset.stadt = normalize(stadt);
+        card.className = "card h-100 text-center border-0 shadow-sm text-decoration-none rounded-3 overflow-hidden";
+        card.style.transition = "all 0.3s ease";
+        
+        const colorIndicator = document.createElement('div');
+        colorIndicator.className = "card-img-top";
+        colorIndicator.style.height = "5px";
+        
+        const initialLetter = stadt.charAt(0).toLowerCase();
+        let color;
+        
+        if (initialLetter <= 'g') {
+          color = "#3fbfd8";
+        } else if (initialLetter <= 'n') {
+          color = "#7ad4e6";
+        } else {
+          color = "#2a8294";
+        }
+        
+        colorIndicator.style.backgroundColor = color;
+        
+        const cardBody = document.createElement('div');
+        cardBody.className = "card-body d-flex align-items-center justify-content-center p-3";
+        
+        const stadtName = document.createElement('span');
+        stadtName.className = "fw-medium";
+        stadtName.style.color = color;
+        stadtName.innerText = stadt;
+        
+        cardBody.appendChild(stadtName);
+        card.appendChild(colorIndicator);
+        card.appendChild(cardBody);
+        col.appendChild(card);
+        
+        card.addEventListener('mouseenter', function() {
+          this.classList.add('shadow');
+          this.style.transform = "translateY(-3px)";
+          this.style.backgroundColor = "var(--dental-light)";
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.classList.remove('shadow');
+          this.style.transform = "translateY(0)";
+          this.style.backgroundColor = "";
+        });
+        
+        container.appendChild(col);
+      });
+    }
+
+    document.getElementById('stadtSearch').addEventListener('input', function () {
+      const query = normalize(this.value);
+      const filtered = staedte.filter(s => normalize(s).includes(query));
+      renderStaedte(filtered);
+    });
+
+    renderStaedte();
+  });
+</script>
+{% endblock %}

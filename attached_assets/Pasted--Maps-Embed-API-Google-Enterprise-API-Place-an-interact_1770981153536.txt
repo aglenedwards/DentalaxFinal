@@ -1,0 +1,194 @@
+
+Maps Embed API
+Google Enterprise API 
+Place an interactive map or Street View panorama on your site with a simple HTTP request using the Maps Embed API. Set the Embed API URL as the src attribute of an iframe to easily embed the map in your webpage or blog.
+
+
+Maps Static API
+Google Enterprise API 
+Place a Google Maps image on your webpage without requiring JavaScript or any dynamic page loading with the Maps Static API. This service creates your map based on URL parameters sent through a standard HTTP request and returns the map as an image.
+
+
+Maps Datasets API
+Google Enterprise API 
+Upload and manage your geospatial data in Google Maps Platform via the Cloud Console or API directly, to use with other Google Maps Platform APIs. Supports CSV, GeoJSON and KML files. Files can be uploaded from your desktop or Google Cloud Storage bucket. For example, you can upload geospatial data in your Google Cloud Storage bucket to Google Maps Platform via this API, and then apply custom styling and display your data features on Google Maps with the Maps JavaScript API.
+
+
+Maps JavaScript API
+Google
+Add a map to your website, providing imagery and local data from the same source as Google Maps. Style the map to suit your needs. Visualize your own data on the map, bring the world to life with Street View, and use services like geocoding and directions.
+
+
+Maps SDK for Android
+Google
+Add maps based on Google Maps data to your Android application with the Maps SDK for Android. The SDK automatically handles access to Google Maps servers, map display and response to user gestures such as clicks and drags.
+
+
+Maps Elevation API
+Google Enterprise API 
+Query all locations on the surface of earth, including depth locations on the ocean floor (which return negative values), for elevation data with the Maps Elevation API. Sampled requests are available for elevation data along paths, allowing elevation change calculation along routes.
+
+
+Time Zone API
+Google Enterprise API 
+The Time Zone API provides the time zone for a location on the earth, as well as that location's time offset from UTC.
+
+
+Roads API
+Google Enterprise API 
+Snap GPS points to roads to identify the roads a vehicle was traveling along, making up for GPS error. Also lets developers access speed limits along those roads (enterprise-only feature).
+
+
+Maps SDK for iOS
+Google
+Add maps based on Google Maps data to your iOS application with the Maps SDK for iOS. The SDK automatically handles access to the Google Maps servers, map display and response to user gestures such as clicks and drags.
+
+
+Geolocation API
+Google Enterprise API 
+Find a location and accuracy radius based on information from things like cell towers and WiFi access points that a mobile client can detect with the Geolocation API. This is primarily used where GPS is not possible or appropriate.
+
+
+Geocoding API
+Google Enterprise API 
+Convert addresses into geographic coordinates (geocoding), which you can use to place markers or position the map. This API also allows you to convert geographic coordinates into an address (reverse geocoding).
+
+
+Street View Static API
+Google Enterprise API 
+Embed a static (non-interactive) Street View panorama or thumbnail into your web page, without the use of JavaScript, using the Street View API. The viewport is defined with URL parameters sent through a standard HTTP request, and is returned as a static image.
+
+
+Distance Matrix API
+Google Enterprise API 
+Access travel distance and time for a matrix of origins and destinations with the Distance Matrix API. The information returned is based on the recommended route between start and end points and consists of rows containing duration and distance values for each pair.
+
+
+Directions API
+Google Enterprise API 
+Access driving, cycling, walking and public transportation routing with the Directions API using an HTTP request. Waypoints offer the ability to alter a route through a specific location. Specify origins, destinations and waypoints either as text strings (e.g. "Chicago, IL" or "Darwin, NT, Australia") or as latitude/longitude coordinates.
+
+
+Maps Grounding Lite
+Google
+Grounding Lite offers a simple, fast, and cost-effective way to power AI responses in any LLM with fresh and accurate Google Maps information. Bring Grounding Lite into any agentic workflows via MCP to deliver reliable AI responses grounded in Google's Places, Routes, and Weather information.
+
+
+Maps 3D SDK for iOS
+Google
+Create interactive and immersive maps experiences for your iOS users with the Maps 3D SDK for iOS, leveraging Google's rich, photorealistic 3D imagery and powerful rendering engine. This SDK provides a modern SwiftUI API surface with flexible 3D camera controls and customizable visualization features. Note: This SDK is in Experimental. Try it out, and please share any bugs or feature requests in the public issue tracker.
+
+
+Maps 3D SDK for Android
+Google
+Create interactive and immersive maps experiences for your Android users with the Maps 3D SDK for Android, leveraging Google's rich, photorealistic 3D imagery and powerful rendering engine. This SDK, designed for modern Android development using Kotlin, provides flexible 3D camera controls and customizable visualization features. Note: This SDK is in Experimental. Try it out, and please share any bugs or feature requests in the public issue tracker.
+
+
+Map Tiles API
+Google
+Access Google’s 2D and Photorealistic 3D Map Tiles for building immersive map visualizations. Note that 2D Basemap (Roadmap), Satellite, Terrain, and Street View Tiles are available to customers with specific imagery visualization use cases.
+
+
+Places API (New)
+Google Enterprise API 
+The new version of the Google Places API gives you access to more than 200 million businesses and points of interest, including an expanded list of place details and types. Show users new place attributes such real-time data for EV charging stations, wheelchair accessible establishments, and whether a restaurant allows dogs. Updates also include an enhanced search experience, modern security with OAuth-based authentication, and simplifications to pricing. Text search : Search for place information based on a text string. Nearby search : Search for matching place types within a specified area. Place details : Return detailed information about a specific place, including user reviews. Place photo : Return the most relevant photos for a place from Google users and business owners.
+
+
+Places API
+Google Enterprise API 
+Get data from the same database used by Google Maps. Places features over 100 million businesses and points of interest that are updated frequently through owner-verified listings and user-moderated contributions. Place search Return a list of places based on a user’s location or search string. Place details Return detailed information about a specific place, including user reviews. Place autocomplete can be used to automatically fill in the name and/or address of a place as you type. Query autocomplete can be used to provide a query prediction service for text-based geographic searches, by returning suggested queries as you type. Place photos gives you access to the millions of Place related photos stored in Google's Place database. Places SDK for Android and Places SDK for iOS allow you to build location-aware apps that respond contextually to the local businesses and other places near the device.
+
+
+Aerial View API
+Google Enterprise API 
+The Aerial View API provides 3D cinematic videos of places - like buildings, listings, hotels, or points of interest - using 3D imagery from Google Earth. This new capability enables developers in Real Estate, Travel, and other industries to highlight a building and its surroundings - like nearby parks, roads, or bodies of water - from a bird's eye point-of-view at a fraction of the cost of an in-person drone flight. Developers can leverage Google’s corpus of millions of pre-rendered videos or request new Aerial Views on the fly using the API. Google handles video generation, hosting, and serving so that using Aerial View is as simple as embedding a YouTube video.
+
+
+Places Aggregate API
+Google Enterprise API 
+The Places Aggregate API empowers developers to uncover location-based insights, answering questions like "How many 5-star rated, inexpensive restaurants are within a 5km radius?" Focus on a specific area to analyze place types, open/closed status, price level, and density/distribution of different places. Get results as aggregated counts or detailed place IDs.
+
+
+Places UI Kit
+Google
+Places UI Kit is a low-code, cost-effective solution to integrate the familiar Google Maps UI for Places onto any map. It also offers UI customization options to build engaging front-end experiences, helping your users easily discover and explore locations.
+
+
+Google Maps Booking API
+Google
+Scheduling aggregators call this API to notify us of appointment updates, and update their inventories including merchants, services, and availability.
+
+
+Address Validation API
+Google
+The Address Validation API allows developers to verify the accuracy of addresses. Given an address, it returns information about the correctness of the components of the parsed address, a geocode, and a verdict on the deliverability of the parsed address. Your use of the Address Validation API is subject to all applicable terms, including Service Specific Terms regarding the potential for information sharing with the United States Postal Service®.
+
+
+Google Maps Booking API (Dev)
+Google
+Scheduling aggregators call this API to notify us of appointment updates, and update their inventories including merchants, services, and availability.
+
+
+Automotive Maps API
+Google
+The Automotive Maps API provides bulk map data based on geographic boundaries, which are represented as tiles and used for automotive-focused use cases. These use cases include evaluating and determining an operational design domain (ODD) for L2+ vehicles, general evaluation and simulation support, and more. For more information, see the [Automotive Maps API Overview](https://developers.google.com/automotive/automotive-maps).
+
+
+Navigation SDK
+Google
+Provide a navigation user experience. Presents a user interface to a driver that takes them through the route, providing a map, turn card guidance, and more.
+
+
+Route Optimization API
+Google
+The Route Optimization API assigns tasks and routes to a vehicle fleet, optimizing against the objectives and constraints that you supply for your transportation goals.
+
+
+Routes API
+Google Enterprise API
+Routes API helps you find the ideal way to get from A to Z or matrices of origin and destination locations, with comprehensive data and real-time traffic. It provides routes for driving, two-wheel vehicles, walking or biking and calculates travel times and distances. Routes API is the next generation version (v2) of the Directions and Distance Matrix APIs.
+
+
+Pollen API
+Google
+The Pollen API allows you to request pollen data for a specific location including: Up to 15 plant species, 3 pollen types, pollen index and health recommendations. It covers over 65 countries with a resolution of 1x1km.
+
+
+Air Quality API
+Google
+The Air Quality API allows you to request air quality data for a specific location including over 70 air quality indexes (AQIs), pollutants, and health recommendations. It covers over 100 countries with a resolution of 500 x 500 meters.
+
+
+Street View Publish API
+Google
+Publishes 360 photos to Google Maps, along with position, orientation, and connectivity metadata. Apps can offer an interface for positioning, connecting, and uploading user-generated Street View images.
+
+
+Cloud Location Finder API
+Google
+Cloud Location Finder is a source of truth for cloud regions and zones across Google Cloud, Amazon Web Services (AWS), Azure, Oracle Cloud Infrastructure (OCI). Find and filter for cloud locations by provider, proximity, territory, and Google Carbon Free Energy. This makes it easier to build multi-cloud applications by helping you choose locations that meet your latency, geographic, and sustainability needs.
+
+
+Solar API
+Google
+Accelerate solar deployment with expansive coverage & highly reliable data to enable best in class proposals while improving business processes and driving customer trust. Digitize your business by selecting the appropriate endpoint that suits your needs: Building Insights: This service endpoint returns insights about the location, dimensions and solar potential of a building. Data Layers: This service endpoint returns detailed raw solar information for an area surrounding a location. This new capability enables developers to: Embed advanced data and imagery in solar designs & proposals Increase revenue with fewer on-site visits, shortened sales cycles, and precise solar array designs Promote customer acquisition and higher customer conversion rates Enjoy better coverage with a cost-effective solution Deliver trustworthy data and insights that enable you to scale and expand your business Reduce homeowner cancellations due to design related changes at the initial stages
+
+
+Google Picker API
+Google Enterprise API 
+Google Picker API enables users to select photos, videos, maps and documents stored in Google servers.
+
+
+Cloud Channel API
+Google Enterprise API 
+The Cloud Channel API enables Google Cloud partners to have a single unified resale platform and APIs across all of Google Cloud including GCP, Workspace, Maps and Chrome.
+
+
+Google Maps for Fleet Routing
+Google
+We provide the flexibility of bringing your own distance matrix using third-party services, which is the default option in the Fleet Routing Service offered by Cloud Optimization API. Alternatively, you can choose to use Google Map Platform's Distance Matrix API by enabling this "Google Maps for Fleet Routing" plug-in. If you choose to enable this plug-in, we'll pass your location data on your behalf to the Distance Matrix API. Your use of the Distance Matrix API via this optional integration is governed by the Google Map Platform's Terms of Service. Your use of the Cloud Optimization API and Fleet Routing Service (not including the location data sent to Distance Matrix API) is governed by the Google Cloud Platform Terms of Service.
+
+
+Map Management API
+Google
+The Map Management API supports CRUD operations on Cloud Based Maps Styling Resources. Right now, the API only supports the Management of Dataset-Style relationships.

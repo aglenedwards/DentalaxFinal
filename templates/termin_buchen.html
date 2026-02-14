@@ -1,0 +1,245 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ meta_title }}{% endblock %}
+
+{% block content %}
+<div class="termin-buchen-hero" style="background: linear-gradient(135deg, #1e6370 0%, #2a8e9e 40%, #40bfd8 100%); padding: 80px 0 40px;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px; min-width: 56px;">
+                        <i class="fas fa-tooth text-primary fa-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-white mb-0 fw-bold" style="font-size: 1.8rem;">{{ praxis.name }}</h1>
+                        <p class="text-white-50 mb-0">
+                            <i class="fas fa-map-marker-alt me-1"></i>{{ praxis.strasse }}, {{ praxis.plz }} {{ praxis.stadt }}
+                        </p>
+                    </div>
+                </div>
+                <p class="text-white mb-0" style="opacity: 0.9; font-size: 1.05rem;">
+                    <i class="fas fa-calendar-check me-2"></i>Online-Terminbuchung
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <a href="{{ url_for('praxis_landingpage', slug=praxis.slug) }}" class="btn btn-outline-light btn-sm px-3">
+                    <i class="fas fa-arrow-left me-2"></i>Zur Praxis-Seite
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="margin-top: -20px;">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm rounded-3 h-100">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-clock text-primary me-2"></i>Öffnungszeiten
+                            </h5>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-borderless mb-0">
+                                    <tbody>
+                                        {% for oz in oeffnungszeiten %}
+                                        <tr>
+                                            <td class="fw-medium py-2" style="width: 40%;">{{ oz.tag }}</td>
+                                            <td class="py-2 text-end">
+                                                {% if oz.geschlossen %}
+                                                    <span class="badge bg-light text-muted">Geschlossen</span>
+                                                {% else %}
+                                                    <span class="text-dark">{{ oz.von.strftime('%H:%M') if oz.von else '-' }} - {{ oz.bis.strftime('%H:%M') if oz.bis else '-' }}</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <hr class="my-3">
+
+                            <div class="d-flex flex-column gap-2">
+                                <a href="tel:{{ praxis.telefon }}" class="btn btn-primary w-100">
+                                    <i class="fas fa-phone me-2"></i>{{ praxis.telefon }}
+                                </a>
+                                {% if praxis.email %}
+                                <a href="mailto:{{ praxis.email }}" class="btn btn-outline-secondary btn-sm w-100">
+                                    <i class="fas fa-envelope me-2"></i>E-Mail schreiben
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="card border-0 shadow-sm rounded-3">
+                        <div class="card-body p-4 p-lg-5">
+                            <div class="text-center mb-4">
+                                <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-10 mb-3" style="width: 64px; height: 64px;">
+                                    <i class="fas fa-calendar-alt text-primary fa-2x"></i>
+                                </div>
+                                <h3 class="fw-bold mb-2">Termin vereinbaren</h3>
+                                <p class="text-muted mb-0">Wählen Sie Ihren Wunschtermin bequem online</p>
+                            </div>
+
+                            {% if verfuegbarkeiten_vorhanden %}
+                            <div class="alert alert-success border-0 rounded-3 mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-check-circle fa-lg me-3 text-success"></i>
+                                    <div>
+                                        <strong>Online-Buchung verfügbar!</strong>
+                                        <p class="mb-0 small text-muted">Wählen Sie ein Datum und eine verfügbare Uhrzeit aus.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2 mb-4 pb-3 border-bottom" style="overflow-x: auto;">
+                                {% for tag in kalender_tage %}
+                                <a href="{{ url_for('termin_buchen', praxis_id=praxis.id, datum=tag.datum_str) }}" 
+                                   class="text-decoration-none termin-tag-btn">
+                                    <div class="text-center p-2 rounded-3 border {% if tag.ist_ausgewaehlt %}bg-primary text-white border-primary shadow-sm{% elif tag.slots_verfuegbar %}bg-white border-primary{% else %}bg-light text-muted{% endif %}" 
+                                         style="min-width: 65px; transition: all 0.2s; {% if not tag.slots_verfuegbar and not tag.ist_ausgewaehlt %}opacity: 0.4;{% endif %}">
+                                        <div class="small fw-medium">{{ tag.wochentag }}</div>
+                                        <div class="fw-bold fs-5">{{ tag.tag }}</div>
+                                        <div class="small">{{ tag.monat }}</div>
+                                        {% if tag.slots_verfuegbar and not tag.ist_ausgewaehlt %}
+                                        <div class="mt-1"><span class="badge bg-primary bg-opacity-10 text-primary" style="font-size: 0.6rem;">Frei</span></div>
+                                        {% endif %}
+                                    </div>
+                                </a>
+                                {% endfor %}
+                            </div>
+
+                            <h6 class="text-muted mb-3">
+                                <i class="fas fa-clock me-2"></i>
+                                Verfügbare Zeiten für {{ ausgewaehltes_datum.strftime('%A, %d. %B %Y') if ausgewaehltes_datum else 'heute' }}
+                            </h6>
+
+                            {% if freie_slots %}
+                            <form action="{{ url_for('termin_buchen_kalender_submit', praxis_id=praxis.id) }}" method="POST" id="buchungsForm">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="datum" value="{{ ausgewaehltes_datum.strftime('%Y-%m-%d') if ausgewaehltes_datum else '' }}">
+                                
+                                <div class="mb-4">
+                                    <div class="d-flex flex-wrap gap-2">
+                                        {% for slot in freie_slots %}
+                                        <div class="form-check">
+                                            <input class="btn-check" type="radio" name="uhrzeit" id="slot_{{ slot.zeit_str|replace(':', '') }}" 
+                                                   value="{{ slot.zeit_str }}" required>
+                                            <label class="btn btn-outline-primary rounded-pill px-3" for="slot_{{ slot.zeit_str|replace(':', '') }}">
+                                                {{ slot.zeit_str }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                {% if behandlungsarten %}
+                                <div class="mb-4">
+                                    <label class="form-label fw-medium"><i class="fas fa-tooth text-primary me-2"></i>Behandlung (optional)</label>
+                                    <select name="behandlungsart_id" class="form-select rounded-3">
+                                        <option value="">-- Keine Auswahl --</option>
+                                        {% for ba in behandlungsarten %}
+                                        <option value="{{ ba.id }}">{{ ba.name }} ({{ ba.dauer_minuten }} Min.)</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% endif %}
+
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium">Name <span class="text-danger">*</span></label>
+                                        <input type="text" name="name" class="form-control rounded-3" placeholder="Ihr vollständiger Name" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium">E-Mail <span class="text-danger">*</span></label>
+                                        <input type="email" name="email" class="form-control rounded-3" placeholder="ihre@email.de" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium">Telefon</label>
+                                        <input type="tel" name="telefon" class="form-control rounded-3" placeholder="Für Rückfragen">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium">Grund des Besuchs</label>
+                                        <input type="text" name="grund" class="form-control rounded-3" placeholder="z.B. Kontrolle, Schmerzen">
+                                    </div>
+                                </div>
+
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input" type="checkbox" id="datenschutz" required>
+                                    <label class="form-check-label small text-muted" for="datenschutz">
+                                        Ich stimme der Verarbeitung meiner Daten zur Terminvereinbarung zu.
+                                    </label>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3">
+                                    <i class="fas fa-calendar-check me-2"></i>Termin anfragen
+                                </button>
+                            </form>
+                            {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">Keine freien Termine an diesem Tag</h5>
+                                <p class="text-muted small">Bitte wählen Sie einen anderen Tag aus der Kalenderleiste oben.</p>
+                            </div>
+                            {% endif %}
+
+                            {% else %}
+                            <div class="row g-3 mb-4">
+                                <div class="col-sm-6">
+                                    <div class="d-flex align-items-center p-3 rounded-3 bg-light">
+                                        <i class="fas fa-check-circle text-success me-3"></i>
+                                        <span class="small">Kostenlose Terminanfrage</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="d-flex align-items-center p-3 rounded-3 bg-light">
+                                        <i class="fas fa-envelope text-primary me-3"></i>
+                                        <span class="small">Bestätigung per E-Mail</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="d-flex align-items-center p-3 rounded-3 bg-light">
+                                        <i class="fas fa-shield-alt text-primary me-3"></i>
+                                        <span class="small">Sichere Datenübertragung</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="d-flex align-items-center p-3 rounded-3 bg-light">
+                                        <i class="fas fa-headset text-primary me-3"></i>
+                                        <span class="small">Persönliche Beratung</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center py-3">
+                                <p class="text-muted mb-4">Die Online-Terminbuchung ist für diese Praxis noch nicht aktiviert. Sie können uns aber gerne telefonisch kontaktieren:</p>
+                                <a href="tel:{{ praxis.telefon }}" class="btn btn-primary btn-lg px-5 rounded-3">
+                                    <i class="fas fa-phone me-2"></i>Jetzt anrufen: {{ praxis.telefon }}
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.termin-tag-btn:hover div {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(64, 191, 216, 0.2);
+}
+.btn-check:checked + .btn-outline-primary {
+    background-color: var(--bs-primary);
+    color: white;
+}
+</style>
+{% endblock %}

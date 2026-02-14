@@ -1,0 +1,569 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Schema.org JobPosting Markup für SEO -->
+{% set employment_type = 'FULL_TIME' if job.anstellungsart == 'vollzeit' else ('PART_TIME' if job.anstellungsart == 'teilzeit' else ('INTERN' if job.anstellungsart == 'ausbildung' else 'OTHER')) %}
+{% set job_description = (job.ueber_uns[:500] if job.ueber_uns else job.titel)|replace('\n', ' ')|replace('\r', '') %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "JobPosting",
+  "title": {{ job.titel|tojson }},
+  "description": {{ job_description|tojson }},
+  "datePosted": {{ job.erstellt_am.strftime('%Y-%m-%d')|tojson }},
+  "employmentType": {{ employment_type|tojson }},
+  "hiringOrganization": {
+    "@type": "Organization",
+    "name": {{ job.praxis.name|tojson }}
+  },
+  "jobLocation": {
+    "@type": "Place",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": {{ (job.standort_strasse or job.praxis.strasse or '')|tojson }},
+      "addressLocality": {{ (job.standort_stadt or '')|tojson }},
+      "postalCode": {{ (job.standort_plz or '')|tojson }},
+      "addressCountry": "DE"
+    }
+  },
+  "directApply": true
+  {% if job.gehalt_von and job.gehalt_bis and job.gehalt_anzeigen %},
+  "baseSalary": {
+    "@type": "MonetaryAmount",
+    "currency": "EUR",
+    "value": {
+      "@type": "QuantitativeValue",
+      "minValue": {{ job.gehalt_von }},
+      "maxValue": {{ job.gehalt_bis }},
+      "unitText": "YEAR"
+    }
+  }
+  {% endif %}
+}
+</script>
+<section class="py-5" style="padding-top: 140px !important;">
+  <div class="container">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Startseite</a></li>
+        <li class="breadcrumb-item"><a href="/stellenangebote" class="text-decoration-none">Stellenangebote</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ job.position_display }}</li>
+      </ol>
+    </nav>
+    
+    <!-- Hauptinhalt im 2-Spalten-Layout -->
+    <div class="row">
+      <!-- Linke Spalte: Job-Details -->
+      <div class="col-lg-8 mb-4 mb-lg-0">
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-body p-4">
+            <!-- Job-Header mit Bild und Titel -->
+            <div class="d-flex align-items-center mb-4">
+              {% set portrait = job.praxis.bilder|selectattr('typ', 'equalto', 'portrait')|first %}
+              {% if portrait %}
+                <img src="{{ portrait.pfad }}" alt="{{ job.praxis.name }}" class="me-4 rounded" style="width: 100px; height: 100px; object-fit: cover;">
+              {% else %}
+                <img src="{{ url_for('static', filename='images/praxis-logo-placeholder.png') }}" alt="{{ job.praxis.name }}" class="me-4" style="width: 100px; height: 100px; object-fit: contain;">
+              {% endif %}
+              <div>
+                {% if job.anstellungsart == 'vollzeit' %}
+                  <span class="badge bg-success mb-2">{{ job.anstellungsart_display }}</span>
+                {% elif job.anstellungsart == 'teilzeit' %}
+                  <span class="badge bg-info text-white mb-2">{{ job.anstellungsart_display }}</span>
+                {% elif job.anstellungsart == 'ausbildung' %}
+                  <span class="badge bg-warning text-dark mb-2">{{ job.anstellungsart_display }}</span>
+                {% else %}
+                  <span class="badge bg-secondary mb-2">{{ job.anstellungsart_display }}</span>
+                {% endif %}
+                <h1 class="h3 mb-1 fw-bold text-primary">{{ job.titel }}</h1>
+                <p class="text-muted mb-0">
+                  <i class="fas fa-building me-1"></i> {{ job.praxis.name }}
+                  <span class="mx-2">|</span>
+                  <i class="fas fa-map-marker-alt me-1"></i> {{ job.standort_plz }} {{ job.standort_stadt }}
+                  <span class="mx-2">|</span>
+                  <i class="far fa-calendar-alt me-1"></i> Veröffentlicht: {{ job.erstellt_am.strftime('%d.%m.%Y') }}
+                </p>
+              </div>
+            </div>
+            
+            <!-- Tags -->
+            <div class="d-flex flex-wrap gap-2 mb-4">
+              {% if job.erfahrung_jahre and job.erfahrung_jahre > 0 %}
+                <span class="badge bg-light text-dark p-2"><i class="fas fa-briefcase me-1 text-primary"></i> Min. {{ job.erfahrung_jahre }} Jahre Erfahrung</span>
+              {% endif %}
+              {% for tag in job.tags_liste %}
+                <span class="badge bg-light text-dark p-2"><i class="fas fa-tag me-1 text-primary"></i> {{ tag }}</span>
+              {% endfor %}
+            </div>
+            
+            <!-- Job-Beschreibung -->
+            <div class="job-description">
+              {% if job.ueber_uns %}
+              <h2 class="h5 mb-3 fw-bold">Über uns</h2>
+              <p>{{ job.ueber_uns }}</p>
+              {% endif %}
+              
+              {% if job.aufgaben %}
+              <h2 class="h5 mb-3 fw-bold mt-4">Ihre Aufgaben</h2>
+              <ul class="mb-4">
+                {% for aufgabe in job.aufgaben.split('\n') %}
+                  {% if aufgabe.strip() %}
+                    <li>{{ aufgabe.strip().lstrip('• ').lstrip('- ') }}</li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+              {% endif %}
+              
+              {% if job.anforderungen %}
+              <h2 class="h5 mb-3 fw-bold">Ihr Profil</h2>
+              <ul class="mb-4">
+                {% for anforderung in job.anforderungen.split('\n') %}
+                  {% if anforderung.strip() %}
+                    <li>{{ anforderung.strip().lstrip('• ').lstrip('- ') }}</li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+              {% endif %}
+              
+              {% if job.wir_bieten %}
+              <h2 class="h5 mb-3 fw-bold">Wir bieten</h2>
+              <ul class="mb-4">
+                {% for angebot in job.wir_bieten.split('\n') %}
+                  {% if angebot.strip() %}
+                    <li>{{ angebot.strip().lstrip('• ').lstrip('- ') }}</li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+              {% endif %}
+              
+              {% if job.arbeitsbeginn %}
+              <h2 class="h5 mb-3 fw-bold">Arbeitsbeginn</h2>
+              <p>{{ job.arbeitsbeginn }}</p>
+              {% endif %}
+            </div>
+            
+            <!-- Bewerbungs-CTA -->
+            <div class="mt-5">
+              <a href="#bewerben" class="btn btn-primary btn-lg px-5 py-3 shadow-sm">
+                <i class="fas fa-paper-plane me-2"></i> Jetzt bewerben
+              </a>
+              <button class="btn btn-outline-secondary ms-2" onclick="window.print();">
+                <i class="fas fa-print me-1"></i> Drucken
+              </button>
+              <button class="btn btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#shareModal">
+                <i class="fas fa-share-alt me-1"></i> Teilen
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Bewerbungsformular -->
+        <div class="card shadow-sm border-0" id="bewerben">
+          <div class="card-header bg-white py-3 border-0">
+            <h2 class="h4 m-0 fw-bold text-primary">
+              <i class="fas fa-paper-plane me-2"></i>Online bewerben
+            </h2>
+          </div>
+          <div class="card-body p-4">
+            <p class="text-muted mb-4">Bitte füllen Sie das folgende Formular aus, um sich auf diese Stelle zu bewerben. Felder mit * sind Pflichtfelder.</p>
+            
+            <form action="/stellenangebot/{{ job.slug }}/bewerben" method="post" enctype="multipart/form-data">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <!-- Persönliche Daten -->
+              <div class="row mb-4">
+                <div class="col-12 mb-3">
+                  <h3 class="h6 fw-bold">Persönliche Daten</h3>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="vorname" class="form-label">Vorname *</label>
+                  <input type="text" class="form-control" id="vorname" name="vorname" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="nachname" class="form-label">Nachname *</label>
+                  <input type="text" class="form-control" id="nachname" name="nachname" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="email" class="form-label">E-Mail *</label>
+                  <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="telefon" class="form-label">Telefon *</label>
+                  <input type="tel" class="form-control" id="telefon" name="telefon" required>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <label for="adresse" class="form-label">Adresse</label>
+                  <input type="text" class="form-control" id="adresse" name="adresse">
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="plz" class="form-label">PLZ</label>
+                  <input type="text" class="form-control" id="plz" name="plz">
+                </div>
+                <div class="col-md-8 mb-3">
+                  <label for="ort" class="form-label">Ort</label>
+                  <input type="text" class="form-control" id="ort" name="ort">
+                </div>
+              </div>
+              
+              <!-- Bewerbungsunterlagen -->
+              <div class="row mb-4">
+                <div class="col-12 mb-3">
+                  <h3 class="h6 fw-bold">Bewerbungsunterlagen</h3>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <label for="lebenslauf" class="form-label">Lebenslauf (PDF) *</label>
+                  <input type="file" class="form-control" id="lebenslauf" name="lebenslauf" accept=".pdf" required>
+                  <div class="form-text">Maximale Dateigröße: 5 MB</div>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <label for="anschreiben" class="form-label">Anschreiben (PDF)</label>
+                  <input type="file" class="form-control" id="anschreiben" name="anschreiben" accept=".pdf">
+                  <div class="form-text">Maximale Dateigröße: 5 MB</div>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <label for="zeugnisse" class="form-label">Zeugnisse (PDF)</label>
+                  <input type="file" class="form-control" id="zeugnisse" name="zeugnisse" accept=".pdf">
+                  <div class="form-text">Maximale Dateigröße: 10 MB</div>
+                </div>
+              </div>
+              
+              <!-- Zusätzliche Informationen -->
+              <div class="row mb-4">
+                <div class="col-12 mb-3">
+                  <h3 class="h6 fw-bold">Zusätzliche Informationen</h3>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <label for="erfahrung" class="form-label">Berufserfahrung *</label>
+                  <select class="form-select" id="erfahrung" name="erfahrung" required>
+                    <option value="">Bitte auswählen</option>
+                    <option value="0-1">Weniger als 1 Jahr</option>
+                    <option value="1-2">1-2 Jahre</option>
+                    <option value="2-5">2-5 Jahre</option>
+                    <option value="5-10">5-10 Jahre</option>
+                    <option value="10+">Mehr als 10 Jahre</option>
+                  </select>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <label for="fruehesteEintritt" class="form-label">Frühester Eintrittstermin *</label>
+                  <input type="date" class="form-control" id="fruehesteEintritt" name="fruehesteEintritt" required>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <label for="gehaltsvorstellung" class="form-label">Gehaltsvorstellung (brutto/Monat)</label>
+                  <input type="text" class="form-control" id="gehaltsvorstellung" name="gehaltsvorstellung" placeholder="z.B. 2.500 €">
+                </div>
+                <div class="col-md-12 mb-4">
+                  <label for="nachricht" class="form-label">Nachricht an die Praxis</label>
+                  <textarea class="form-control" id="nachricht" name="nachricht" rows="4" placeholder="Hier können Sie weitere Informationen hinzufügen..."></textarea>
+                </div>
+              </div>
+              
+              <!-- Datenschutz und Absenden -->
+              <div class="row">
+                <div class="col-md-12 mb-4">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="datenschutz" name="datenschutz" required>
+                    <label class="form-check-label" for="datenschutz">
+                      Ich habe die <a href="/datenschutz" target="_blank">Datenschutzbestimmungen</a> gelesen und stimme der Verarbeitung meiner Daten zu. *
+                    </label>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <button type="submit" class="btn btn-primary btn-lg px-5">
+                    <i class="fas fa-paper-plane me-2"></i> Bewerbung absenden
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Rechte Spalte: Seitenleiste -->
+      <div class="col-lg-4">
+        <!-- Praxisinformationen -->
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-white py-3 border-0">
+            <h3 class="h5 m-0 fw-bold">
+              <i class="fas fa-info-circle me-2 text-primary"></i>Praxisinformationen
+            </h3>
+          </div>
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-4">
+              {% set sidebar_logo = job.praxis.bilder|selectattr('typ', 'equalto', 'logo')|first %}
+              {% if sidebar_logo %}
+                <img src="{{ sidebar_logo.pfad }}" alt="{{ job.praxis.name }}" class="me-3" style="width: 120px; height: 120px; object-fit: contain;">
+              {% else %}
+                <img src="{{ url_for('static', filename='images/praxis-logo-placeholder.png') }}" alt="Praxislogo" class="me-3" style="width: 120px; height: 120px; object-fit: contain;">
+              {% endif %}
+              <h4 class="h6 mb-0 fw-bold">{{ job.praxis.name }}</h4>
+            </div>
+            
+            <ul class="list-unstyled mb-0">
+              {% if job.praxis.strasse %}
+              <li class="mb-3">
+                <i class="fas fa-map-marker-alt me-2 text-primary"></i> {{ job.praxis.strasse }}<br>
+                <span class="ms-4">{{ job.praxis.plz }} {{ job.praxis.stadt }}</span>
+              </li>
+              {% endif %}
+              {% if job.praxis.webseite %}
+              <li class="mb-3">
+                <i class="fas fa-globe me-2 text-primary"></i> <a href="{{ job.praxis.webseite }}" target="_blank" class="text-decoration-none">{{ job.praxis.webseite|replace('https://', '')|replace('http://', '') }}</a>
+              </li>
+              {% endif %}
+              {% if job.praxis.telefon %}
+              <li class="mb-3">
+                <i class="fas fa-phone-alt me-2 text-primary"></i> {{ job.praxis.telefon }}
+              </li>
+              {% endif %}
+              {% if job.praxis.email %}
+              <li class="mb-3">
+                <i class="fas fa-envelope me-2 text-primary"></i> <a href="mailto:{{ job.praxis.email }}" class="text-decoration-none">{{ job.praxis.email }}</a>
+              </li>
+              {% endif %}
+            </ul>
+            
+            <div class="mt-4">
+              <a href="/zahnarzt/{{ job.praxis.slug }}" class="btn btn-outline-primary w-100">Praxis-Profil ansehen</a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Ähnliche Jobs -->
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-white py-3 border-0">
+            <h3 class="h5 m-0 fw-bold">
+              <i class="fas fa-briefcase me-2 text-primary"></i>Ähnliche Jobs
+            </h3>
+          </div>
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+              {% if aehnliche_jobs %}
+                {% for aehnlich in aehnliche_jobs[:4] %}
+                <li class="list-group-item p-3">
+                  <a href="/stellenangebot/{{ aehnlich.slug }}" class="text-decoration-none">
+                    <span class="d-block fw-bold text-primary mb-1">{{ aehnlich.titel }}</span>
+                    <span class="d-block small text-muted mb-1">
+                      <i class="fas fa-building me-1"></i> {{ aehnlich.praxis.name }}
+                      <span class="mx-1">|</span>
+                      <i class="fas fa-map-marker-alt me-1"></i> {{ aehnlich.standort_stadt }}
+                    </span>
+                    {% if aehnlich.anstellungsart == 'vollzeit' %}
+                      <span class="badge bg-success">{{ aehnlich.anstellungsart_display }}</span>
+                    {% elif aehnlich.anstellungsart == 'teilzeit' %}
+                      <span class="badge bg-info text-white">{{ aehnlich.anstellungsart_display }}</span>
+                    {% else %}
+                      <span class="badge bg-secondary">{{ aehnlich.anstellungsart_display }}</span>
+                    {% endif %}
+                  </a>
+                </li>
+                {% endfor %}
+              {% else %}
+                <li class="list-group-item p-3 text-center text-muted">
+                  <small>Keine ähnlichen Jobs gefunden</small>
+                </li>
+              {% endif %}
+            </ul>
+            <div class="p-3 text-center border-top">
+              <a href="/stellenangebote?position={{ job.position }}&ort={{ job.standort_stadt }}" class="btn btn-sm btn-outline-primary">
+                Alle ähnlichen Jobs anzeigen
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Job-Alert -->
+        <div class="card shadow-sm border-0 bg-light" id="job-alert-card">
+          <div class="card-body p-4">
+            <h3 class="h5 fw-bold mb-3">
+              <i class="fas fa-bell me-2 text-primary"></i>Job-Alert einrichten
+            </h3>
+            <p class="small text-muted mb-3">Erhalten Sie die neuesten Jobs passend zu Ihrem Profil direkt per E-Mail.</p>
+            
+            <div id="job-alert-success" class="d-none">
+              <div class="text-center py-3">
+                <i class="fas fa-envelope-open-text fa-3x text-success mb-3"></i>
+                <h6 class="fw-bold text-success">Fast geschafft!</h6>
+                <p class="small text-muted mb-0">Wir haben Ihnen eine Bestätigungs-E-Mail gesendet. Bitte klicken Sie auf den Link in der E-Mail, um Ihren Job-Alert zu aktivieren.</p>
+              </div>
+            </div>
+            <div id="job-alert-error" class="alert alert-danger d-none small mb-3"></div>
+            
+            <form id="job-alert-form" action="/job-alert/anmelden" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="mb-3">
+                <label for="alert-email" class="form-label small">E-Mail-Adresse *</label>
+                <input type="email" class="form-control" id="alert-email" name="email" placeholder="Ihre E-Mail-Adresse" required>
+              </div>
+              <div class="mb-3">
+                <label for="alert-position" class="form-label small">Position</label>
+                <select class="form-select" id="alert-position" name="position">
+                  <option value="zfa" {% if job.position == 'zfa' %}selected{% endif %}>ZFA</option>
+                  <option value="zmf" {% if job.position == 'zmf' %}selected{% endif %}>ZMF</option>
+                  <option value="zmp" {% if job.position == 'zmp' %}selected{% endif %}>ZMP</option>
+                  <option value="dh" {% if job.position == 'dh' %}selected{% endif %}>DH</option>
+                  <option value="zahnarzt" {% if job.position == 'zahnarzt' %}selected{% endif %}>Zahnarzt/Zahnärztin</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="alert-ort" class="form-label small">Ort / PLZ *</label>
+                <input type="text" class="form-control" id="alert-ort" name="ort" placeholder="z.B. Berlin oder 10115" value="{{ job.standort_stadt }}" required>
+              </div>
+              <div class="mb-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="alert-datenschutz" name="datenschutz" required>
+                  <label class="form-check-label small" for="alert-datenschutz">
+                    Ich stimme der Verarbeitung meiner Daten gemäß der <a href="/datenschutz" target="_blank">Datenschutzbestimmungen</a> zu. *
+                  </label>
+                </div>
+              </div>
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary" id="job-alert-btn">
+                  <i class="fas fa-bell me-1"></i> Job-Alert aktivieren
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Share Modal -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="shareModalLabel">Stellenangebot teilen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-center gap-3 mb-4">
+          <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" target="_blank" class="btn btn-outline-primary">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="https://twitter.com/intent/tweet?url={{ request.url }}&text=Stellenangebot: {{ job.titel }} in {{ job.standort_stadt }}" target="_blank" class="btn btn-outline-primary">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url }}" target="_blank" class="btn btn-outline-primary">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+          <a href="https://wa.me/?text=Stellenangebot: {{ job.titel }} in {{ job.standort_stadt }} - {{ request.url }}" target="_blank" class="btn btn-outline-primary">
+            <i class="fab fa-whatsapp"></i>
+          </a>
+          <a href="mailto:?subject=Stellenangebot: {{ job.titel }} in {{ job.standort_stadt }}&body=Hier ist ein interessantes Stellenangebot: {{ request.url }}" class="btn btn-outline-primary">
+            <i class="fas fa-envelope"></i>
+          </a>
+        </div>
+        
+        <div class="mb-3">
+          <label for="share-link" class="form-label">Link zum Stellenangebot</label>
+          <div class="input-group">
+            <input type="text" class="form-control" id="share-link" value="{{ request.url }}" readonly>
+            <button class="btn btn-outline-secondary" type="button" onclick="copyShareLink()">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #bewerben {
+    scroll-margin-top: 100px;
+  }
+  
+  .sticky-lg-top {
+    z-index: 1000;
+  }
+  
+  .job-description {
+    line-height: 1.6;
+  }
+  
+  .job-description ul {
+    padding-left: 1.5rem;
+  }
+  
+  .job-description ul li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .list-group-item:hover {
+    background-color: #f8fdfe;
+  }
+  
+  @media print {
+    .navbar, footer, .breadcrumb, #bewerben, .col-lg-4, .btn {
+      display: none !important;
+    }
+    .col-lg-8 {
+      width: 100% !important;
+    }
+  }
+</style>
+
+<script>
+function copyShareLink() {
+  var copyText = document.getElementById("share-link");
+  copyText.select();
+  copyText.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(copyText.value);
+  
+  var button = copyText.nextElementSibling;
+  var originalHtml = button.innerHTML;
+  button.innerHTML = '<i class="fas fa-check"></i>';
+  button.classList.remove('btn-outline-secondary');
+  button.classList.add('btn-success');
+  
+  setTimeout(function() {
+    button.innerHTML = originalHtml;
+    button.classList.remove('btn-success');
+    button.classList.add('btn-outline-secondary');
+  }, 2000);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var alertForm = document.getElementById('job-alert-form');
+  if (alertForm) {
+    alertForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('job-alert-btn');
+      var successDiv = document.getElementById('job-alert-success');
+      var errorDiv = document.getElementById('job-alert-error');
+      var originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Wird gesendet...';
+      errorDiv.classList.add('d-none');
+      
+      var formData = new FormData(alertForm);
+      fetch('/job-alert/anmelden', {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        if (data.success) {
+          alertForm.classList.add('d-none');
+          successDiv.classList.remove('d-none');
+        } else {
+          errorDiv.textContent = data.message;
+          errorDiv.classList.remove('d-none');
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+        }
+      })
+      .catch(function() {
+        errorDiv.textContent = 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
+        errorDiv.classList.remove('d-none');
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+      });
+    });
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <h1 class="text-center mb-4">Wähle dein Paket</h1>
+    <p class="text-center lead mb-5">Bitte wähle eines der folgenden Zahnarzt-Pakete, um deine Präsenz bei Dentalax zu aktivieren.</p>
+
+    <form method="POST" action="/paket-bestaetigen">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="praxisname" value="{{ praxisname }}">
+      <input type="hidden" name="email" value="{{ email }}">
+
+      <div class="row g-4">
+        <!-- Kostenlos -->
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm border-primary">
+            <div class="card-body text-center">
+              <h5 class="card-title">Kostenlos</h5>
+              <h2 class="text-primary">0 €</h2>
+              <ul class="list-unstyled my-3">
+                <li>✔️ Sichtbar in Suchergebnissen</li>
+                <li>✔️ Bewertungsfunktion aktiv</li>
+                <li>✖️ Keine eigene Landingpage</li>
+                <li>✖️ Keine Jobanzeige</li>
+              </ul>
+              <button type="submit" name="paket" value="kostenlos" class="btn btn-outline-primary">Auswählen</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Standard -->
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm border-success">
+            <div class="card-body text-center">
+              <h5 class="card-title">Pro</h5>
+              <h2 class="text-success">59 €/Monat</h2>
+              <ul class="list-unstyled my-3">
+                <li>✔️ Eigene Landingpage</li>
+                <li>✔️ Bessere Sichtbarkeit</li>
+                <li>✔️ Bewertungsfunktion</li>
+                <li>✖️ Keine Jobanzeige</li>
+              </ul>
+              <button type="submit" name="paket" value="pro" class="btn btn-success">Auswählen</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Premium -->
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm border-warning">
+            <div class="card-body text-center">
+              <h5 class="card-title">Premium</h5>
+              <h2 class="text-warning">89 €/Monat</h2>
+              <ul class="list-unstyled my-3">
+                <li>✔️ Eigene Landingpage</li>
+                <li>✔️ Höchste Sichtbarkeit</li>
+                <li>✔️ Bewertungsfunktion</li>
+                <li>✔️ Eigene Jobanzeigen</li>
+              </ul>
+              <button type="submit" name="paket" value="premium" class="btn btn-warning text-white">Auswählen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

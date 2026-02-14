@@ -1,0 +1,103 @@
+                            <div class="tab-pane fade" id="step4" role="tabpanel" aria-labelledby="step4-tab">
+                                <div class="mb-4">
+                                    <h4>Team</h4>
+                                    <p class="text-muted">Stellen Sie Ihr Praxisteam vor.</p>
+                                </div>
+
+                                <div id="team-container">
+                                    {% if team %}
+                                        {% for mitglied in team %}
+                                        <div class="team-item card mb-3">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label class="form-label">Name</label>
+                                                        <input type="text" class="form-control" name="team_name[]" value="{{ mitglied.name }}">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label class="form-label">Position</label>
+                                                        <input type="text" class="form-control" name="team_position[]" value="{{ mitglied.position }}">
+                                                    </div>
+                                                    <div class="col-md-2 d-flex align-items-end mb-3">
+                                                        <button type="button" class="btn btn-outline-danger btn-sm remove-team">Entfernen</button>
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Beschreibung</label>
+                                                        <textarea class="form-control" name="team_beschreibung[]" rows="2">{{ mitglied.beschreibung }}</textarea>
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Qualifikationen</label>
+                                                        <textarea class="form-control" name="team_qualifikationen[]" rows="2" placeholder="z.B. Implantologie, Endodontie, Kinderzahnheilkunde (kommagetrennt)">{{ mitglied.qualifikationen }}</textarea>
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Schwerpunkte</label>
+                                                        <input type="text" class="form-control" name="team_schwerpunkte[]" placeholder="z.B. Ästhetische Zahnheilkunde, Prophylaxe (kommagetrennt)" value="{{ mitglied.schwerpunkte }}">
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Sprachen</label>
+                                                        <input type="text" class="form-control" name="team_sprachen[]" placeholder="z.B. Deutsch, Englisch, Türkisch (kommagetrennt)" value="{{ mitglied.sprachen }}">
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="form-label">Foto (optional)</label>
+                                                        <input type="file" class="form-control" name="team_foto[]" accept="image/*">
+                                                        {% if mitglied.bild_pfad %}
+                                                        <div class="form-text">
+                                                            Aktuelles Bild: <a href="{{ mitglied.bild_pfad }}" target="_blank">Anzeigen</a>
+                                                        </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <!-- Teammitglied-Template -->
+                                        <div class="team-item card mb-3">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label class="form-label">Name</label>
+                                                        <input type="text" class="form-control" name="team_name[]" placeholder="Dr. Max Mustermann">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label class="form-label">Position</label>
+                                                        <input type="text" class="form-control" name="team_position[]" placeholder="Zahnarzt">
+                                                    </div>
+                                                    <div class="col-md-2 d-flex align-items-end mb-3">
+                                                        <button type="button" class="btn btn-outline-danger btn-sm remove-team">Entfernen</button>
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Beschreibung</label>
+                                                        <textarea class="form-control" name="team_beschreibung[]" rows="2" placeholder="Kurze Beschreibung der Person und ihres Bereichs..."></textarea>
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Qualifikationen</label>
+                                                        <textarea class="form-control" name="team_qualifikationen[]" rows="2" placeholder="z.B. Implantologie, Endodontie, Kinderzahnheilkunde (kommagetrennt)"></textarea>
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Schwerpunkte</label>
+                                                        <input type="text" class="form-control" name="team_schwerpunkte[]" placeholder="z.B. Ästhetische Zahnheilkunde, Prophylaxe (kommagetrennt)">
+                                                    </div>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">Sprachen</label>
+                                                        <input type="text" class="form-control" name="team_sprachen[]" placeholder="z.B. Deutsch, Englisch, Türkisch (kommagetrennt)">
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="form-label">Foto (optional)</label>
+                                                        <input type="file" class="form-control" name="team_foto[]" accept="image/*">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <button type="button" id="add-team" class="btn btn-outline-primary mt-3">
+                                    <i class="fas fa-plus-circle me-1"></i>Teammitglied hinzufügen
+                                </button>
+
+                                <div class="d-flex justify-content-between mt-4">
+                                    <button type="button" class="btn btn-outline-primary prev-step" data-target="step3-tab">Zurück</button>
+                                    <button type="button" class="btn btn-primary next-step" data-target="step5-tab">Weiter</button>
+                                </div>
+                            </div>

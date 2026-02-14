@@ -1,0 +1,164 @@
+{
+  "titelbild": "/static/images/Demo Hero Image.jpg",
+  "name": "Zahnarztpraxis Dr. Müller",
+  "strasse": "Musterstraße 123",
+  "plz": "10115",
+  "stadt": "Berlin",
+  "telefon": "030 1234567",
+  "email": "info@zahnarzt-mueller.de",
+  "website": "https://zahnarzt-mueller.de",
+  "slogan": "Moderne Zahnmedizin in entspannter Atmosphäre",
+  "beschreibung": "Willkommen in unserer modernen Zahnarztpraxis im Herzen Berlins. Unser erfahrenes Team bietet Ihnen das gesamte Spektrum aktueller Zahnmedizin auf höchstem Niveau. Wir legen großen Wert auf eine entspannte Atmosphäre und sanfte Behandlungsmethoden, damit Sie sich bei uns rundum wohlfühlen können.",
+  "leistungen": [
+    {
+      "titel": "Prophylaxe",
+      "beschreibung": "Professionelle Zahnreinigung und individuelle Beratung zur optimalen Mundhygiene",
+      "icon": "fas fa-tooth"
+    },
+    {
+      "titel": "Ästhetische Zahnmedizin",
+      "beschreibung": "Veneers, Bleaching und hochwertige Füllungen für ein strahlendes Lächeln",
+      "icon": "fas fa-smile"
+    },
+    {
+      "titel": "Implantologie",
+      "beschreibung": "Moderne Implantate als natürlicher Zahnersatz mit höchster Präzision",
+      "icon": "fas fa-tools"
+    },
+    {
+      "titel": "Kinderzahnheilkunde",
+      "beschreibung": "Einfühlsame und altersgerechte Behandlung für unsere kleinen Patienten",
+      "icon": "fas fa-child"
+    },
+    {
+      "titel": "Zahnerhaltung",
+      "beschreibung": "Schmerzfreie und moderne Behandlungsmethoden zur langfristigen Erhaltung Ihrer Zähne",
+      "icon": "fas fa-tooth"
+    },
+    {
+      "titel": "Wurzelbehandlung",
+      "beschreibung": "Schonende Endodontie mit modernsten Techniken für den Erhalt entzündeter Zähne",
+      "icon": "fas fa-syringe"
+    }
+  ],
+  "team": [
+    {
+      "name": "Dr. Thomas Müller",
+      "position": "Praxisinhaber & Zahnarzt",
+      "beschreibung": "Seit über 20 Jahren widmet sich Dr. Müller der Zahnmedizin mit Schwerpunkt auf Implantologie und ästhetischer Zahnheilkunde.",
+      "bild": "/static/images/Demo Mitarbeiter B.jpeg"
+    },
+    {
+      "name": "Dr. Lisa Schmidt",
+      "position": "Zahnärztin",
+      "beschreibung": "Spezialisiert auf Kinderzahnheilkunde und Prophylaxe. Ihr einfühlsamer Umgang macht jeden Zahnarztbesuch zu einer positiven Erfahrung.",
+      "bild": "/static/images/Demo Mitarbeiter C.jpeg"
+    },
+    {
+      "name": "Marie Weber",
+      "position": "Zahnmedizinische Fachangestellte",
+      "beschreibung": "Unser organisatorisches Multitalent sorgt für reibungslose Abläufe und ist Ihre freundliche Ansprechpartnerin an der Rezeption.",
+      "bild": "/static/images/Demo Mitarbeiter D.jpeg"
+    }
+  ],
+  "oeffnungszeiten": {
+    "Montag": "8:00 - 18:00",
+    "Dienstag": "8:00 - 18:00",
+    "Mittwoch": "8:00 - 16:00",
+    "Donnerstag": "8:00 - 20:00",
+    "Freitag": "8:00 - 15:00",
+    "Samstag": "Nach Vereinbarung",
+    "Sonntag": "Geschlossen"
+  },
+  "bewertungen": [
+    {
+      "name": "Maria Schneider",
+      "bewertung": 5,
+      "text": "Ich hatte immer Angst vor dem Zahnarzt, aber Dr. Müller und sein Team haben mir diese komplett genommen. Sehr einfühlsam und professionell!"
+    },
+    {
+      "name": "Peter Fischer",
+      "bewertung": 5,
+      "text": "Die beste Zahnarztpraxis in Berlin! Moderne Ausstattung, freundliches Personal und schmerzfreie Behandlung."
+    },
+    {
+      "name": "Sophie Wagner",
+      "bewertung": 4,
+      "text": "Sehr gute Erfahrung mit der Implantatbehandlung. Würde die Praxis jederzeit weiterempfehlen."
+    }
+  ],
+  "social_media": {
+    "facebook": "https://facebook.com/zahnarztmueller",
+    "instagram": "https://instagram.com/zahnarzt_mueller",
+    "twitter": ""
+  },
+  "termin_option": {
+    "modus": "dashboard",
+    "aktiv": true,
+    "redirect_url": "",
+    "api_anbieter": "",
+    "api_key": "",
+    "api_endpoint": "",
+    "behandlungen": [
+      {
+        "name": "Routinekontrolle",
+        "dauer": 15,
+        "beschreibung": "Allgemeine Zahnkontrolle und Beratung"
+      },
+      {
+        "name": "Professionelle Zahnreinigung",
+        "dauer": 45,
+        "beschreibung": "Gründliche Reinigung und Politur aller Zahnflächen"
+      },
+      {
+        "name": "Erstberatung",
+        "dauer": 30,
+        "beschreibung": "Erstgespräch für neue Patienten mit Bedarfsanalyse"
+      },
+      {
+        "name": "Füllungstherapie",
+        "dauer": 60,
+        "beschreibung": "Behandlung von Karies mit hochwertigen Kompositfüllungen"
+      }
+    ],
+    "termine": [
+      {
+        "datum": "2025-04-10",
+        "zeit": "10:00",
+        "patient": "Max Mustermann",
+        "behandlung": "Professionelle Zahnreinigung",
+        "status": "bestätigt"
+      },
+      {
+        "datum": "2025-04-10",
+        "zeit": "14:30",
+        "patient": "Anna Schmidt",
+        "behandlung": "Erstberatung",
+        "status": "bestätigt"
+      },
+      {
+        "datum": "2025-04-11",
+        "zeit": "09:15",
+        "patient": "",
+        "behandlung": "",
+        "status": "frei"
+      }
+    ]
+  },
+  "paket": "praxispro",
+  "aktiviert_seit": "2025-03-15",
+  "faqs": [
+    {
+      "frage": "Werden meine Behandlungskosten von der Krankenkasse übernommen?",
+      "antwort": "Grundlegende zahnmedizinische Leistungen werden in der Regel von gesetzlichen Krankenkassen übernommen. Bei darüber hinausgehenden Behandlungen erstellen wir Ihnen gerne vorab einen transparenten Kostenplan."
+    },
+    {
+      "frage": "Wie oft sollte ich zur Kontrolle kommen?",
+      "antwort": "Wir empfehlen in der Regel halbjährliche Kontrolluntersuchungen. Bei bestimmten Risikofaktoren können auch kürzere Intervalle sinnvoll sein."
+    },
+    {
+      "frage": "Bieten Sie Zahnzusatzversicherungen an?",
+      "antwort": "Wir selbst bieten keine Versicherungen an, beraten Sie aber gerne zu den Leistungen, die eine Zahnzusatzversicherung in Ihrem individuellen Fall abdecken sollte."
+    }
+  ]
+}

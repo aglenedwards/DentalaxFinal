@@ -1,0 +1,1035 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Hero Section mit animiertem Gradient -->
+<section class="position-relative overflow-hidden impressive-gradient" style="padding: 14rem 0 6rem;">
+  <div class="container position-relative" style="z-index: 1;">
+    <div class="row justify-content-center">
+      <!-- Zentrierter Text und Suchbereich -->
+      <div class="col-lg-8 col-xl-7 text-center" data-aos="fade-up" data-aos-duration="800">
+        <div class="mb-5">
+          <h1 class="display-4 fw-bold mb-4 text-white">Finde den passenden Zahnarzt in deiner Nähe</h1>
+          <p class="lead fs-4 mb-4" style="color: rgba(255,255,255,0.85);">Dentalax verbindet dich mit qualifizierten Zahnarztpraxen deutschlandweit.</p>
+        </div>
+        
+        <!-- Suchformular mit verbessertem Design -->
+        <div class="search-card p-4 bg-white rounded-4 shadow text-start" data-aos="fade-up" data-aos-delay="100">
+          <form action="/suche" method="GET">
+            <div class="mb-4">
+              <h5 class="fw-bold text-dark mb-3">
+                <i class="fas fa-search me-2" style="color: var(--dental-primary)"></i>
+                Zahnarztsuche
+              </h5>
+            </div>
+            
+            <div class="row g-3">
+              <!-- Stadt oder PLZ -->
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input type="text" name="ort" class="form-control border-2" id="inputOrt" placeholder="Stadt oder PLZ" required>
+                  <label for="inputOrt">Stadt oder PLZ</label>
+                </div>
+              </div>
+              
+              <!-- Leistung Dropdown -->
+              <div class="col-md-6">
+                <select name="leistung" class="form-select border-2 py-3" id="inputLeistung">
+                  <option value="">Alle Leistungen</option>
+                  <option value="implantologie">Implantologie</option>
+                  <option value="kieferorthopaedie">Kieferorthopädie</option>
+                  <option value="prophylaxe">Prophylaxe</option>
+                  <option value="parodontologie">Parodontologie</option>
+                  <option value="wurzelbehandlung">Wurzelbehandlung</option>
+                  <option value="zahnersatz">Zahnersatz</option>
+                  <option value="aesthetik">Ästhetische Zahnmedizin</option>
+                  <option value="kinderzahnheilkunde">Kinderzahnheilkunde</option>
+                  <option value="oralchirurgie">Oralchirurgie</option>
+                  <option value="angstpatienten">Angstpatienten</option>
+                </select>
+              </div>
+              
+              <!-- Schnellauswahl Chips -->
+              <div class="col-12">
+                <div class="d-flex flex-wrap gap-2">
+                  <span class="text-muted small me-1 align-self-center">Beliebte:</span>
+                  <button type="button" class="btn btn-sm btn-outline-primary rounded-pill leistung-chip" data-value="implantologie">
+                    <i class="fas fa-tooth me-1"></i>Implantologie
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-primary rounded-pill leistung-chip" data-value="kieferorthopaedie">
+                    <i class="fas fa-teeth me-1"></i>Kieferorthopädie
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-primary rounded-pill leistung-chip" data-value="prophylaxe">
+                    <i class="fas fa-shield-alt me-1"></i>Prophylaxe
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-primary rounded-pill leistung-chip" data-value="aesthetik">
+                    <i class="fas fa-star me-1"></i>Ästhetik
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Umkreis Slider -->
+              <div class="col-12">
+                <label for="umkreisRange" class="form-label d-flex justify-content-between">
+                  <span>Umkreis</span>
+                  <span class="badge bg-primary rounded-pill" id="rangeValue">25 km</span>
+                </label>
+                <input type="range" class="form-range" min="5" max="100" step="5" value="25" name="umkreis" id="umkreisRange">
+              </div>
+              
+              <!-- Suchbuttons -->
+              <div class="col-md-6">
+                <button type="submit" class="btn button-shimmer w-100 py-3 rounded-3 shadow-sm">
+                  <i class="fas fa-search me-2"></i> Zahnarzt finden
+                </button>
+              </div>
+              
+              <div class="col-md-6">
+                <button type="button" class="btn btn-outline-primary btn-geo-hover w-100 py-3 rounded-3" onclick="sucheInDerNahe()" id="geoBtn">
+                  <i class="fas fa-map-marker-alt me-2"></i> In meiner Nähe
+                </button>
+              </div>
+            </div>
+            
+            <!-- Spinner für Geolocation -->
+            <div id="geoLoader" class="text-center mt-3 py-2" style="display: none;">
+              <div class="spinner-grow text-primary" role="status" style="width: 1.5rem; height: 1.5rem;">
+                <span class="visually-hidden">Lade Standort...</span>
+              </div>
+              <p class="mt-2 text-muted">Standort wird ermittelt…</p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Populäre Städte mit Slick-Slider -->
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="h4 mb-0 fw-bold text-gradient">Populäre Städte</h2>
+      <a href="/zahnaerzte-nach-staedten" class="text-decoration-none text-primary">Alle Städte <i class="fas fa-arrow-right ms-1"></i></a>
+    </div>
+    
+    <div class="row g-3">
+      <div class="col-6 col-md-2">
+        <a href="/zahnarzt-berlin" class="card border-0 shadow-sm h-100 text-decoration-none hover-card">
+          <div class="card-body text-center py-3">
+            <div class="fs-5 text-primary mb-1"><i class="fas fa-map-marker-alt"></i></div>
+            <h6 class="card-title mb-0">Berlin</h6>
+          </div>
+        </a>
+      </div>
+      <div class="col-6 col-md-2">
+        <a href="/zahnarzt-hamburg" class="card border-0 shadow-sm h-100 text-decoration-none hover-card">
+          <div class="card-body text-center py-3">
+            <div class="fs-5 text-primary mb-1"><i class="fas fa-map-marker-alt"></i></div>
+            <h6 class="card-title mb-0">Hamburg</h6>
+          </div>
+        </a>
+      </div>
+      <div class="col-6 col-md-2">
+        <a href="/zahnarzt-muenchen" class="card border-0 shadow-sm h-100 text-decoration-none hover-card">
+          <div class="card-body text-center py-3">
+            <div class="fs-5 text-primary mb-1"><i class="fas fa-map-marker-alt"></i></div>
+            <h6 class="card-title mb-0">München</h6>
+          </div>
+        </a>
+      </div>
+      <div class="col-6 col-md-2">
+        <a href="/zahnarzt-koeln" class="card border-0 shadow-sm h-100 text-decoration-none hover-card">
+          <div class="card-body text-center py-3">
+            <div class="fs-5 text-primary mb-1"><i class="fas fa-map-marker-alt"></i></div>
+            <h6 class="card-title mb-0">Köln</h6>
+          </div>
+        </a>
+      </div>
+      <div class="col-6 col-md-2">
+        <a href="/zahnarzt-frankfurt" class="card border-0 shadow-sm h-100 text-decoration-none hover-card">
+          <div class="card-body text-center py-3">
+            <div class="fs-5 text-primary mb-1"><i class="fas fa-map-marker-alt"></i></div>
+            <h6 class="card-title mb-0">Frankfurt</h6>
+          </div>
+        </a>
+      </div>
+      <div class="col-6 col-md-2">
+        <a href="/zahnarzt-stuttgart" class="card border-0 shadow-sm h-100 text-decoration-none hover-card">
+          <div class="card-body text-center py-3">
+            <div class="fs-5 text-primary mb-1"><i class="fas fa-map-marker-alt"></i></div>
+            <h6 class="card-title mb-0">Stuttgart</h6>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section mit Icons -->
+<section class="py-5" style="background-color: #f8fcfd;">
+  <div class="container py-4">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <h2 class="display-6 fw-bold mb-2 text-gradient">Warum Dentalax?</h2>
+      <p class="lead text-secondary">Deutschlands größtes Zahnarztportal mit zahlreichen Vorteilen</p>
+      <div class="mx-auto" style="width: 100px; height: 3px; background-color: var(--dental-primary);"></div>
+    </div>
+    
+    <div class="row g-4">
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="0">
+        <div class="card border-0 h-100 shadow-sm rounded-4 hover-card">
+          <div class="card-body p-4">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" 
+                 style="width: 60px; height: 60px; background-color: rgba(63, 191, 216, 0.15);">
+              <i class="fas fa-search fa-2x" style="color: var(--dental-primary);"></i>
+            </div>
+            <h3 class="h4 mb-3">Einfache Zahnarztsuche</h3>
+            <p class="text-secondary mb-0">Finde den passenden Zahnarzt in deiner Nähe mit unserer intelligenten Suchfunktion nach Standort und Fachgebiet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="card border-0 h-100 shadow-sm rounded-4 hover-card">
+          <div class="card-body p-4">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" 
+                 style="width: 60px; height: 60px; background-color: rgba(63, 191, 216, 0.15);">
+              <i class="fas fa-calendar-check fa-2x" style="color: var(--dental-primary);"></i>
+            </div>
+            <h3 class="h4 mb-3">Online-Terminbuchung</h3>
+            <p class="text-secondary mb-0">Buche direkt und unkompliziert Termine bei deinem Wunschzahnarzt – rund um die Uhr und ohne Wartezeiten.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="card border-0 h-100 shadow-sm rounded-4 hover-card">
+          <div class="card-body p-4">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" 
+                 style="width: 60px; height: 60px; background-color: rgba(63, 191, 216, 0.15);">
+              <i class="fas fa-star fa-2x" style="color: var(--dental-primary);"></i>
+            </div>
+            <h3 class="h4 mb-3">Bewertungen & Erfahrungen</h3>
+            <p class="text-secondary mb-0">Profitiere von den Erfahrungen anderer Patienten und finde so genau den richtigen Zahnarzt für deine Bedürfnisse.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Modern Statistics Section -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="row align-items-center">
+      <div class="col-lg-5 mb-4 mb-lg-0" data-aos="fade-right">
+        <h2 class="h3 fw-bold mb-4 text-gradient">Dentalax in Zahlen</h2>
+        <p class="text-secondary mb-4">Unsere Plattform verbindet täglich tausende Patienten mit den besten Zahnärzten in ganz Deutschland. Wir revolutionieren die Art, wie Menschen Zahnarzttermine finden und buchen.</p>
+        <a href="/fuer-zahnaerzte" class="btn btn-outline-primary rounded-pill px-4">Für Zahnärzte <i class="fas fa-arrow-right ms-2"></i></a>
+      </div>
+      <div class="col-lg-7">
+        <div class="row g-4">
+          <div class="col-md-4" data-aos="fade-up" data-aos-delay="0">
+            <div class="card border-0 bg-light rounded-4 h-100">
+              <div class="card-body p-4 text-center">
+                <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                     style="width: 70px; height: 70px; background-color: var(--dental-primary);">
+                  <i class="fas fa-user-md fa-2x text-white"></i>
+                </div>
+                <h2 class="display-6 fw-bold text-primary">50.000+</h2>
+                <p class="mb-0 text-secondary">Zahnärzte</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card border-0 bg-light rounded-4 h-100">
+              <div class="card-body p-4 text-center">
+                <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                     style="width: 70px; height: 70px; background-color: var(--dental-primary);">
+                  <i class="fas fa-users fa-2x text-white"></i>
+                </div>
+                <h2 class="display-6 fw-bold text-primary">2 Mio.</h2>
+                <p class="mb-0 text-secondary">Patienten</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="card border-0 bg-light rounded-4 h-100">
+              <div class="card-body p-4 text-center">
+                <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                     style="width: 70px; height: 70px; background-color: var(--dental-primary);">
+                  <i class="fas fa-calendar-check fa-2x text-white"></i>
+                </div>
+                <h2 class="display-6 fw-bold text-primary">5 Mio.+</h2>
+                <p class="mb-0 text-secondary">Termine</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Moderne CTA Section für Zahnärzte -->
+<section class="position-relative overflow-hidden py-5 impressive-gradient" style="margin-bottom: 0;">
+  <div class="container position-relative py-4">
+    <div class="row align-items-center">
+      <div class="col-lg-7 mb-4 mb-lg-0">
+        <h2 class="display-5 fw-bold text-white mb-3">Bereit für die Revolution der Zahnarzt-Portale?</h2>
+        <p class="lead text-white opacity-80 mb-0">Steigern Sie Ihre Sichtbarkeit, gewinnen Sie neue Patienten und finden Sie qualifiziertes Personal!</p>
+      </div>
+      <div class="col-lg-5 text-lg-end">
+        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-lg-end">
+          <a href="/fuer-zahnaerzte" class="btn btn-light btn-lg rounded-pill shadow px-4">
+            Jetzt entdecken <i class="fas fa-rocket ms-2"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Was Sie erwartet Section -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold text-gradient mb-3">Was Sie erwartet</h2>
+      <p class="lead text-secondary">Profitieren Sie von unserer modernen Plattform für Zahnarztpraxen</p>
+    </div>
+    
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4" data-aos="fade-up">
+        <div class="d-flex align-items-start p-4 bg-light rounded-4 h-100">
+          <div class="flex-shrink-0 me-4">
+            <div class="d-flex align-items-center justify-content-center rounded-circle" 
+                 style="width: 70px; height: 70px; background: linear-gradient(135deg, #35bfd6 0%, #2a8294 100%);">
+              <i class="fas fa-eye fa-2x text-white"></i>
+            </div>
+          </div>
+          <div>
+            <h4 class="h5 fw-bold mb-2">Premium Sichtbarkeit</h4>
+            <p class="text-muted mb-0">Werden Sie in Suchergebnissen priorisiert und erreichen Sie mehr Patienten in Ihrer Region.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="d-flex align-items-start p-4 bg-light rounded-4 h-100">
+          <div class="flex-shrink-0 me-4">
+            <div class="d-flex align-items-center justify-content-center rounded-circle" 
+                 style="width: 70px; height: 70px; background: linear-gradient(135deg, #35bfd6 0%, #2a8294 100%);">
+              <i class="fas fa-robot fa-2x text-white"></i>
+            </div>
+          </div>
+          <div>
+            <h4 class="h5 fw-bold mb-2">KI-gestützte Vermittlung</h4>
+            <p class="text-muted mb-0">Unser Dentalberater verbindet Patienten intelligent mit passenden Praxen.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="d-flex align-items-start p-4 bg-light rounded-4 h-100">
+          <div class="flex-shrink-0 me-4">
+            <div class="d-flex align-items-center justify-content-center rounded-circle" 
+                 style="width: 70px; height: 70px; background: linear-gradient(135deg, #35bfd6 0%, #2a8294 100%);">
+              <i class="fas fa-laptop fa-2x text-white"></i>
+            </div>
+          </div>
+          <div>
+            <h4 class="h5 fw-bold mb-2">Professionelle Landingpage</h4>
+            <p class="text-muted mb-0">Ihre eigene SEO-optimierte Praxis-Webseite mit allen wichtigen Informationen.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="d-flex align-items-start p-4 bg-light rounded-4 h-100">
+          <div class="flex-shrink-0 me-4">
+            <div class="d-flex align-items-center justify-content-center rounded-circle" 
+                 style="width: 70px; height: 70px; background: linear-gradient(135deg, #35bfd6 0%, #2a8294 100%);">
+              <i class="fas fa-user-md fa-2x text-white"></i>
+            </div>
+          </div>
+          <div>
+            <h4 class="h5 fw-bold mb-2">Stellenportal</h4>
+            <p class="text-muted mb-0">Finden Sie qualifizierte Fachkräfte für Ihre Praxis – von ZFA bis Zahnarzt.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="400">
+        <div class="d-flex align-items-start p-4 bg-light rounded-4 h-100">
+          <div class="flex-shrink-0 me-4">
+            <div class="d-flex align-items-center justify-content-center rounded-circle" 
+                 style="width: 70px; height: 70px; background: linear-gradient(135deg, #35bfd6 0%, #2a8294 100%);">
+              <i class="fas fa-box-open fa-2x text-white"></i>
+            </div>
+          </div>
+          <div>
+            <h4 class="h5 fw-bold mb-2">Flexible Pakete</h4>
+            <p class="text-muted mb-0">Von kostenlos bis Premium – wählen Sie das Paket, das zu Ihrer Praxis passt.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="500">
+        <div class="d-flex align-items-start p-4 bg-light rounded-4 h-100">
+          <div class="flex-shrink-0 me-4">
+            <div class="d-flex align-items-center justify-content-center rounded-circle" 
+                 style="width: 70px; height: 70px; background: linear-gradient(135deg, #35bfd6 0%, #2a8294 100%);">
+              <i class="fas fa-chart-line fa-2x text-white"></i>
+            </div>
+          </div>
+          <div>
+            <h4 class="h5 fw-bold mb-2">Messbare Erfolge</h4>
+            <p class="text-muted mb-0">Verfolgen Sie Ihre Performance mit detaillierten Statistiken und Analysen.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="text-center mt-5">
+      <a href="/fuer-zahnaerzte" class="btn button-shimmer btn-lg rounded-pill px-5 py-3 shadow">
+        <i class="fas fa-arrow-right me-2"></i> Alle Vorteile entdecken
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hover-card {
+    transition: all 0.3s ease;
+  }
+  .hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+  }
+  .opacity-80 {
+    opacity: 0.8;
+  }
+  .search-card {
+    border-top: 4px solid var(--dental-primary);
+  }
+  .leistung-chip {
+    background: transparent;
+    color: var(--dental-primary);
+    border-color: var(--dental-primary);
+    animation: none;
+    transition: all 0.3s ease;
+  }
+  .leistung-chip:hover, .leistung-chip.active {
+    background: linear-gradient(135deg, #35bfd6 0%, #2aa5bb 50%, #35bfd6 100%);
+    background-size: 200% 200%;
+    animation: buttonShimmer 3s ease-in-out infinite;
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(53, 191, 214, 0.3);
+  }
+  @keyframes buttonShimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const leistungSelect = document.getElementById('inputLeistung');
+  const chips = document.querySelectorAll('.leistung-chip');
+  
+  chips.forEach(chip => {
+    chip.addEventListener('click', function() {
+      const value = this.dataset.value;
+      leistungSelect.value = value;
+      
+      chips.forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+  
+  leistungSelect.addEventListener('change', function() {
+    chips.forEach(c => {
+      if (c.dataset.value === this.value) {
+        c.classList.add('active');
+      } else {
+        c.classList.remove('active');
+      }
+    });
+  });
+});
+</script>
+
+<!-- Dentalberater KI-Chatbot Widget -->
+<div id="dental-match-widget">
+  <!-- Chat Button -->
+  <button id="chat-toggle-btn" class="chat-toggle-btn" onclick="toggleChat()">
+    <i class="fas fa-robot" id="chat-icon"></i>
+    <i class="fas fa-times" id="close-icon" style="display: none;"></i>
+  </button>
+  
+  <!-- Chat Window -->
+  <div id="chat-window" class="chat-window" style="display: none;">
+    <div class="chat-header">
+      <div class="d-flex align-items-center">
+        <div class="chat-avatar me-2">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div>
+          <h6 class="mb-0 text-white">Dentalberater</h6>
+          <small class="text-white-50">Ihr KI-Zahnarztberater</small>
+        </div>
+      </div>
+      <button class="btn btn-sm text-white" onclick="toggleChat()">
+        <i class="fas fa-minus"></i>
+      </button>
+    </div>
+    
+    <div class="chat-messages" id="chat-messages">
+      <div class="message bot-message">
+        <div class="message-content">
+          <p>Hallo! Ich bin Ihr Dentalberater. Ich helfe Ihnen, den passenden Zahnarzt zu finden – egal ob Sie Fragen zu Symptomen, Behandlungen oder Kosten haben.</p>
+          <p class="mb-1">Wie kann ich Ihnen helfen?</p>
+          <p class="text-muted" style="font-size: 11px; margin-bottom: 0;"><i class="fas fa-info-circle me-1"></i>Hinweis: Dieser Chatbot ersetzt keine zahnärztliche Beratung.</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quick Questions -->
+    <div class="chat-filters" id="chat-filters">
+      <div class="filter-chips">
+        <button class="filter-chip quick-question" onclick="askQuickQuestion(this)">
+          <i class="fas fa-tooth me-1"></i>Mein Zahnfleisch blutet
+        </button>
+        <button class="filter-chip quick-question" onclick="askQuickQuestion(this)">
+          <i class="fas fa-child me-1"></i>Kinderzahnarzt gesucht
+        </button>
+        <button class="filter-chip quick-question" onclick="askQuickQuestion(this)">
+          <i class="fas fa-euro-sign me-1"></i>Was kostet ein Implantat?
+        </button>
+        <button class="filter-chip quick-question" onclick="askQuickQuestion(this)">
+          <i class="fas fa-heartbeat me-1"></i>Ich habe Zahnarzt-Angst
+        </button>
+      </div>
+    </div>
+    
+    <div class="chat-input-area">
+      <form id="chat-form" onsubmit="sendMessage(event)">
+        <div class="input-group">
+          <input type="text" id="chat-input" class="form-control" placeholder="Schreibe eine Nachricht..." autocomplete="off">
+          <button type="submit" class="btn btn-primary" id="send-btn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Chat Widget Styles */
+  .chat-toggle-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #35bfd6, #2a8294);
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(42, 130, 148, 0.4);
+    z-index: 9999;
+    transition: all 0.3s ease;
+  }
+  .chat-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(42, 130, 148, 0.5);
+  }
+  
+  .chat-window {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 380px;
+    max-width: calc(100vw - 40px);
+    height: 500px;
+    max-height: calc(100vh - 150px);
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    z-index: 9998;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), height 0.4s cubic-bezier(0.4, 0, 0.2, 1), bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  @media (min-width: 481px) {
+    .chat-window.chat-expanded {
+      width: 520px;
+      height: 650px;
+      bottom: 100px;
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .chat-header {
+    background: linear-gradient(135deg, #35bfd6, #2a8294);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .chat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+  }
+  
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f8f9fa;
+  }
+  
+  .message {
+    margin-bottom: 15px;
+    display: flex;
+  }
+  
+  .bot-message {
+    justify-content: flex-start;
+  }
+  
+  .user-message {
+    justify-content: flex-end;
+  }
+  
+  .message-content {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .bot-message .message-content {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 16px 16px 16px 4px;
+  }
+  
+  .user-message .message-content {
+    background: linear-gradient(135deg, #35bfd6, #2a8294);
+    color: white;
+    border-radius: 16px 16px 4px 16px;
+  }
+  
+  .chat-filters {
+    padding: 10px 15px;
+    background: white;
+    border-top: 1px solid #e9ecef;
+  }
+  
+  .filter-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .filter-chip {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid #2a8294;
+    background: white;
+    color: #2a8294;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .filter-chip:hover {
+    border-color: #35bfd6;
+    background: rgba(53, 191, 214, 0.1);
+    color: #2a8294;
+  }
+  
+  .filter-chip.active {
+    background: linear-gradient(135deg, #35bfd6, #2a8294);
+    color: white;
+    border-color: #35bfd6;
+  }
+  
+  .chat-input-area {
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #e9ecef;
+  }
+  
+  .chat-input-area .form-control {
+    border-radius: 25px;
+    padding-left: 20px;
+    border: 1px solid #dee2e6;
+  }
+  
+  .chat-input-area .form-control:focus {
+    border-color: #35bfd6;
+    box-shadow: 0 0 0 0.2rem rgba(53, 191, 214, 0.25);
+  }
+  
+  .chat-input-area .btn {
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    margin-left: 8px;
+    background: linear-gradient(135deg, #35bfd6, #2a8294);
+    border: none;
+  }
+  
+  .typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 10px;
+  }
+  
+  .typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background: #35bfd6;
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out;
+  }
+  
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+  
+  @keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-10px); }
+  }
+  
+  /* Premium-Praxis-Karten im Chat */
+  .praxis-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  
+  .praxis-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .praxis-card.premium {
+    border-left: 4px solid #35bfd6;
+    background: linear-gradient(135deg, rgba(53, 191, 214, 0.03), rgba(42, 130, 148, 0.03));
+  }
+  
+  .praxis-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  
+  .praxis-card-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #2a8294;
+    margin: 0;
+  }
+  
+  .premium-badge {
+    background: linear-gradient(135deg, #35bfd6, #2a8294);
+    color: white;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  
+  .praxis-card-address {
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 8px;
+  }
+  
+  .praxis-card-features {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  
+  .praxis-card-features span {
+    font-size: 10px;
+    background: rgba(53, 191, 214, 0.1);
+    color: #2a8294;
+    padding: 2px 6px;
+    border-radius: 8px;
+  }
+  
+  .praxis-card-actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .praxis-card-actions a {
+    flex: 1;
+    text-align: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-call {
+    background: white;
+    border: 1px solid #2a8294;
+    color: #2a8294;
+  }
+  
+  .btn-call:hover {
+    background: rgba(53, 191, 214, 0.1);
+  }
+  
+  .btn-landingpage {
+    background: linear-gradient(135deg, #35bfd6, #2a8294);
+    color: white;
+    border: none;
+  }
+  
+  .btn-landingpage:hover {
+    opacity: 0.9;
+    color: white;
+  }
+  
+  @media (max-width: 480px) {
+    .chat-window {
+      right: 10px;
+      bottom: 80px;
+      width: calc(100vw - 20px);
+      height: calc(100vh - 120px);
+    }
+    .chat-toggle-btn {
+      right: 15px;
+      bottom: 15px;
+    }
+  }
+</style>
+
+<script>
+let chatHistory = [];
+let activeFilters = {};
+let chatExpanded = false;
+
+function expandChat() {
+  if (!chatExpanded && window.innerWidth > 480) {
+    const chatWindow = document.getElementById('chat-window');
+    chatWindow.classList.add('chat-expanded');
+    chatExpanded = true;
+  }
+}
+
+function askQuickQuestion(btn) {
+  const question = btn.textContent.trim();
+  document.getElementById('chat-input').value = question;
+  document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+  document.getElementById('chat-filters').style.display = 'none';
+}
+
+function toggleChat() {
+  const chatWindow = document.getElementById('chat-window');
+  const chatIcon = document.getElementById('chat-icon');
+  const closeIcon = document.getElementById('close-icon');
+  
+  if (chatWindow.style.display === 'none') {
+    chatWindow.style.display = 'flex';
+    chatIcon.style.display = 'none';
+    closeIcon.style.display = 'inline';
+  } else {
+    chatWindow.style.display = 'none';
+    chatIcon.style.display = 'inline';
+    closeIcon.style.display = 'none';
+  }
+}
+
+function toggleFilter(btn) {
+  btn.classList.toggle('active');
+  const filter = btn.dataset.filter;
+  activeFilters[filter] = btn.classList.contains('active');
+}
+
+function addMessage(content, isUser = false) {
+  const messagesDiv = document.getElementById('chat-messages');
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+  messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+  messagesDiv.appendChild(messageDiv);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function showTyping() {
+  const messagesDiv = document.getElementById('chat-messages');
+  const typingDiv = document.createElement('div');
+  typingDiv.id = 'typing-indicator';
+  typingDiv.className = 'message bot-message';
+  typingDiv.innerHTML = `
+    <div class="message-content">
+      <div class="typing-indicator">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  `;
+  messagesDiv.appendChild(typingDiv);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function hideTyping() {
+  const typing = document.getElementById('typing-indicator');
+  if (typing) typing.remove();
+}
+
+async function sendMessage(event) {
+  event.preventDefault();
+  
+  const input = document.getElementById('chat-input');
+  const message = input.value.trim();
+  
+  if (!message) return;
+  
+  expandChat();
+  addMessage(message, true);
+  chatHistory.push({ role: 'user', content: message });
+  
+  input.value = '';
+  input.disabled = true;
+  document.getElementById('send-btn').disabled = true;
+  
+  showTyping();
+  
+  try {
+    const response = await fetch('/api/chat/match', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: message,
+        filters: activeFilters,
+        history: chatHistory.slice(-6)
+      })
+    });
+    
+    const data = await response.json();
+    
+    hideTyping();
+    
+    if (data.error) {
+      addMessage('Entschuldigung, es ist ein Fehler aufgetreten. Bitte versuche es erneut.');
+    } else {
+      const formattedResponse = data.response.replace(/\n/g, '<br>');
+      
+      // Premium-Karten hinzufügen falls vorhanden
+      let cardsHtml = '';
+      if (data.premium_praxen && data.premium_praxen.length > 0) {
+        cardsHtml = '<div class="praxis-cards">';
+        data.premium_praxen.forEach(praxis => {
+          const badgeText = praxis.paket === 'premiumplus' ? 'PremiumPlus' : 'Premium';
+          const features = [];
+          if (praxis.angstpatientenfreundlich) features.push('Angstpatienten');
+          if (praxis.kinderfreundlich) features.push('Kinderfreundlich');
+          if (praxis.barrierefrei) features.push('Barrierefrei');
+          
+          let gRating = parseFloat(praxis.google_rating) || 0;
+          let gCount = parseInt(praxis.google_review_count) || 0;
+          let dAvg = parseFloat(praxis.bewertung_avg) || 0;
+          let dCount = parseInt(praxis.bewertung_anzahl) || 0;
+          let hasGoogle = gRating > 0 && gCount > 0;
+          let hasDentalax = dAvg > 0 && dCount > 0;
+          let combinedAvg = 0;
+          let combinedTotal = 0;
+          let ratingHtml = '';
+          if (hasGoogle && hasDentalax) {
+            combinedTotal = dCount + gCount;
+            combinedAvg = Math.round(((dAvg * dCount + gRating * gCount) / combinedTotal) * 10) / 10;
+          } else if (hasGoogle) {
+            combinedAvg = gRating;
+            combinedTotal = gCount;
+          } else if (hasDentalax) {
+            combinedAvg = dAvg;
+            combinedTotal = dCount;
+          }
+          if (combinedTotal > 0 && isFinite(combinedAvg)) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+              if (combinedAvg >= i) stars += '<i class="fas fa-star text-warning"></i>';
+              else if (combinedAvg >= i - 0.5) stars += '<i class="fas fa-star-half-alt text-warning"></i>';
+              else stars += '<i class="far fa-star text-warning"></i>';
+            }
+            ratingHtml = `<div class="praxis-card-rating" style="margin: 6px 0; font-size: 0.85rem;">${stars} <span style="color: #666; font-size: 0.8rem;">${combinedAvg}/5 (${combinedTotal})</span></div>`;
+          }
+          
+          cardsHtml += `
+            <div class="praxis-card premium">
+              <div class="praxis-card-header">
+                <h6 class="praxis-card-name">${praxis.name}</h6>
+                <span class="premium-badge">${badgeText}</span>
+              </div>
+              <div class="praxis-card-address">
+                ${praxis.strasse}, ${praxis.plz} ${praxis.stadt}
+              </div>
+              ${ratingHtml}
+              ${features.length > 0 ? `<div class="praxis-card-features">${features.map(f => `<span>${f}</span>`).join('')}</div>` : ''}
+              <div class="praxis-card-actions">
+                ${praxis.telefon ? `<a href="tel:${praxis.telefon}" class="btn-call"><i class="fas fa-phone me-1"></i>Anrufen</a>` : ''}
+                ${praxis.slug ? `<a href="/zahnarzt/${praxis.slug}" target="_blank" class="btn-landingpage"><i class="fas fa-external-link-alt me-1"></i>Zur Praxis</a>` : ''}
+              </div>
+            </div>
+          `;
+        });
+        cardsHtml += '</div>';
+      }
+      
+      addMessage(formattedResponse + cardsHtml);
+      chatHistory.push({ role: 'assistant', content: data.response });
+    }
+  } catch (error) {
+    hideTyping();
+    addMessage('Entschuldigung, die Verbindung ist fehlgeschlagen. Bitte versuche es erneut.');
+  }
+  
+  input.disabled = false;
+  document.getElementById('send-btn').disabled = false;
+  input.focus();
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,218 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Praxen{% endblock %}
+{% block page_title %}Praxen-Verwaltung{% endblock %}
+
+{% block header_actions %}
+<div class="search-box">
+  <i class="fas fa-search"></i>
+  <input type="text" id="searchInput" class="form-control" placeholder="Suchen..." onkeyup="filterTable()">
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="filter-tabs mb-3">
+  <a href="?filter=all" class="filter-tab {{ 'active' if filter == 'all' or not filter else '' }}">
+    Alle <span class="badge bg-secondary ms-1">{{ counts.all }}</span>
+  </a>
+  <a href="?filter=premiumplus" class="filter-tab {{ 'active' if filter == 'premiumplus' else '' }}">
+    PremiumPlus <span class="badge bg-secondary ms-1">{{ counts.premiumplus }}</span>
+  </a>
+  <a href="?filter=premium" class="filter-tab {{ 'active' if filter == 'premium' else '' }}">
+    Premium <span class="badge bg-secondary ms-1">{{ counts.premium }}</span>
+  </a>
+  <a href="?filter=basic" class="filter-tab {{ 'active' if filter == 'basic' else '' }}">
+    Basis <span class="badge bg-secondary ms-1">{{ counts.basic }}</span>
+  </a>
+  <a href="?filter=verifiziert" class="filter-tab {{ 'active' if filter == 'verifiziert' else '' }}">
+    Verifiziert <span class="badge bg-secondary ms-1">{{ counts.verifiziert }}</span>
+  </a>
+</div>
+
+<div class="data-card">
+  <div class="data-card-body">
+    <table class="table" id="praxenTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Praxis</th>
+          <th>Kontakt</th>
+          <th>Adresse</th>
+          <th>Paket</th>
+          <th>Stripe-Status</th>
+          <th>Status</th>
+          <th>Registriert</th>
+          <th>Aktionen</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for praxis in praxen %}
+        <tr>
+          <td><small class="text-muted">#{{ praxis.id }}</small></td>
+          <td>
+            <strong>{{ praxis.name }}</strong>
+            {% if praxis.slug %}
+            <br><a href="/zahnarzt/{{ praxis.slug }}" target="_blank" class="small text-muted">
+              <i class="fas fa-external-link-alt"></i> /{{ praxis.slug }}
+            </a>
+            {% endif %}
+          </td>
+          <td>
+            <small>{{ praxis.email }}</small>
+            <br><small class="text-muted">{{ praxis.telefon }}</small>
+          </td>
+          <td>
+            {{ praxis.strasse }}<br>
+            <small>{{ praxis.plz }} {{ praxis.stadt }}</small>
+          </td>
+          <td>
+            {% if praxis.paket and praxis.paket.lower() == 'premiumplus' %}
+              <span class="badge badge-paket badge-premiumplus">PremiumPlus</span>
+            {% elif praxis.paket and praxis.paket.lower() == 'premium' %}
+              <span class="badge badge-paket badge-premium">Premium</span>
+            {% else %}
+              <span class="badge badge-paket badge-basic">Basis</span>
+            {% endif %}
+            {% if praxis.zahlungsart %}
+            <br><small class="text-muted">{{ praxis.zahlungsart }}</small>
+            {% endif %}
+          </td>
+          <td>
+            {% if praxis.stripe_subscription_status == 'active' %}
+              <span class="badge bg-success">Aktiv</span>
+            {% elif praxis.stripe_subscription_status == 'past_due' %}
+              <span class="badge bg-warning text-dark">Überfällig</span>
+            {% elif praxis.stripe_subscription_status == 'canceled' %}
+              <span class="badge bg-danger">Gekündigt</span>
+            {% elif praxis.stripe_customer_id %}
+              <span class="badge bg-secondary">{{ praxis.stripe_subscription_status or 'Unbekannt' }}</span>
+            {% else %}
+              <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          <td>
+            <form action="/admin/praxis/{{ praxis.id }}/verifizieren" method="POST" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              {% if praxis.ist_verifiziert %}
+                <button type="submit" class="btn btn-sm btn-link p-0 text-decoration-none" title="Klicken zum Aufheben">
+                  <span class="status-dot active"></span>Verifiziert
+                </button>
+              {% else %}
+                <button type="submit" class="btn btn-sm btn-link p-0 text-decoration-none" title="Klicken zum Verifizieren">
+                  <span class="status-dot pending"></span>Ausstehend
+                </button>
+              {% endif %}
+            </form>
+            {% if praxis.landingpage_aktiv %}
+            <br><small class="text-success"><i class="fas fa-globe"></i> Landingpage aktiv</small>
+            {% endif %}
+          </td>
+          <td>
+            <small>{{ praxis.erstelldatum.strftime('%d.%m.%Y') if praxis.erstelldatum else '-' }}</small>
+          </td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              {% if praxis.slug %}
+              <a href="/zahnarzt/{{ praxis.slug }}" target="_blank" class="btn btn-outline-primary" title="Landingpage">
+                <i class="fas fa-eye"></i>
+              </a>
+              {% endif %}
+              <a href="/admin/praxis/{{ praxis.id }}/bearbeiten" class="btn btn-outline-secondary" title="Bearbeiten">
+                <i class="fas fa-edit"></i>
+              </a>
+              <button type="button" class="btn btn-outline-danger" title="Löschen" 
+                      onclick="confirmDelete({{ praxis.id }}, '{{ praxis.name | e }}')">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="9" class="text-center text-muted py-4">
+            Keine Praxen gefunden
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if pagination %}
+<nav class="mt-3">
+  <ul class="pagination justify-content-center">
+    {% if pagination.has_prev %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ pagination.prev_num }}&filter={{ filter }}">Zurück</a>
+    </li>
+    {% endif %}
+    
+    {% for page_num in pagination.iter_pages() %}
+      {% if page_num %}
+        <li class="page-item {{ 'active' if page_num == pagination.page else '' }}">
+          <a class="page-link" href="?page={{ page_num }}&filter={{ filter }}">{{ page_num }}</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">...</span></li>
+      {% endif %}
+    {% endfor %}
+    
+    {% if pagination.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ pagination.next_num }}&filter={{ filter }}">Weiter</a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+<!-- Lösch-Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-exclamation-triangle text-danger me-2"></i>Praxis löschen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Möchten Sie die Praxis <strong id="deletePraxisName"></strong> wirklich löschen?</p>
+        <p class="text-danger small">
+          <i class="fas fa-warning me-1"></i>
+          Diese Aktion kann nicht rückgängig gemacht werden. Alle zugehörigen Daten (Termine, Öffnungszeiten, Team-Mitglieder, etc.) werden ebenfalls gelöscht.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        <form id="deleteForm" method="POST" style="display:inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash me-1"></i>Endgültig löschen
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filterTable() {
+  const input = document.getElementById('searchInput');
+  const filter = input.value.toLowerCase();
+  const rows = document.querySelectorAll('#praxenTable tbody tr');
+  
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(filter) ? '' : 'none';
+  });
+}
+
+function confirmDelete(praxisId, praxisName) {
+  document.getElementById('deletePraxisName').textContent = praxisName;
+  document.getElementById('deleteForm').action = '/admin/praxis/' + praxisId + '/loeschen';
+  new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

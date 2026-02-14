@@ -1,0 +1,262 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        
+        <div class="text-center mb-5">
+          <div class="bg-success text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style="width: 60px; height: 60px;">
+            <i class="fas fa-check fa-2x"></i>
+          </div>
+          <h2 class="mb-2">E-Mail bestätigt!</h2>
+          <p class="lead text-muted">
+            Sie übernehmen: <strong class="text-primary">{{ praxis.name }}</strong>
+          </p>
+        </div>
+        
+        <form method="post" action="{{ url_for('praxis_paket_waehlen', claim_id=claim.id) }}">
+          
+          <div class="row mb-4">
+            <div class="col-12">
+              <h4 class="mb-3">
+                <i class="fas fa-key text-primary me-2"></i>
+                Passwort festlegen
+              </h4>
+              <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="passwort" class="form-label">Passwort <span class="text-danger">*</span></label>
+                      <input type="password" class="form-control" id="passwort" name="passwort" 
+                             required minlength="8" placeholder="Mindestens 8 Zeichen">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="passwort_bestaetigen" class="form-label">Passwort bestätigen <span class="text-danger">*</span></label>
+                      <input type="password" class="form-control" id="passwort_bestaetigen" name="passwort_bestaetigen" 
+                             required minlength="8" placeholder="Passwort wiederholen">
+                    </div>
+                  </div>
+                  <p class="small text-muted mb-0">
+                    <i class="fas fa-envelope me-1"></i>
+                    Ihre Login-E-Mail: <strong>{{ claim.email }}</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <h4 class="mb-3">
+            <i class="fas fa-cubes text-primary me-2"></i>
+            Wählen Sie Ihr Paket
+          </h4>
+          
+          <div class="row g-4 mb-4">
+            
+            <div class="col-md-4">
+              <div class="card h-100 border-0 shadow-sm paket-card" onclick="selectPaket('basic')">
+                <div class="card-body p-4 text-center">
+                  <div class="form-check position-absolute top-0 end-0 m-3">
+                    <input class="form-check-input" type="radio" name="paket" id="paketBasis" 
+                           value="basic" checked>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <i class="fas fa-seedling fa-3x text-secondary"></i>
+                  </div>
+                  
+                  <h5 class="card-title">Basis</h5>
+                  <div class="mb-3">
+                    <span class="h3 fw-bold text-secondary">Kostenlos</span>
+                  </div>
+                  
+                  <ul class="list-unstyled text-start small mb-0">
+                    <li class="mb-2">
+                      <i class="fas fa-check text-success me-2"></i>
+                      Grundeintrag im Verzeichnis
+                    </li>
+                    <li class="mb-2">
+                      <i class="fas fa-check text-success me-2"></i>
+                      Kontaktdaten verwalten
+                    </li>
+                    <li class="mb-2">
+                      <i class="fas fa-check text-success me-2"></i>
+                      Auf Bewertungen antworten
+                    </li>
+                    <li class="text-muted">
+                      <i class="fas fa-times text-muted me-2"></i>
+                      Keine Landingpage
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="card h-100 border-primary border-2 shadow paket-card position-relative" onclick="selectPaket('premium')">
+                <div class="position-absolute top-0 start-50 translate-middle">
+                  <span class="badge bg-primary px-3 py-2">Beliebt</span>
+                </div>
+                <div class="card-body p-4 text-center">
+                  <div class="form-check position-absolute top-0 end-0 m-3">
+                    <input class="form-check-input" type="radio" name="paket" id="paketPro" 
+                           value="premium">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <i class="fas fa-rocket fa-3x text-primary"></i>
+                  </div>
+                  
+                  <h5 class="card-title">Premium</h5>
+                  <div class="mb-3">
+                    <span class="h3 fw-bold text-primary">59 €</span>
+                    <span class="text-muted">/Monat</span>
+                  </div>
+                  
+                  <ul class="list-unstyled text-start small mb-0">
+                    <li class="mb-2">
+                      <i class="fas fa-check text-success me-2"></i>
+                      Eigene Praxis-Landingpage
+                    </li>
+                    <li class="mb-2">
+                      <i class="fas fa-check text-success me-2"></i>
+                      Erhöhte Sichtbarkeit
+                    </li>
+                    <li class="mb-2">
+                      <i class="fas fa-check text-success me-2"></i>
+                      Online-Terminbuchung
+                    </li>
+                    <li class="mb-2">
+                      <i class="fas fa-check text-success me-2"></i>
+                      Praxis-Dashboard
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="card h-100 border-0 shadow-sm paket-card" onclick="selectPaket('premiumplus')">
+                <div class="card-body p-4 text-center">
+                  <div class="form-check position-absolute top-0 end-0 m-3">
+                    <input class="form-check-input" type="radio" name="paket" id="paketPlus" 
+                           value="premiumplus">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <i class="fas fa-crown fa-3x text-warning"></i>
+                  </div>
+                  
+                  <h5 class="card-title">PremiumPlus</h5>
+                  <div class="mb-3">
+                    <span class="h3 fw-bold text-warning">89 €</span>
+                    <span class="text-muted">/Monat</span>
+                  </div>
+                  
+                  <ul class="list-unstyled text-start small mb-0">
+                    <li class="mb-2">
+                      <i class="fas fa-check text-success me-2"></i>
+                      Alles aus Premium
+                    </li>
+                    <li class="mb-2">
+                      <i class="fas fa-check text-success me-2"></i>
+                      Unbegrenzte Jobanzeigen
+                    </li>
+                    <li class="mb-2">
+                      <i class="fas fa-check text-success me-2"></i>
+                      Exklusive Bewerbungen
+                    </li>
+                    <li class="mb-2">
+                      <i class="fas fa-check text-success me-2"></i>
+                      Premium-Platzierung
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-4" id="zahlweiseSection" style="display: none;">
+            <h5 class="mb-3">Zahlweise</h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-check card p-3 border">
+                  <input class="form-check-input" type="radio" name="zahlweise" id="monatlich" value="monatlich" checked>
+                  <label class="form-check-label w-100" for="monatlich">
+                    <strong>Monatlich</strong>
+                    <span class="text-muted d-block small">Flexibel kündbar</span>
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-check card p-3 border">
+                  <input class="form-check-input" type="radio" name="zahlweise" id="jaehrlich" value="jaehrlich">
+                  <label class="form-check-label w-100" for="jaehrlich">
+                    <strong>Jährlich</strong>
+                    <span class="text-success d-block small">2 Monate gratis</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+            <button type="submit" class="btn btn-primary btn-lg px-5">
+              <i class="fas fa-arrow-right me-2"></i>Weiter
+            </button>
+          </div>
+        </form>
+        
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .paket-card {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .paket-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+  .paket-card .form-check-input:checked ~ * {
+    font-weight: 500;
+  }
+</style>
+
+<script>
+  function selectPaket(paket) {
+    document.querySelectorAll('.paket-card').forEach(card => {
+      card.classList.remove('border-primary', 'border-2');
+    });
+    
+    const radio = document.getElementById('paket' + paket.charAt(0).toUpperCase() + paket.slice(1).replace('praxis', ''));
+    if (paket === 'basic') {
+      document.getElementById('paketBasis').checked = true;
+      document.getElementById('paketBasis').closest('.paket-card').classList.add('border-primary', 'border-2');
+      document.getElementById('zahlweiseSection').style.display = 'none';
+    } else if (paket === 'premium') {
+      document.getElementById('paketPro').checked = true;
+      document.getElementById('paketPro').closest('.paket-card').classList.add('border-primary', 'border-2');
+      document.getElementById('zahlweiseSection').style.display = 'block';
+    } else if (paket === 'premiumplus') {
+      document.getElementById('paketPlus').checked = true;
+      document.getElementById('paketPlus').closest('.paket-card').classList.add('border-primary', 'border-2');
+      document.getElementById('zahlweiseSection').style.display = 'block';
+    }
+  }
+  
+  document.querySelectorAll('input[name="paket"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (this.value === 'basic') {
+        document.getElementById('zahlweiseSection').style.display = 'none';
+      } else {
+        document.getElementById('zahlweiseSection').style.display = 'block';
+      }
+    });
+  });
+</script>
+{% endblock %}

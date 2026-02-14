@@ -1,0 +1,1581 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ praxis.name }} | Zahnarzt in {{ praxis.stadt }}{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+<style>
+  {% if praxis.farbschema == 'gruen' %}
+  :root { --praxis-primary: #28a745; --praxis-primary-dark: #1e7e34; --praxis-primary-rgb: 40, 167, 69; }
+  {% elif praxis.farbschema == 'violett' %}
+  :root { --praxis-primary: #6f42c1; --praxis-primary-dark: #5a32a3; --praxis-primary-rgb: 111, 66, 193; }
+  {% elif praxis.farbschema == 'teal' %}
+  :root { --praxis-primary: #20c997; --praxis-primary-dark: #199d76; --praxis-primary-rgb: 32, 201, 151; }
+  {% else %}
+  :root { --praxis-primary: #3fbfd8; --praxis-primary-dark: #2a8294; --praxis-primary-rgb: 63, 191, 216; }
+  {% endif %}
+
+  .calendar-day {
+    width: 100%;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-weight: 500;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    margin: 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+  
+  .calendar-day.clickable {
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background-color: #fff;
+    user-select: none;
+  }
+  
+  .calendar-day.clickable:hover {
+    background-color: rgba(var(--praxis-primary-rgb), 0.1);
+    border: 1px solid rgba(var(--praxis-primary-rgb), 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(var(--praxis-primary-rgb), 0.1);
+  }
+  
+  .calendar-day.active,
+  .calendar-day.clickable.active {
+    background-color: var(--praxis-primary) !important;
+    color: white !important;
+    font-weight: 600;
+    border: 2px solid var(--praxis-primary) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(var(--praxis-primary-rgb), 0.25);
+    z-index: 1;
+    position: relative;
+  }
+  
+  .calendar-day.inactive {
+    color: #adb5bd;
+    background-color: rgba(0,0,0,0.02);
+    box-shadow: none;
+  }
+  
+  .availability-dot {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+  
+  .calendar-day:hover .availability-dot {
+    transform: translateX(-50%) scale(1.2);
+  }
+  
+  .availability-high { background-color: #28a745; }
+  .availability-medium { background-color: #ffc107; }
+  .availability-none { background-color: #e9ecef; border: 1px solid #dee2e6; }
+  
+  .section-title {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1rem;
+  }
+  .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--praxis-primary), var(--praxis-primary-dark));
+    border-radius: 3px;
+  }
+  .section-title.text-center::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+  }
+
+  .feature-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-color: rgba(var(--praxis-primary-rgb), 0.1);
+    color: var(--praxis-primary);
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+    transition: all 0.3s ease;
+  }
+  .feature-card:hover .feature-icon {
+    background-color: var(--praxis-primary);
+    color: white;
+    transform: scale(1.1);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+  }
+
+  .hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .time-slot {
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #fff;
+    color: var(--praxis-primary);
+    border-color: rgba(var(--praxis-primary-rgb), 0.2) !important;
+  }
+  .time-slot:hover {
+    background-color: rgba(var(--praxis-primary-rgb), 0.1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .time-slot.active,
+  .btn-check:checked + .time-slot {
+    background-color: var(--praxis-primary);
+    color: white;
+    font-weight: 500;
+    border-color: var(--praxis-primary) !important;
+  }
+
+  .text-primary { color: var(--praxis-primary) !important; }
+  .bg-primary { background-color: var(--praxis-primary) !important; }
+  .btn-primary {
+    background-color: var(--praxis-primary) !important;
+    border-color: var(--praxis-primary) !important;
+  }
+  .btn-primary:hover {
+    background-color: var(--praxis-primary-dark) !important;
+    border-color: var(--praxis-primary-dark) !important;
+  }
+  .btn-outline-primary {
+    color: var(--praxis-primary) !important;
+    border-color: var(--praxis-primary) !important;
+  }
+  .btn-outline-primary:hover {
+    background-color: var(--praxis-primary) !important;
+    color: white !important;
+  }
+
+  /* Navigation auf Landingpage ausblenden */
+  .floating-nav,
+  .mobile-nav-header,
+  .mobile-menu-overlay {
+    display: none !important;
+  }
+
+  /* Minimale Landingpage-Navigation */
+  .landingpage-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 100%);
+  }
+
+  .landingpage-nav .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: rgba(255,255,255,0.95);
+    color: #333;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-decoration: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+  }
+
+  .landingpage-nav .nav-btn:hover {
+    background: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+
+  .landingpage-nav .nav-btn i {
+    font-size: 0.85rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Minimale Navigation für Landingpage -->
+<nav class="landingpage-nav">
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('suche', ort=praxis.stadt) }}" class="nav-btn">
+      <i class="fas fa-arrow-left"></i>
+      <span class="d-none d-sm-inline">Zurück zur Suche</span>
+    </a>
+  </div>
+  <div>
+    {% if current_user.is_authenticated and current_user.praxis_id == praxis.id %}
+    <a href="{{ url_for('zahnarzt_dashboard') }}" class="nav-btn">
+      <i class="fas fa-cog"></i>
+      <span class="d-none d-sm-inline">Zum Dashboard</span>
+    </a>
+    {% endif %}
+  </div>
+</nav>
+
+{% set hero_image_url = hero_bild.pfad if hero_bild else url_for('static', filename='images/Demo Hero Image.jpg') %}
+{% if praxis.farbschema == 'gruen' %}
+  {% set gradient_color1 = 'rgba(40, 167, 69, 0.7)' %}
+  {% set gradient_color2 = 'rgba(30, 126, 52, 0.6)' %}
+{% elif praxis.farbschema == 'violett' %}
+  {% set gradient_color1 = 'rgba(111, 66, 193, 0.7)' %}
+  {% set gradient_color2 = 'rgba(90, 50, 163, 0.6)' %}
+{% elif praxis.farbschema == 'teal' %}
+  {% set gradient_color1 = 'rgba(32, 201, 151, 0.7)' %}
+  {% set gradient_color2 = 'rgba(25, 157, 118, 0.6)' %}
+{% else %}
+  {% set gradient_color1 = 'rgba(42, 130, 148, 0.7)' %}
+  {% set gradient_color2 = 'rgba(63, 191, 216, 0.6)' %}
+{% endif %}
+
+<!-- Hero-Section mit modernem Design -->
+<section class="position-relative overflow-hidden">
+  <div class="position-absolute w-100 h-100" 
+       style="background: linear-gradient(120deg, {{ gradient_color1 }}, {{ gradient_color2 }}), url('{{ hero_image_url }}') center center; 
+              background-size: cover; background-position: 50% 30%;">
+  </div>
+  
+  <div class="position-absolute w-100 h-100"></div>
+  
+  <div class="container position-relative py-5">
+    <div class="row min-vh-75 align-items-center py-5">
+      <div class="col-lg-7 mb-5 mb-lg-0 text-center text-lg-start">
+        <div class="text-white mb-4 animate__animated animate__fadeInUp">
+          <span class="badge bg-white text-primary px-3 py-2 fs-6 fw-normal shadow-sm mb-3">Premium Zahnarztpraxis</span>
+          <h1 class="display-3 fw-bold mb-3">{{ praxis.hero_titel or praxis.name }}</h1>
+          <p class="lead fs-4 mb-4">{{ praxis.hero_untertitel or praxis.slogan or 'Ihre moderne Zahnarztpraxis in ' + praxis.stadt }}</p>
+          <p class="mb-4">{{ praxis.beschreibung[:200] if praxis.beschreibung else 'Zahnarztpraxis in ' + praxis.stadt + ' mit modernem Konzept und patientenorientierter Behandlung.' }}{% if praxis.beschreibung and praxis.beschreibung|length > 200 %}...{% endif %}</p>
+          <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+            {% if praxis.terminbuchung_modus == 'redirect' and praxis.terminbuchung_url %}
+            <a href="{{ praxis.terminbuchung_url }}" target="_blank" class="btn btn-light btn-lg shadow-sm">
+              <i class="fas fa-calendar-alt me-2"></i> {{ praxis.hero_button_text or 'Termin vereinbaren' }}
+            </a>
+            {% else %}
+            <a href="#termin" class="btn btn-light btn-lg shadow-sm">
+              <i class="fas fa-calendar-alt me-2"></i> {{ praxis.hero_button_text or 'Termin vereinbaren' }}
+            </a>
+            {% endif %}
+            <a href="#leistungen" class="btn btn-outline-light btn-lg">
+              <i class="fas fa-info-circle me-2"></i> Leistungen entdecken
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-5">
+        <div class="card hover-lift animate__animated animate__fadeInRight" 
+             style="border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
+          <div class="card-body p-4 p-xl-5">
+            <div class="d-flex align-items-center mb-4">
+              <div class="praxis-logo me-3">
+                {% if portrait_bild %}
+                <img src="{{ portrait_bild.pfad }}" alt="{{ praxis.name }}" class="rounded-circle shadow-sm" style="width: 90px; height: 90px; object-fit: cover; border: 3px solid #fff;">
+                {% elif logo_bild %}
+                <img src="{{ logo_bild.pfad }}" alt="{{ praxis.name }} Logo" class="rounded-circle shadow-sm" style="width: 90px; height: 90px; object-fit: cover; border: 3px solid #fff;">
+                {% else %}
+                <div class="rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 90px; height: 90px; background-color: var(--praxis-primary); border: 3px solid #fff;">
+                  <i class="fas fa-user-md text-white fa-2x"></i>
+                </div>
+                {% endif %}
+              </div>
+              <div>
+                <h2 class="h4 fw-bold mb-0">{{ praxis.name }}</h2>
+                <div class="d-flex align-items-center flex-wrap mt-2 gap-2">
+                  <span class="badge bg-success py-2 px-3">
+                    <i class="fas fa-check-circle me-1"></i> Verifiziert
+                  </span>
+                  {% set hero_has_dentalax = bewertungen and bewertungen|length > 0 %}
+                  {% set hero_has_google = praxis.google_rating and praxis.google_review_count %}
+                  {% if hero_has_dentalax or hero_has_google %}
+                  {% if hero_has_dentalax and hero_has_google %}
+                    {% set hero_total = bewertungen|length + praxis.google_review_count %}
+                    {% set hero_avg = ((bewertungen|sum(attribute='bewertung') / bewertungen|length * bewertungen|length + praxis.google_rating * praxis.google_review_count) / hero_total)|round(1) %}
+                  {% elif hero_has_google %}
+                    {% set hero_avg = praxis.google_rating %}
+                    {% set hero_total = praxis.google_review_count %}
+                  {% else %}
+                    {% set hero_avg = (bewertungen|sum(attribute='bewertung') / bewertungen|length)|round(1) %}
+                    {% set hero_total = bewertungen|length %}
+                  {% endif %}
+                  {% set full_stars = hero_avg|int %}
+                  {% set fractional = hero_avg - full_stars %}
+                  <div class="d-flex align-items-center">
+                    <div class="text-warning me-1">
+                      {% for i in range(1, 6) %}
+                        {% if i <= full_stars %}
+                          <i class="fas fa-star"></i>
+                        {% elif i == full_stars + 1 and fractional >= 0.5 %}
+                          <i class="fas fa-star-half-alt"></i>
+                        {% else %}
+                          <i class="far fa-star"></i>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                    <span class="text-primary fw-bold">{{ hero_avg }}</span>
+                    <span class="text-muted ms-1">({{ hero_total }})</span>
+                    {% if hero_has_google %}
+                    <svg class="ms-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" style="vertical-align: -1px;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                    {% endif %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            
+            <div class="card bg-light border-0 mb-4">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background-color: rgba(var(--praxis-primary-rgb), 0.1);">
+                    <i class="fas fa-map-marker-alt text-primary"></i>
+                  </div>
+                  <div>
+                    <div class="text-muted small">Adresse</div>
+                    <div class="fw-medium">{{ praxis.strasse }}, {{ praxis.plz }} {{ praxis.stadt }}</div>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center mb-3">
+                  <div class="rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background-color: rgba(var(--praxis-primary-rgb), 0.1);">
+                    <i class="fas fa-phone-alt text-primary"></i>
+                  </div>
+                  <div>
+                    <div class="text-muted small">Telefon</div>
+                    <div><a href="tel:{{ praxis.telefon }}" class="text-body fw-medium">{{ praxis.telefon }}</a></div>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center">
+                  <div class="rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background-color: rgba(var(--praxis-primary-rgb), 0.1);">
+                    <i class="fas fa-envelope text-primary"></i>
+                  </div>
+                  <div>
+                    <div class="text-muted small">E-Mail</div>
+                    <div><a href="mailto:{{ praxis.email }}" class="text-body fw-medium">{{ praxis.email }}</a></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Öffnungsstatus -->
+            {% if ist_geoeffnet %}
+            <div class="alert alert-success border-0 shadow-sm mb-4">
+              <div class="d-flex align-items-center">
+                <div class="me-3">
+                  <div class="position-relative">
+                    <i class="fas fa-clock fs-4 text-success"></i>
+                    <span class="position-absolute top-75 start-75 translate-middle badge rounded-circle bg-success p-1">
+                      <span class="visually-hidden">Jetzt geöffnet</span>
+                    </span>
+                  </div>
+                </div>
+                <div class="d-flex flex-column">
+                  <span class="fw-medium">Jetzt geöffnet</span>
+                  <span class="small">Heute bis {{ schliesst_um }} Uhr</span>
+                </div>
+                <a href="#oeffnungszeiten" class="btn btn-sm btn-outline-success ms-auto">Alle Zeiten</a>
+              </div>
+            </div>
+            {% else %}
+            <div class="alert alert-secondary border-0 shadow-sm mb-4">
+              <div class="d-flex align-items-center">
+                <div class="me-3">
+                  <div class="position-relative">
+                    <i class="fas fa-clock fs-4 text-secondary"></i>
+                  </div>
+                </div>
+                <div class="d-flex flex-column">
+                  <span class="fw-medium">Derzeit geschlossen</span>
+                  {% if oeffnet_naechstes %}
+                  <span class="small">Öffnet {{ oeffnet_naechstes }} Uhr</span>
+                  {% endif %}
+                </div>
+                <a href="#oeffnungszeiten" class="btn btn-sm btn-outline-secondary ms-auto">Alle Zeiten</a>
+              </div>
+            </div>
+            {% endif %}
+            
+            <div class="d-grid gap-2">
+              {% if praxis.terminbuchung_modus == 'redirect' and praxis.terminbuchung_url %}
+              <a href="{{ praxis.terminbuchung_url }}" target="_blank" class="btn btn-primary btn-lg">
+                <i class="fas fa-calendar-alt me-2"></i> Termin vereinbaren
+              </a>
+              {% else %}
+              <a href="#termin" class="btn btn-primary btn-lg">
+                <i class="fas fa-calendar-alt me-2"></i> Termin vereinbaren
+              </a>
+              {% endif %}
+              <div class="d-flex gap-2">
+                <a href="tel:{{ praxis.telefon }}" class="btn btn-outline-primary flex-grow-1">
+                  <i class="fas fa-phone-alt me-md-2"></i> <span class="d-none d-md-inline">Anrufen</span>
+                </a>
+                <a href="#route" class="btn btn-outline-primary flex-grow-1">
+                  <i class="fas fa-directions me-md-2"></i> <span class="d-none d-md-inline">Route</span>
+                </a>
+                <button class="btn btn-outline-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-share-alt"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="#"><i class="fab fa-whatsapp me-2 text-success"></i> WhatsApp</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fab fa-facebook me-2 text-primary"></i> Facebook</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="far fa-envelope me-2 text-info"></i> E-Mail</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Öffnungszeiten und Über uns -->
+<section class="py-5" style="background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);" id="oeffnungszeiten">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="h-100" style="background: white; border-radius: 16px; padding: 28px; box-shadow: 0 2px 12px rgba(42, 130, 148, 0.08); border: 1px solid rgba(42, 130, 148, 0.1);">
+          <div class="d-flex align-items-center mb-4">
+            <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #35bfd6 0%, #2a8294 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+              <i class="far fa-clock text-white"></i>
+            </div>
+            <h3 class="h5 mb-0 ms-3" style="color: #212a37;">Öffnungszeiten</h3>
+          </div>
+          <div class="opening-hours-list">
+            {% for oz in oeffnungszeiten %}
+            <div class="d-flex justify-content-between py-2" style="border-bottom: 1px solid rgba(42, 130, 148, 0.08);">
+              <span style="color: #212a37; font-weight: 500;">{{ oz.tag }}</span>
+              <span style="color: {% if oz.geschlossen %}#dc3545{% else %}#6c757d{% endif %};">
+                {% if oz.geschlossen %}
+                  Geschlossen
+                {% else %}
+                  {{ oz.von.strftime('%H:%M') if oz.von else '08:00' }} - {{ oz.bis.strftime('%H:%M') if oz.bis else '18:00' }}
+                {% endif %}
+              </span>
+            </div>
+            {% endfor %}
+            {% if not oeffnungszeiten %}
+            <div class="d-flex justify-content-between py-2" style="border-bottom: 1px solid rgba(42, 130, 148, 0.08);"><span style="color: #212a37; font-weight: 500;">Montag</span><span style="color: #6c757d;">08:00 - 18:00</span></div>
+            <div class="d-flex justify-content-between py-2" style="border-bottom: 1px solid rgba(42, 130, 148, 0.08);"><span style="color: #212a37; font-weight: 500;">Dienstag</span><span style="color: #6c757d;">08:00 - 18:00</span></div>
+            <div class="d-flex justify-content-between py-2" style="border-bottom: 1px solid rgba(42, 130, 148, 0.08);"><span style="color: #212a37; font-weight: 500;">Mittwoch</span><span style="color: #6c757d;">08:00 - 18:00</span></div>
+            <div class="d-flex justify-content-between py-2" style="border-bottom: 1px solid rgba(42, 130, 148, 0.08);"><span style="color: #212a37; font-weight: 500;">Donnerstag</span><span style="color: #6c757d;">08:00 - 18:00</span></div>
+            <div class="d-flex justify-content-between py-2" style="border-bottom: 1px solid rgba(42, 130, 148, 0.08);"><span style="color: #212a37; font-weight: 500;">Freitag</span><span style="color: #6c757d;">08:00 - 14:00</span></div>
+            <div class="d-flex justify-content-between py-2" style="border-bottom: 1px solid rgba(42, 130, 148, 0.08);"><span style="color: #212a37; font-weight: 500;">Samstag</span><span style="color: #dc3545;">Geschlossen</span></div>
+            <div class="d-flex justify-content-between py-2"><span style="color: #212a37; font-weight: 500;">Sonntag</span><span style="color: #dc3545;">Geschlossen</span></div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="h-100" style="background: white; border-radius: 16px; padding: 28px; box-shadow: 0 2px 12px rgba(42, 130, 148, 0.08); border: 1px solid rgba(42, 130, 148, 0.1);">
+          <div class="d-flex align-items-center mb-4">
+            <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #35bfd6 0%, #2a8294 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+              <i class="fas fa-user-md text-white"></i>
+            </div>
+            <h2 class="h5 mb-0 ms-3" style="color: #212a37;">{{ praxis.ueber_uns_titel or 'Über unsere Praxis' }}</h2>
+          </div>
+          
+          <div class="row align-items-center">
+            <div class="col-md-4 mb-4 mb-md-0">
+              {% if ueber_uns_bild %}
+                <img src="{{ ueber_uns_bild.pfad }}" alt="Team {{ praxis.name }}" class="img-fluid" style="border-radius: 12px; box-shadow: 0 4px 16px rgba(42, 130, 148, 0.12);">
+              {% else %}
+                <img src="{{ url_for('static', filename='images/dashboard/landingpage-about.jpg') }}" alt="Zahnarztpraxis" class="img-fluid" style="border-radius: 12px; box-shadow: 0 4px 16px rgba(42, 130, 148, 0.12);">
+              {% endif %}
+            </div>
+            <div class="col-md-8">
+              <p style="color: #4a5568; line-height: 1.7;">{{ praxis.ueber_uns_text or praxis.beschreibung or 'Herzlich willkommen in unserer Zahnarztpraxis. Wir bieten Ihnen moderne Zahnmedizin in angenehmer Atmosphäre. Unser erfahrenes Team freut sich darauf, Sie bei uns zu begrüßen.' }}</p>
+              
+              {% if praxis.schwerpunkte %}
+              <div class="mt-3">
+                <p class="mb-2" style="font-weight: 600; color: #212a37;">Unsere Schwerpunkte:</p>
+                <div class="d-flex flex-wrap gap-2">
+                  {% for schwerpunkt in praxis.schwerpunkte %}
+                    <span style="background: linear-gradient(135deg, rgba(53, 191, 214, 0.15) 0%, rgba(42, 130, 148, 0.15) 100%); color: #2a8294; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 500;">{{ schwerpunkt }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Leistungen mit modernem Layout -->
+{% if leistungen %}
+<section class="py-5" id="leistungen">
+  <div class="container">
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-8 text-center">
+        <span style="display: inline-block; background: linear-gradient(135deg, rgba(53, 191, 214, 0.15) 0%, rgba(42, 130, 148, 0.15) 100%); color: #2a8294; padding: 8px 20px; border-radius: 25px; font-size: 0.875rem; font-weight: 600; margin-bottom: 16px;">Unsere Expertise</span>
+        <h2 class="fw-bold mb-3" style="font-size: 2.25rem; color: #212a37;">Zahnmedizinische Leistungen</h2>
+        <p style="font-size: 1.1rem; color: #6c757d; max-width: 600px; margin: 0 auto;">Wir bieten das gesamte Spektrum moderner Zahnmedizin, um Ihre Zahngesundheit zu erhalten und Ihr Lächeln zu verschönern.</p>
+      </div>
+    </div>
+    
+    <div class="row g-4 justify-content-center">
+      {% for leistung in leistungen %}
+        <div class="col-6 col-md-4 col-lg-3">
+          <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(42, 130, 148, 0.08); border: 1px solid rgba(42, 130, 148, 0.1); transition: all 0.3s ease; text-align: center; height: 100%;" class="leistung-card">
+            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #35bfd6 0%, #2a8294 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+              <i class="{{ leistung.icon or 'fas fa-tooth' }}" style="font-size: 1.5rem; color: white;"></i>
+            </div>
+            <h3 style="font-size: 1rem; font-weight: 600; color: #212a37; margin: 0;">{{ leistung.titel }}</h3>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    
+    <div class="text-center mt-5">
+      <a href="#termin" style="display: inline-flex; align-items: center; background: linear-gradient(135deg, #35bfd6 0%, #2a8294 100%); color: white; padding: 14px 32px; border-radius: 30px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 16px rgba(42, 130, 148, 0.25); transition: all 0.3s ease;">
+        <i class="fas fa-calendar-alt me-2"></i> Termin für Beratung vereinbaren
+      </a>
+    </div>
+  </div>
+</section>
+<style>
+.leistung-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(42, 130, 148, 0.15) !important;
+}
+</style>
+{% endif %}
+
+<!-- Team Mitglieder mit modernem Layout -->
+{% if team_mitglieder %}
+<section class="py-5 bg-light" id="team">
+  <div class="container py-lg-4">
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-8 text-center">
+        <span class="badge bg-light text-primary px-3 py-2 rounded-pill mb-2">Unser Team</span>
+        <h2 class="display-5 fw-bold mb-3">Erfahrene Spezialisten für Ihre Zahngesundheit</h2>
+        <p class="lead text-muted mb-0">Lernen Sie unser hochqualifiziertes Team kennen, das sich für Ihre optimale Behandlung einsetzt.</p>
+      </div>
+    </div>
+    
+    <div class="row g-5 justify-content-center">
+      {% for mitglied in team_mitglieder %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card border-0 shadow-sm h-100 hover-lift overflow-hidden">
+            <div class="position-relative">
+              {% if mitglied.bild_pfad %}
+                <img src="{{ mitglied.bild_pfad }}" alt="{{ mitglied.name }}" class="card-img-top" style="height: 280px; object-fit: cover;">
+              {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 280px;">
+                  <i class="fas fa-user-md text-primary" style="font-size: 5rem;"></i>
+                </div>
+              {% endif %}
+              <div class="position-absolute bottom-0 start-0 w-100 p-3 bg-white bg-opacity-90">
+                <h3 class="h4 fw-bold mb-1">{{ mitglied.name }}</h3>
+                <p class="text-primary mb-0">{{ mitglied.position or 'Teammitglied' }}</p>
+              </div>
+            </div>
+            <div class="card-body p-4">
+              <p class="mb-3">{{ mitglied.beschreibung or 'Mitglied unseres kompetenten Praxisteams.' }}</p>
+              <div class="border-top pt-3">
+                <div class="row row-cols-auto g-2">
+                  {% if mitglied.schwerpunkte %}
+                  {% for sp in mitglied.schwerpunkte.split(',') %}
+                  <div class="col">
+                    <span class="badge bg-light text-dark px-3 py-2">
+                      <i class="fas fa-tooth me-1 text-primary"></i> {{ sp.strip() }}
+                    </span>
+                  </div>
+                  {% endfor %}
+                  {% endif %}
+                  {% if mitglied.sprachen %}
+                  <div class="col">
+                    <span class="badge bg-light text-dark px-3 py-2">
+                      <i class="fas fa-language me-1 text-primary"></i> {{ mitglied.sprachen }}
+                    </span>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="card-footer bg-white border-0 p-4 pt-0">
+              <button class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#teamModal{{ loop.index }}">
+                <i class="fas fa-info-circle me-2"></i> Mehr erfahren
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Modal für Team-Mitglied Details -->
+        <div class="modal fade" id="teamModal{{ loop.index }}" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">{{ mitglied.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-4">
+                  <div class="col-md-4 text-center">
+                    {% if mitglied.bild_pfad %}
+                      <img src="{{ mitglied.bild_pfad }}" alt="{{ mitglied.name }}" class="img-fluid rounded" style="max-height: 300px; object-fit: cover;">
+                    {% else %}
+                      <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 300px;">
+                        <i class="fas fa-user-md text-primary" style="font-size: 5rem;"></i>
+                      </div>
+                    {% endif %}
+                    <h6 class="mt-3 mb-1">{{ mitglied.name }}</h6>
+                    <p class="text-primary small">{{ mitglied.position or 'Teammitglied' }}</p>
+                  </div>
+                  <div class="col-md-8">
+                    <h6 class="section-title mb-3">Über {{ mitglied.name }}</h6>
+                    <p>{{ mitglied.beschreibung or 'Ein erfahrenes Mitglied unseres Praxisteams.' }}</p>
+                    
+                    {% if mitglied.schwerpunkte %}
+                    <h6 class="section-title mt-4 mb-3"><i class="fas fa-star text-primary me-2"></i>Schwerpunkte</h6>
+                    <div class="row row-cols-auto g-2 mb-3">
+                      {% for sp in mitglied.schwerpunkte.split(',') %}
+                      <div class="col">
+                        <span style="background: linear-gradient(135deg, rgba(53, 191, 214, 0.15) 0%, rgba(42, 130, 148, 0.15) 100%); color: #2a8294; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 500;">
+                          <i class="fas fa-check-circle me-1"></i> {{ sp.strip() }}
+                        </span>
+                      </div>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if mitglied.qualifikationen %}
+                    <h6 class="section-title mt-4 mb-3"><i class="fas fa-graduation-cap text-primary me-2"></i>Qualifikationen</h6>
+                    <ul class="list-unstyled">
+                      {% for quali in mitglied.qualifikationen.split(',') %}
+                      <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> {{ quali.strip() }}</li>
+                      {% endfor %}
+                    </ul>
+                    {% endif %}
+                    
+                    {% if mitglied.sprachen %}
+                    <h6 class="section-title mt-4 mb-3"><i class="fas fa-language text-primary me-2"></i>Sprachen</h6>
+                    <p>{{ mitglied.sprachen }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                <a href="#termin" class="btn btn-primary" data-bs-dismiss="modal">Termin vereinbaren</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Bewertungen Section -->
+{% if bewertungen or (praxis.google_rating and praxis.google_review_count) %}
+<section class="py-5 position-relative" id="bewertungen">
+  <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden" style="z-index: -1;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none" style="position: absolute; top: -200px; width: 100%; height: calc(100% + 400px);">
+      <path fill="#f8f9fa" fill-opacity="0.4" d="M0,224L80,197.3C160,171,320,117,480,101.3C640,85,800,107,960,138.7C1120,171,1280,213,1360,234.7L1440,256L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"></path>
+    </svg>
+  </div>
+
+  <div class="container">
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-8 text-center">
+        <span class="badge bg-light text-primary px-3 py-2 rounded-pill mb-2">Patientenfeedback</span>
+        <h2 class="display-5 fw-bold mb-3">Was unsere Patienten sagen</h2>
+        <p class="lead text-muted mb-0">Authentische Erfahrungen unserer Patienten geben Ihnen einen Einblick in unsere Praxisqualität.</p>
+      </div>
+    </div>
+
+    {% set total_bewertungen = bewertungen|length if bewertungen else 0 %}
+    {% set avg_rating = (bewertungen|sum(attribute='bewertung') / total_bewertungen)|round(1) if total_bewertungen > 0 else 0 %}
+    {% set has_google = praxis.google_rating and praxis.google_review_count %}
+
+    <div class="row justify-content-center mb-4 g-4">
+      {% if has_google %}
+      <div class="col-md-5 col-lg-4">
+        <div class="card border-0 shadow-sm h-100" style="border-top: 3px solid #4285F4 !important;">
+          <div class="card-body p-4 text-center">
+            <div class="mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            </div>
+            <div class="display-5 fw-bold mb-1" style="color: #1a73e8;">{{ praxis.google_rating }}</div>
+            <div class="text-warning mb-2">
+              {% for i in range(1, 6) %}
+                {% if praxis.google_rating >= i %}<i class="fas fa-star"></i>{% elif praxis.google_rating >= i - 0.5 %}<i class="fas fa-star-half-alt"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+              {% endfor %}
+            </div>
+            <p class="text-muted small mb-3">{{ praxis.google_review_count }} Bewertungen</p>
+            {% if praxis.google_maps_url %}
+            <a href="{{ praxis.google_maps_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary rounded-pill">
+              <i class="fas fa-external-link-alt me-1"></i>Auf Google ansehen
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if true %}
+      <div class="col-md-5 col-lg-4">
+        <div class="card border-0 shadow-sm h-100" style="border-top: 3px solid var(--praxis-primary, #2a8294) !important;">
+          <div class="card-body p-4 text-center">
+            <div class="mb-3">
+              <i class="fas fa-tooth" style="font-size: 28px; color: var(--praxis-primary, #2a8294);"></i>
+            </div>
+            {% if total_bewertungen > 0 %}
+            <div class="display-5 fw-bold mb-1" style="color: var(--praxis-primary, #2a8294);">{{ avg_rating }}</div>
+            <div class="text-warning mb-2">
+              {% for i in range(1, 6) %}
+                {% if avg_rating >= i %}<i class="fas fa-star"></i>{% elif avg_rating >= i - 0.5 %}<i class="fas fa-star-half-alt"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+              {% endfor %}
+            </div>
+            <p class="text-muted small mb-3">{{ total_bewertungen }} Bewertungen</p>
+            {% else %}
+            <div class="display-5 fw-bold mb-1 text-muted">--</div>
+            <div class="text-muted mb-2">
+              <i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
+            </div>
+            <p class="text-muted small mb-3">Noch keine Bewertungen</p>
+            {% endif %}
+            <button class="btn btn-sm btn-outline-secondary rounded-pill" type="button" data-bs-toggle="collapse" data-bs-target="#bewertungFormular">
+              <i class="fas fa-pen me-1"></i>Bewertung schreiben
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if total_bewertungen > 0 %}
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        {% if bewertungen|length <= 3 %}
+        <div class="row g-3">
+          {% for bewertung in bewertungen %}
+          <div class="col-md-6 col-lg-4">
+            <div class="card hover-lift h-100 border-0 shadow-sm">
+              <div class="card-body p-3">
+                <div class="d-flex align-items-start mb-2">
+                  <div class="flex-shrink-0">
+                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                      <span class="fw-bold" style="color: var(--praxis-primary, #2a8294);">{{ bewertung.name[:1] if bewertung.name else 'A' }}</span>
+                    </div>
+                  </div>
+                  <div class="ms-2 flex-grow-1">
+                    <h6 class="mb-0 small fw-bold">{{ bewertung.name or 'Anonym' }}</h6>
+                    <div class="text-warning" style="font-size: 0.75rem;">
+                      {% for i in range(5) %}
+                        {% if i < bewertung.bewertung %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <span class="text-muted" style="font-size: 0.7rem;">{{ bewertung.datum.strftime('%d.%m.%Y') if bewertung.datum else '' }}</span>
+                </div>
+                <p class="mb-0 small text-muted">{{ bewertung.text or 'Sehr zufrieden.' }}</p>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div id="bewertungenCarousel" class="carousel slide" data-bs-ride="false">
+          <div class="carousel-inner">
+            {% for batch in bewertungen|batch(3) %}
+            <div class="carousel-item {% if loop.first %}active{% endif %}">
+              <div class="row g-3">
+                {% for bewertung in batch %}
+                {% if bewertung %}
+                <div class="col-md-4">
+                  <div class="card hover-lift h-100 border-0 shadow-sm">
+                    <div class="card-body p-3">
+                      <div class="d-flex align-items-start mb-2">
+                        <div class="flex-shrink-0">
+                          <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                            <span class="fw-bold" style="color: var(--praxis-primary, #2a8294);">{{ bewertung.name[:1] if bewertung.name else 'A' }}</span>
+                          </div>
+                        </div>
+                        <div class="ms-2 flex-grow-1">
+                          <h6 class="mb-0 small fw-bold">{{ bewertung.name or 'Anonym' }}</h6>
+                          <div class="text-warning" style="font-size: 0.75rem;">
+                            {% for i in range(5) %}
+                              {% if i < bewertung.bewertung %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                            {% endfor %}
+                          </div>
+                        </div>
+                        <span class="text-muted" style="font-size: 0.7rem;">{{ bewertung.datum.strftime('%d.%m.%Y') if bewertung.datum else '' }}</span>
+                      </div>
+                      <p class="mb-0 small text-muted">{{ bewertung.text or 'Sehr zufrieden.' }}</p>
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="d-flex justify-content-center mt-3 gap-2">
+            <button class="btn btn-outline-primary btn-sm rounded-circle" type="button" data-bs-target="#bewertungenCarousel" data-bs-slide="prev" style="width: 36px; height: 36px;">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="btn btn-outline-primary btn-sm rounded-circle" type="button" data-bs-target="#bewertungenCarousel" data-bs-slide="next" style="width: 36px; height: 36px;">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="row justify-content-center mt-4">
+      <div class="col-lg-8">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
+          <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-triangle{% elif category == 'warning' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="text-center mt-4">
+      <button class="btn btn-outline-primary rounded-pill" type="button" data-bs-toggle="collapse" data-bs-target="#bewertungFormular" aria-expanded="false">
+        <i class="fas fa-pen me-2"></i> Ihre Erfahrung teilen
+      </button>
+    </div>
+    <div class="collapse mt-4" id="bewertungFormular">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+              <form action="/praxis/{{ praxis.slug }}/bewertung" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="bewertung_name" class="form-label">Ihr Name</label>
+                    <input type="text" class="form-control" id="bewertung_name" name="name" placeholder="Optional - oder anonym">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="bewertung_email" class="form-label">Ihre E-Mail-Adresse *</label>
+                    <input type="email" class="form-control" id="bewertung_email" name="email" placeholder="Für Bestätigungslink" required>
+                    <small class="text-muted">Wird ausschließlich zur Verifizierung Ihrer Bewertung verwendet.</small>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Ihre Bewertung *</label>
+                    <div class="star-rating-interactive" data-target="bewertung_rating">
+                      <input type="hidden" name="bewertung" id="bewertung_rating" value="0">
+                      <div class="d-flex gap-1">
+                        {% for i in range(1, 6) %}
+                        <span class="star-select fs-2" style="cursor: pointer; color: #dee2e6; transition: color 0.15s;" data-value="{{ i }}">
+                          <i class="fas fa-star"></i>
+                        </span>
+                        {% endfor %}
+                      </div>
+                      <small class="text-muted star-hint">Bitte wählen Sie eine Bewertung</small>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <label for="bewertung_text" class="form-label">Ihr Feedback *</label>
+                    <textarea class="form-control" id="bewertung_text" name="text" rows="3" placeholder="Erzählen Sie von Ihrer Erfahrung in unserer Praxis..." required></textarea>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="dsgvo_consent" name="dsgvo_consent" required>
+                      <label class="form-check-label small" for="dsgvo_consent">
+                        Ich willige ein, dass meine E-Mail-Adresse ausschließlich zur Verifizierung dieser Bewertung verwendet wird. Nach erfolgreicher Bestätigung wird die E-Mail-Adresse nicht für weitere Zwecke genutzt. Mein Name und meine Bewertung werden öffentlich angezeigt. Weitere Informationen finde ich in der <a href="/datenschutz" target="_blank">Datenschutzerklärung</a>. *
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                      <i class="fas fa-paper-plane me-2"></i> Bewertung absenden
+                    </button>
+                    <p class="text-muted small mt-2">Sie erhalten eine E-Mail mit Bestätigungslink. Ihre Bewertung wird nach Bestätigung und Prüfung veröffentlicht.</p>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% else %}
+<!-- Keine Bewertungen - nur Formular anzeigen -->
+<section class="py-5 bg-light" id="bewertungen">
+  <div class="container">
+    <div class="row justify-content-center mb-4">
+      <div class="col-lg-8 text-center">
+        <span class="badge bg-light text-primary px-3 py-2 rounded-pill mb-2">Patientenfeedback</span>
+        <h2 class="display-5 fw-bold mb-3">Bewerten Sie uns</h2>
+        <p class="lead text-muted">Seien Sie der Erste, der eine Bewertung abgibt!</p>
+      </div>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="row justify-content-center mb-3">
+      <div class="col-lg-8">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
+          <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-triangle{% elif category == 'warning' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h4 class="text-center mb-4"><i class="fas fa-pen me-2"></i> Ihre Erfahrung teilen</h4>
+            <form action="/praxis/{{ praxis.slug }}/bewertung" method="POST">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="bewertung_name_empty" class="form-label">Ihr Name</label>
+                  <input type="text" class="form-control" id="bewertung_name_empty" name="name" placeholder="Optional - oder anonym">
+                </div>
+                <div class="col-md-6">
+                  <label for="bewertung_email_empty" class="form-label">Ihre E-Mail-Adresse *</label>
+                  <input type="email" class="form-control" id="bewertung_email_empty" name="email" placeholder="Für Bestätigungslink" required>
+                  <small class="text-muted">Wird ausschließlich zur Verifizierung Ihrer Bewertung verwendet.</small>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Ihre Bewertung *</label>
+                  <div class="star-rating-interactive" data-target="bewertung_rating_empty">
+                    <input type="hidden" name="bewertung" id="bewertung_rating_empty" value="0">
+                    <div class="d-flex gap-1">
+                      {% for i in range(1, 6) %}
+                      <span class="star-select fs-2" style="cursor: pointer; color: #dee2e6; transition: color 0.15s;" data-value="{{ i }}">
+                        <i class="fas fa-star"></i>
+                      </span>
+                      {% endfor %}
+                    </div>
+                    <small class="text-muted star-hint">Bitte wählen Sie eine Bewertung</small>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <label for="bewertung_text_empty" class="form-label">Ihr Feedback *</label>
+                  <textarea class="form-control" id="bewertung_text_empty" name="text" rows="3" placeholder="Erzählen Sie von Ihrer Erfahrung in unserer Praxis..." required></textarea>
+                </div>
+                <div class="col-12">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="dsgvo_consent_empty" name="dsgvo_consent" required>
+                    <label class="form-check-label small" for="dsgvo_consent_empty">
+                      Ich willige ein, dass meine E-Mail-Adresse ausschließlich zur Verifizierung dieser Bewertung verwendet wird. Nach erfolgreicher Bestätigung wird die E-Mail-Adresse nicht für weitere Zwecke genutzt. Mein Name und meine Bewertung werden öffentlich angezeigt. Weitere Informationen finde ich in der <a href="/datenschutz" target="_blank">Datenschutzerklärung</a>. *
+                    </label>
+                  </div>
+                </div>
+                <div class="col-12 text-center">
+                  <button type="submit" class="btn btn-primary btn-lg px-5">
+                    <i class="fas fa-paper-plane me-2"></i> Bewertung absenden
+                  </button>
+                  <p class="text-muted small mt-2">Sie erhalten eine E-Mail mit Bestätigungslink. Ihre Bewertung wird nach Bestätigung und Prüfung veröffentlicht.</p>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Kontakt und Termin Section -->
+<section class="py-5" id="termin">
+  <div class="container">
+    <h2 class="text-center mb-4">Termin vereinbaren</h2>
+    <p class="text-center text-muted mb-5">
+      {% if praxis.terminbuchung_modus == 'redirect' %}
+        Buchen Sie Ihren Termin bequem online über unser Buchungssystem
+      {% elif praxis.terminbuchung_modus == 'formular' %}
+        Senden Sie uns Ihre Terminanfrage und wir melden uns bei Ihnen
+      {% elif praxis.terminbuchung_modus == 'dashboard' %}
+        Buchen Sie Ihren Termin direkt online oder kontaktieren Sie uns
+      {% else %}
+        Wählen Sie Ihre bevorzugte Methode zur Terminvereinbarung
+      {% endif %}
+    </p>
+    
+    <div class="row justify-content-center g-4">
+      
+      {% if praxis.terminbuchung_modus == 'redirect' and praxis.terminbuchung_url %}
+      <!-- Externes Buchungssystem (Doctolib, Jameda etc.) -->
+      <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4 p-lg-5 text-center">
+            <div class="feature-icon mx-auto mb-4" style="background: linear-gradient(135deg, #40bfd8 0%, #2a8294 100%);">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <h3 class="h4 mb-3">Online-Terminbuchung</h3>
+            <p class="text-muted mb-4">
+              Buchen Sie Ihren Wunschtermin bequem und sicher über unser 
+              {% if praxis.extern_anbieter %}
+                {{ praxis.extern_anbieter|title }}-Buchungssystem
+              {% else %}
+                Online-Buchungssystem
+              {% endif %}.
+            </p>
+            <a href="{{ praxis.terminbuchung_url }}" target="_blank" rel="noopener" class="btn btn-primary btn-lg px-5">
+              <i class="fas fa-external-link-alt me-2"></i> Termin online buchen
+            </a>
+            <p class="text-muted small mt-3">
+              <i class="fas fa-lock me-1"></i> Sichere Verbindung zu {{ praxis.extern_anbieter|title if praxis.extern_anbieter else 'externem Buchungssystem' }}
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      {% elif praxis.terminbuchung_modus == 'formular' %}
+      <!-- Kontaktformular für Terminanfragen -->
+      <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4 p-lg-5">
+            <div class="text-center mb-4">
+              <div class="feature-icon mx-auto mb-4" style="background: linear-gradient(135deg, #40bfd8 0%, #2a8294 100%);">
+                <i class="fas fa-envelope-open-text"></i>
+              </div>
+              <h3 class="h4 mb-3">Terminanfrage senden</h3>
+              {% if praxis.formular_text %}
+              <p class="text-muted">{{ praxis.formular_text }}</p>
+              {% else %}
+              <p class="text-muted">Füllen Sie das Formular aus und wir melden uns schnellstmöglich bei Ihnen.</p>
+              {% endif %}
+            </div>
+            
+            <form action="{{ url_for('terminanfrage_senden', praxis_id=praxis.id) }}" method="post" class="needs-validation" novalidate>
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="termin_name" class="form-label">Ihr Name *</label>
+                  <input type="text" class="form-control" id="termin_name" name="name" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="termin_email" class="form-label">E-Mail *</label>
+                  <input type="email" class="form-control" id="termin_email" name="email" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="termin_telefon" class="form-label">Telefon</label>
+                  <input type="tel" class="form-control" id="termin_telefon" name="telefon">
+                </div>
+                <div class="col-md-6">
+                  <label for="termin_wunsch" class="form-label">Wunschtermin</label>
+                  <input type="text" class="form-control" id="termin_wunsch" name="wunschtermin" placeholder="z.B. Montag Vormittag">
+                </div>
+                <div class="col-12">
+                  <label for="termin_grund" class="form-label">Termingrund</label>
+                  <select class="form-select" id="termin_grund" name="grund">
+                    <option value="">Bitte auswählen...</option>
+                    <option value="Kontrolle">Kontrolluntersuchung</option>
+                    <option value="Schmerzen">Zahnschmerzen</option>
+                    <option value="Prophylaxe">Professionelle Zahnreinigung</option>
+                    <option value="Beratung">Beratungsgespräch</option>
+                    <option value="Sonstiges">Sonstiges</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label for="termin_nachricht" class="form-label">Nachricht</label>
+                  <textarea class="form-control" id="termin_nachricht" name="nachricht" rows="3" placeholder="Haben Sie uns noch etwas mitzuteilen?"></textarea>
+                </div>
+                <div class="col-12 text-center mt-4">
+                  <button type="submit" class="btn btn-primary btn-lg px-5">
+                    <i class="fas fa-paper-plane me-2"></i> Anfrage absenden
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      {% elif praxis.terminbuchung_modus == 'dashboard' %}
+      {% if termin_bestaetigung %}
+      <div class="col-lg-10 mb-4">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);">
+          <div class="card-body p-4 p-lg-5 text-center">
+            <div class="mb-3">
+              <i class="fas fa-check-circle fa-3x" style="color: #28a745;"></i>
+            </div>
+            {% if termin_bestaetigung.auto_bestaetigt %}
+            <h4 class="fw-bold text-dark mb-2">Termin bestätigt!</h4>
+            <p class="text-dark mb-3">
+              Ihr Termin bei <strong>{{ termin_bestaetigung.praxis }}</strong> wurde sofort bestätigt.
+            </p>
+            {% else %}
+            <h4 class="fw-bold text-dark mb-2">Terminanfrage erfolgreich gesendet!</h4>
+            <p class="text-dark mb-3">
+              Ihre Terminanfrage bei <strong>{{ termin_bestaetigung.praxis }}</strong> wurde erfolgreich übermittelt.
+            </p>
+            {% endif %}
+            <div class="d-inline-block text-start bg-white rounded p-3 mb-3" style="min-width: 250px;">
+              <p class="mb-1"><i class="fas fa-calendar me-2 text-muted"></i> <strong>{{ termin_bestaetigung.datum }}</strong></p>
+              <p class="mb-1"><i class="fas fa-clock me-2 text-muted"></i> <strong>{{ termin_bestaetigung.uhrzeit }} Uhr</strong></p>
+              <p class="mb-0"><i class="fas fa-envelope me-2 text-muted"></i> {{ termin_bestaetigung.email }}</p>
+            </div>
+            {% if termin_bestaetigung.auto_bestaetigt %}
+            <p class="text-muted small mb-0">
+              <i class="fas fa-check me-1"></i> Sie haben eine Bestätigungs-E-Mail erhalten. Bitte erscheinen Sie pünktlich zum Termin.
+            </p>
+            {% else %}
+            <p class="text-muted small mb-0">
+              <i class="fas fa-info-circle me-1"></i> Sie erhalten eine Bestätigung per E-Mail, sobald die Praxis Ihren Termin bestätigt hat.
+            </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      <div class="col-lg-10">
+        <div class="card shadow-sm border-0 overflow-hidden">
+          <div class="card-body p-0">
+            <div class="row g-0">
+              <div class="col-lg-5 p-4 p-lg-5" style="background: linear-gradient(135deg, rgba(var(--praxis-primary-rgb), 0.04) 0%, rgba(var(--praxis-primary-rgb), 0.08) 100%);">
+                <h4 class="fw-bold mb-3"><i class="fas fa-calendar-alt me-2" style="color: var(--praxis-primary);"></i> Datum wählen</h4>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <button type="button" id="lpKalenderPrev" class="btn btn-sm btn-outline-secondary rounded-circle" style="width: 36px; height: 36px; padding: 0;" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                  </button>
+                  <span id="lpKalenderLabel" class="fw-semibold text-muted small"></span>
+                  <button type="button" id="lpKalenderNext" class="btn btn-sm btn-outline-secondary rounded-circle" style="width: 36px; height: 36px; padding: 0;">
+                    <i class="fas fa-chevron-right"></i>
+                  </button>
+                </div>
+                <div class="d-flex flex-wrap gap-2 justify-content-center" id="lp-kalender">
+                  {% for tag in kalender_tage %}
+                  <div class="calendar-day {% if tag.slots_verfuegbar %}clickable{% else %}inactive{% endif %}"
+                       data-datum="{{ tag.datum_str }}"
+                       data-week-index="{{ loop.index0 // 7 }}"
+                       style="width: 64px; height: 72px; flex-direction: column; font-size: 0.8rem; cursor: {% if tag.slots_verfuegbar %}pointer{% else %}default{% endif %}; display: {% if loop.index0 < 7 %}flex{% else %}none{% endif %};">
+                    <div class="small" style="font-size: 0.7rem; opacity: 0.7;">{{ tag.wochentag }}</div>
+                    <div class="fw-bold" style="font-size: 1.15rem; line-height: 1;">{{ tag.tag }}</div>
+                    <div style="font-size: 0.65rem; opacity: 0.6;">{{ tag.monat }}</div>
+                    {% if tag.slots_verfuegbar %}
+                    <span class="availability-dot availability-high"></span>
+                    {% else %}
+                    <span class="availability-dot availability-none"></span>
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                </div>
+                <div class="mt-3 d-flex align-items-center gap-3 small text-muted">
+                  <span><span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #28a745;"></span> Verfügbar</span>
+                  <span><span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #e9ecef; border: 1px solid #dee2e6;"></span> Belegt</span>
+                </div>
+              </div>
+
+              <div class="col-lg-7 p-4 p-lg-5" id="lp-slots-bereich">
+                <div class="text-center py-4">
+                  <i class="fas fa-hand-pointer fa-2x mb-3 d-block" style="color: var(--praxis-primary);"></i>
+                  <p class="text-muted">Bitte wählen Sie ein Datum aus dem Kalender.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {% else %}
+      <!-- Fallback: Telefon und E-Mail -->
+      <div class="col-lg-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body p-4 p-lg-5 text-center">
+            <div class="feature-icon mx-auto mb-4">
+              <i class="fas fa-phone-alt"></i>
+            </div>
+            <h3 class="h4 mb-3">Telefonisch</h3>
+            <p class="text-muted mb-4">Rufen Sie uns an und vereinbaren Sie direkt einen Termin mit unserem freundlichen Praxisteam.</p>
+            <a href="tel:{{ praxis.telefon }}" class="btn btn-primary btn-lg px-5">
+              <i class="fas fa-phone me-2"></i> {{ praxis.telefon }}
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body p-4 p-lg-5 text-center">
+            <div class="feature-icon mx-auto mb-4">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <h3 class="h4 mb-3">Per E-Mail</h3>
+            <p class="text-muted mb-4">Schreiben Sie uns eine Nachricht mit Ihrem Terminwunsch und wir melden uns zeitnah bei Ihnen.</p>
+            <a href="mailto:{{ praxis.email }}" class="btn btn-outline-primary btn-lg px-5">
+              <i class="fas fa-envelope me-2"></i> E-Mail senden
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      
+      <!-- Immer Telefon als Alternative anzeigen -->
+      {% if praxis.telefon %}
+      <div class="col-12 text-center mt-4">
+        <p class="text-muted">
+          <i class="fas fa-phone me-2"></i> Oder rufen Sie uns an: 
+          <a href="tel:{{ praxis.telefon }}" class="fw-bold text-primary">{{ praxis.telefon }}</a>
+        </p>
+      </div>
+      {% endif %}
+      
+    </div>
+  </div>
+</section>
+
+<!-- Karte Section mit Google Maps - Widescreen -->
+{% if praxis.latitude and praxis.longitude %}
+<section class="pt-5 pb-0" style="background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);" id="route">
+  <div class="container">
+    <div class="row justify-content-center mb-4">
+      <div class="col-lg-8 text-center">
+        <span style="display: inline-block; background: linear-gradient(135deg, rgba(53, 191, 214, 0.15) 0%, rgba(42, 130, 148, 0.15) 100%); color: #2a8294; padding: 8px 20px; border-radius: 25px; font-size: 0.875rem; font-weight: 600; margin-bottom: 16px;">Standort</span>
+        <h2 class="fw-bold mb-3" style="font-size: 2.25rem; color: #212a37;">So finden Sie uns</h2>
+      </div>
+    </div>
+  </div>
+  <div style="width: 100%; position: relative;">
+    <div id="praxis-map" style="height: 450px; width: 100%;"></div>
+    <div style="position: absolute; top: 16px; right: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 10;">
+      <button id="mapZoomInLP" style="width: 40px; height: 40px; background: white; border: none; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; font-size: 1.25rem; color: #2a8294;">+</button>
+      <button id="mapZoomOutLP" style="width: 40px; height: 40px; background: white; border: none; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; font-size: 1.25rem; color: #2a8294;">−</button>
+    </div>
+    <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10;">
+      <a href="https://www.google.com/maps/search/?api=1&query={{ praxis.latitude }},{{ praxis.longitude }}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; background: white; color: #2a8294; padding: 12px 24px; border-radius: 30px; font-weight: 600; text-decoration: none; box-shadow: 0 2px 12px rgba(42, 130, 148, 0.15); border: 2px solid #35bfd6; transition: all 0.3s ease;">
+        <i class="fas fa-directions me-2"></i> Route in Google Maps anzeigen
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  let praxisMap;
+  let praxisMarker;
+  let praxisInfoWindow;
+  
+  function initPraxisMap() {
+    const praxisLocation = { lat: {{ praxis.latitude }}, lng: {{ praxis.longitude }} };
+    
+    praxisMap = new google.maps.Map(document.getElementById("praxis-map"), {
+      zoom: 15,
+      center: praxisLocation,
+      styles: [
+        { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e9e9e9" }, { "lightness": 17 }] },
+        { "featureType": "landscape", "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }, { "lightness": 20 }] },
+        { "featureType": "road.highway", "elementType": "geometry.fill", "stylers": [{ "color": "#ffffff" }, { "lightness": 17 }] },
+        { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#ffffff" }, { "lightness": 29 }, { "weight": 0.2 }] },
+        { "featureType": "road.arterial", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }, { "lightness": 18 }] },
+        { "featureType": "road.local", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }, { "lightness": 16 }] },
+        { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }, { "lightness": 21 }] },
+        { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#dedede" }, { "lightness": 21 }] },
+        { "elementType": "labels.text.stroke", "stylers": [{ "visibility": "on" }, { "color": "#ffffff" }, { "lightness": 16 }] },
+        { "elementType": "labels.text.fill", "stylers": [{ "saturation": 36 }, { "color": "#333333" }, { "lightness": 40 }] },
+        { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+        { "featureType": "transit", "elementType": "geometry", "stylers": [{ "color": "#f2f2f2" }, { "lightness": 19 }] },
+        { "featureType": "administrative", "elementType": "geometry.fill", "stylers": [{ "color": "#fefefe" }, { "lightness": 20 }] },
+        { "featureType": "administrative", "elementType": "geometry.stroke", "stylers": [{ "color": "#fefefe" }, { "lightness": 17 }, { "weight": 1.2 }] }
+      ],
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: false,
+      zoomControl: false
+    });
+
+    praxisMarker = new google.maps.Marker({
+      position: praxisLocation,
+      map: praxisMap,
+      title: "{{ praxis.name|e }}",
+      animation: google.maps.Animation.DROP,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: '#40bfd8',
+        fillOpacity: 1,
+        strokeColor: '#ffffff',
+        strokeWeight: 3,
+        scale: 12
+      }
+    });
+
+    const infoContent = `
+      <div style="max-width: 280px; padding: 12px;">
+        <h5 style="font-weight: bold; margin-bottom: 8px; color: #2a8294;">{{ praxis.name|e }}</h5>
+        <p style="margin-bottom: 10px; color: #6c757d;">{{ praxis.strasse|e }}, {{ praxis.plz }} {{ praxis.stadt|e }}</p>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          {% if praxis.telefon %}
+            <a href="tel:{{ praxis.telefon }}" style="text-decoration: none; color: #35bfd6; font-weight: 500;">
+              <i class="fas fa-phone-alt" style="margin-right: 4px;"></i>Anrufen
+            </a>
+          {% endif %}
+          {% if praxis.email %}
+            <a href="mailto:{{ praxis.email }}" style="text-decoration: none; color: #35bfd6; font-weight: 500;">
+              <i class="fas fa-envelope" style="margin-right: 4px;"></i>E-Mail
+            </a>
+          {% endif %}
+        </div>
+        {% if praxis.paket|lower in ['premium', 'premiumplus'] %}
+        <div style="margin-top: 12px; background: linear-gradient(135deg, rgba(53, 191, 214, 0.15) 0%, rgba(42, 130, 148, 0.15) 100%); padding: 8px 12px; border-radius: 8px; border-left: 3px solid #35bfd6;">
+          <span style="font-weight: 600; color: #2a8294;">Premium-Praxis</span>
+        </div>
+        {% endif %}
+      </div>
+    `;
+
+    praxisInfoWindow = new google.maps.InfoWindow({
+      content: infoContent
+    });
+
+    praxisMarker.addListener("click", () => {
+      praxisInfoWindow.open(praxisMap, praxisMarker);
+    });
+
+    // Open info window by default
+    praxisInfoWindow.open(praxisMap, praxisMarker);
+
+    // Custom zoom controls
+    document.getElementById('mapZoomInLP').addEventListener('click', () => {
+      praxisMap.setZoom(praxisMap.getZoom() + 1);
+    });
+    
+    document.getElementById('mapZoomOutLP').addEventListener('click', () => {
+      praxisMap.setZoom(praxisMap.getZoom() - 1);
+    });
+  }
+</script>
+
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key={{ config.GOOGLE_MAPS_API_KEY }}&callback=initPraxisMap">
+</script>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.star-rating-interactive').forEach(function(container) {
+    var targetId = container.getAttribute('data-target');
+    var hiddenInput = document.getElementById(targetId);
+    var stars = container.querySelectorAll('.star-select');
+    var hint = container.querySelector('.star-hint');
+    var selectedValue = 0;
+
+    function updateStars(value, isHover) {
+      stars.forEach(function(star) {
+        var starVal = parseInt(star.getAttribute('data-value'));
+        if (starVal <= value) {
+          star.style.color = '#ffc107';
+        } else {
+          star.style.color = '#dee2e6';
+        }
+      });
+      if (!isHover && value > 0) {
+        var labels = ['', 'Mangelhaft', 'Ausreichend', 'Befriedigend', 'Gut', 'Sehr gut'];
+        hint.textContent = labels[value] + ' (' + value + '/5)';
+        hint.style.color = '#17a2b8';
+      }
+    }
+
+    stars.forEach(function(star) {
+      star.addEventListener('click', function() {
+        selectedValue = parseInt(this.getAttribute('data-value'));
+        hiddenInput.value = selectedValue;
+        updateStars(selectedValue, false);
+      });
+
+      star.addEventListener('mouseenter', function() {
+        updateStars(parseInt(this.getAttribute('data-value')), true);
+      });
+
+      star.addEventListener('mouseleave', function() {
+        updateStars(selectedValue, false);
+      });
+    });
+  });
+
+  document.querySelectorAll('form').forEach(function(form) {
+    var ratingContainer = form.querySelector('.star-rating-interactive');
+    if (ratingContainer) {
+      var ratingInput = ratingContainer.querySelector('input[type="hidden"]');
+      form.addEventListener('submit', function(e) {
+        if (parseInt(ratingInput.value) < 1) {
+          e.preventDefault();
+          var hint = ratingContainer.querySelector('.star-hint');
+          hint.textContent = 'Bitte wählen Sie mindestens einen Stern!';
+          hint.style.color = '#dc3545';
+          ratingContainer.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+      });
+    }
+  });
+
+  (function() {
+    var currentWeek = 0;
+    var allDays = document.querySelectorAll('#lp-kalender .calendar-day');
+    if (allDays.length === 0) return;
+    
+    var totalWeeks = Math.ceil(allDays.length / 7);
+    var prevBtn = document.getElementById('lpKalenderPrev');
+    var nextBtn = document.getElementById('lpKalenderNext');
+    var label = document.getElementById('lpKalenderLabel');
+    
+    function getWeekLabel(weekIdx) {
+      var start = null, end = null;
+      allDays.forEach(function(day) {
+        if (parseInt(day.getAttribute('data-week-index')) === weekIdx) {
+          var d = day.getAttribute('data-datum');
+          if (!start) start = d;
+          end = d;
+        }
+      });
+      if (start && end) {
+        var s = start.split('-'), e = end.split('-');
+        return s[2] + '.' + s[1] + '. – ' + e[2] + '.' + e[1] + '.' + e[0];
+      }
+      return '';
+    }
+    
+    function showWeek(weekIdx) {
+      currentWeek = weekIdx;
+      allDays.forEach(function(day) {
+        var wi = parseInt(day.getAttribute('data-week-index'));
+        day.style.display = wi === weekIdx ? 'flex' : 'none';
+      });
+      if (prevBtn) prevBtn.disabled = weekIdx === 0;
+      if (nextBtn) nextBtn.disabled = weekIdx >= totalWeeks - 1;
+      if (label) label.textContent = getWeekLabel(weekIdx);
+    }
+    
+    if (prevBtn) prevBtn.addEventListener('click', function() {
+      if (currentWeek > 0) showWeek(currentWeek - 1);
+    });
+    if (nextBtn) nextBtn.addEventListener('click', function() {
+      if (currentWeek < totalWeeks - 1) showWeek(currentWeek + 1);
+    });
+    
+    showWeek(0);
+  })();
+
+  var kalender = document.getElementById('lp-kalender');
+  if (kalender) {
+    var slug = '{{ praxis.slug }}';
+    var csrfToken = '{{ csrf_token() }}';
+    var submitUrl = '{{ url_for("termin_buchen_submit", slug=praxis.slug) }}';
+    var slotsBereich = document.getElementById('lp-slots-bereich');
+
+    kalender.addEventListener('click', function(e) {
+      var day = e.target.closest('.calendar-day[data-datum]');
+      if (!day || day.classList.contains('inactive')) return;
+      var datum = day.getAttribute('data-datum');
+
+      kalender.querySelectorAll('.calendar-day').forEach(function(d) {
+        d.classList.remove('active');
+        var dot = d.querySelector('.availability-dot');
+        if (dot && d.classList.contains('clickable')) {
+          dot.className = 'availability-dot availability-high';
+        }
+      });
+      day.classList.add('active');
+      var activeDot = day.querySelector('.availability-dot');
+      if (activeDot) activeDot.className = 'availability-dot';
+
+      slotsBereich.innerHTML = '<div class="text-center py-5"><div class="spinner-border" style="color: var(--praxis-primary);" role="status"></div><p class="text-muted mt-2 small">Termine werden geladen...</p></div>';
+
+      fetch('/api/praxis/' + slug + '/slots/' + datum)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.slots && data.slots.length > 0) {
+            var html = '<h5 class="fw-bold mb-1"><i class="fas fa-clock me-2" style="color: var(--praxis-primary);"></i> ' + data.datum_label + '</h5>';
+            html += '<p class="text-muted small mb-3">Wählen Sie eine verfügbare Uhrzeit</p>';
+            html += '<form action="' + submitUrl + '" method="POST">';
+            html += '<input type="hidden" name="csrf_token" value="' + csrfToken + '">';
+            html += '<input type="hidden" name="datum" value="' + data.datum + '">';
+            html += '<div style="position:absolute;left:-9999px;" aria-hidden="true"><input type="text" name="website_url" tabindex="-1" autocomplete="off"></div>';
+            html += '<div class="d-flex flex-wrap gap-2 mb-4">';
+            data.slots.forEach(function(slot) {
+              var id = 'lp_slot_' + slot.zeit_str.replace(':', '');
+              html += '<div class="form-check p-0">';
+              html += '<input class="btn-check" type="radio" name="uhrzeit" id="' + id + '" value="' + slot.zeit_str + '" required>';
+              html += '<label class="time-slot d-inline-block border px-3 py-2 small fw-500" for="' + id + '">' + slot.zeit_str + '</label>';
+              html += '</div>';
+            });
+            html += '</div>';
+            if (data.behandlungsarten && data.behandlungsarten.length > 0) {
+              html += '<div class="mb-3"><label class="form-label small fw-500"><i class="fas fa-tooth me-1" style="color: var(--praxis-primary);"></i> Behandlung (optional)</label>';
+              html += '<select name="behandlungsart_id" class="form-select form-select-sm"><option value="">-- Keine Auswahl --</option>';
+              data.behandlungsarten.forEach(function(ba) {
+                html += '<option value="' + ba.id + '">' + ba.name + ' (' + ba.dauer + ' Min.)</option>';
+              });
+              html += '</select></div>';
+            }
+            html += '<div class="row g-2 mb-3">';
+            html += '<div class="col-sm-6"><input type="text" name="name" class="form-control form-control-sm" placeholder="Ihr Name *" required></div>';
+            html += '<div class="col-sm-6"><input type="email" name="email" class="form-control form-control-sm" placeholder="E-Mail *" required></div>';
+            html += '<div class="col-sm-6"><input type="tel" name="telefon" class="form-control form-control-sm" placeholder="Telefon (optional)"></div>';
+            html += '<div class="col-sm-6"><input type="text" name="grund" class="form-control form-control-sm" placeholder="Grund des Besuchs"></div>';
+            html += '</div>';
+            html += '<div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="lp_datenschutz" required>';
+            html += '<label class="form-check-label small text-muted" for="lp_datenschutz">Ich stimme der Verarbeitung meiner Daten zur Terminvereinbarung zu.</label></div>';
+            html += '<button type="submit" class="btn btn-primary w-100"><i class="fas fa-calendar-check me-2"></i> Termin anfragen</button>';
+            html += '</form>';
+            slotsBereich.innerHTML = html;
+          } else {
+            var noSlotsHtml = '<div class="text-center py-4"><i class="fas fa-calendar-times fa-2x text-muted mb-3 d-block"></i>';
+            noSlotsHtml += '<p class="text-muted mb-2">Keine freien Termine an diesem Tag.</p>';
+            noSlotsHtml += '<p class="text-muted small mb-3">Bitte wählen Sie einen anderen Tag oder kontaktieren Sie uns:</p>';
+            if (data.telefon) {
+              noSlotsHtml += '<a href="tel:' + data.telefon + '" class="btn btn-outline-primary btn-sm"><i class="fas fa-phone me-1"></i> ' + data.telefon + '</a>';
+            }
+            noSlotsHtml += '</div>';
+            slotsBereich.innerHTML = noSlotsHtml;
+          }
+        })
+        .catch(function() {
+          slotsBereich.innerHTML = '<div class="text-center py-4"><i class="fas fa-exclamation-triangle fa-2x text-warning mb-3 d-block"></i><p class="text-muted">Fehler beim Laden. Bitte versuchen Sie es erneut.</p></div>';
+        });
+    });
+  }
+});
+</script>
+
+{% endblock %}

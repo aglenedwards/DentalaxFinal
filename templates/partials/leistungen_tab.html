@@ -1,0 +1,128 @@
+<div class="tab-pane fade" id="step3" role="tabpanel" aria-labelledby="step3-tab">
+    <div class="mb-4">
+        <h4>Leistungsschwerpunkte</h4>
+        <p class="text-muted">Wählen Sie die Leistungen aus, die Ihre Praxis anbietet. Diese werden auf Ihrer Landingpage angezeigt und für die Suche verwendet.</p>
+    </div>
+
+    <!-- Vordefinierte Leistungs-Kacheln -->
+    <div class="row g-3" id="leistungen-tiles-container">
+        {% set vordefinierte_leistungen = [
+            {'slug': 'implantologie', 'titel': 'Implantologie', 'icon': 'fas fa-teeth'},
+            {'slug': 'kieferorthopaedie', 'titel': 'Kieferorthopädie', 'icon': 'fas fa-teeth-open'},
+            {'slug': 'prophylaxe', 'titel': 'Prophylaxe', 'icon': 'fas fa-shield-alt'},
+            {'slug': 'aesthetische-zahnheilkunde', 'titel': 'Ästhetische Zahnheilkunde', 'icon': 'fas fa-smile'},
+            {'slug': 'kinderzahnheilkunde', 'titel': 'Kinderzahnheilkunde', 'icon': 'fas fa-baby'},
+            {'slug': 'parodontologie', 'titel': 'Parodontologie', 'icon': 'fas fa-tooth'},
+            {'slug': 'endodontie', 'titel': 'Endodontie', 'icon': 'fas fa-syringe'},
+            {'slug': 'oralchirurgie', 'titel': 'Oralchirurgie', 'icon': 'fas fa-user-md'},
+            {'slug': 'prothetik', 'titel': 'Prothetik', 'icon': 'fas fa-teeth'},
+            {'slug': 'angstpatienten', 'titel': 'Angstpatienten', 'icon': 'fas fa-heart'}
+        ] %}
+        
+        {% set aktive_leistungen = [] %}
+        {% if praxis and praxis.leistungsschwerpunkte %}
+            {% set aktive_leistungen = praxis.leistungsschwerpunkte.split(',') %}
+        {% endif %}
+        
+        {% for leistung in vordefinierte_leistungen %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="leistung-tile card h-100 text-center p-3 {% if leistung.slug in aktive_leistungen %}selected{% endif %}" 
+                 data-slug="{{ leistung.slug }}" 
+                 data-titel="{{ leistung.titel }}"
+                 data-icon="{{ leistung.icon }}"
+                 onclick="toggleLeistung(this)">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center py-3">
+                    <div class="leistung-icon mb-3">
+                        <i class="{{ leistung.icon }} fa-2x"></i>
+                    </div>
+                    <h6 class="card-title mb-0 small fw-bold">{{ leistung.titel }}</h6>
+                    <div class="check-indicator mt-2">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Hidden inputs für ausgewählte Leistungen -->
+    <input type="hidden" name="selected_leistungen" id="selected_leistungen" value="{{ praxis.leistungsschwerpunkte or '' }}">
+
+    <div class="d-flex justify-content-between mt-4">
+        <button type="button" class="btn btn-outline-primary prev-step" data-target="step2-tab">Zurück</button>
+        <button type="button" class="btn btn-primary next-step" data-target="step4-tab">Weiter</button>
+    </div>
+</div>
+
+<style>
+.leistung-tile {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid #e9ecef;
+    background: #fff;
+}
+
+.leistung-tile:hover {
+    border-color: #35bfd6;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(53, 191, 214, 0.15);
+}
+
+.leistung-tile.selected {
+    border-color: #35bfd6;
+    background: linear-gradient(135deg, rgba(53, 191, 214, 0.1), rgba(42, 130, 148, 0.1));
+}
+
+.leistung-tile .leistung-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(53, 191, 214, 0.15), rgba(42, 130, 148, 0.15));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2a8294;
+    transition: all 0.3s ease;
+}
+
+.leistung-tile.selected .leistung-icon {
+    background: linear-gradient(135deg, #35bfd6, #2a8294);
+    color: #fff;
+}
+
+.leistung-tile .check-indicator {
+    opacity: 0;
+    color: #35bfd6;
+    transition: all 0.3s ease;
+}
+
+.leistung-tile.selected .check-indicator {
+    opacity: 1;
+}
+
+.leistung-tile .card-title {
+    color: #333;
+}
+
+.leistung-tile.selected .card-title {
+    color: #2a8294;
+}
+</style>
+
+<script>
+function toggleLeistung(tile) {
+    tile.classList.toggle('selected');
+    updateSelectedLeistungen();
+}
+
+function updateSelectedLeistungen() {
+    const selectedTiles = document.querySelectorAll('.leistung-tile.selected');
+    const slugs = Array.from(selectedTiles).map(tile => tile.dataset.slug);
+    document.getElementById('selected_leistungen').value = slugs.join(',');
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateSelectedLeistungen();
+});
+</script>
