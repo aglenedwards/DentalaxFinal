@@ -781,23 +781,36 @@ def register():
         session["telefon"] = telefon
         session["webseite"] = webseite
         session["email"] = email
+        session["marketing"] = marketing
 
-        # Duplikatprüfung
+        # Duplikatprüfung (CSV + Datenbank)
         csv_datei = "zahnaerzte.csv"
         duplikat_gefunden = False
         beansprucht_status = "nein"
 
-        with open(csv_datei, newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                if (
-                    row["straße"].strip().lower() == strasse.strip().lower() and
-                    row["plz"].strip() == plz.strip() and
-                    row["stadt"].strip().lower() == stadt.strip().lower()
-                ):
-                    duplikat_gefunden = True
-                    beansprucht_status = row.get("beansprucht", "").strip().lower()
-                    break
+        if os.path.isfile(csv_datei):
+            with open(csv_datei, newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    if (
+                        row["straße"].strip().lower() == strasse.strip().lower() and
+                        row["plz"].strip() == plz.strip() and
+                        row["stadt"].strip().lower() == stadt.strip().lower()
+                    ):
+                        duplikat_gefunden = True
+                        beansprucht_status = row.get("beansprucht", "").strip().lower()
+                        break
+
+        if not duplikat_gefunden:
+            from models import Praxis
+            db_praxis = Praxis.query.filter(
+                db.func.lower(Praxis.strasse) == strasse.strip().lower(),
+                Praxis.plz == plz.strip(),
+                db.func.lower(Praxis.stadt) == stadt.strip().lower()
+            ).first()
+            if db_praxis:
+                duplikat_gefunden = True
+                beansprucht_status = "ja"
 
         if duplikat_gefunden:
             return render_template(
@@ -1890,14 +1903,16 @@ def zahlung_erfolgreich():
     if not zahnarzt:
         # Neuen Zahnarzt erstellen
         temp_passwort = os.urandom(8).hex()
+        marketing_val = session.get('marketing', 'nein') == 'ja'
         zahnarzt = Zahnarzt(
             email=email,
             password_hash=generate_password_hash(temp_passwort),
             vorname=vorname,
-            nachname=nachname
+            nachname=nachname,
+            marketing=marketing_val
         )
         db.session.add(zahnarzt)
-        db.session.flush()  # ID generieren
+        db.session.flush()
     
     # Praxis erstellen falls noch nicht vorhanden
     if not zahnarzt.praxis_id:
@@ -2160,7 +2175,10 @@ def admin_praxis_bearbeiten(praxis_id):
         praxis.slug = request.form.get("slug", "").strip()
         praxis.email = request.form.get("email", "").strip()
         praxis.telefon = request.form.get("telefon", "").strip()
-        praxis.webseite = request.form.get("webseite", "").strip() or None
+        webseite_val = request.form.get("webseite", "").strip()
+        if webseite_val and not webseite_val.startswith(("http://", "https://")):
+            webseite_val = "https://" + webseite_val
+        praxis.webseite = webseite_val or None
         praxis.strasse = request.form.get("strasse", "").strip()
         praxis.plz = request.form.get("plz", "").strip()
         praxis.stadt = request.form.get("stadt", "").strip()
@@ -5207,7 +5225,10 @@ def dashboard_praxisdaten_speichern():
     praxis.stadt = request.form.get('stadt', praxis.stadt)
     praxis.telefon = request.form.get('telefon', praxis.telefon)
     praxis.email = request.form.get('email', praxis.email)
-    praxis.webseite = request.form.get('website', praxis.webseite)
+    webseite_input = request.form.get('website', praxis.webseite)
+    if webseite_input and not webseite_input.startswith(("http://", "https://")):
+        webseite_input = "https://" + webseite_input
+    praxis.webseite = webseite_input
     praxis.beschreibung = request.form.get('beschreibung', praxis.beschreibung)
     praxis.ueber_uns_text = request.form.get('ueber_uns', praxis.ueber_uns_text)
     

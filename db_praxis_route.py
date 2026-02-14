@@ -490,7 +490,10 @@ def praxis_daten_speichern_db():
     praxis.stadt = request.form.get('stadt', praxis.stadt)
     praxis.telefon = request.form.get('telefon', praxis.telefon)
     praxis.email = request.form.get('email', praxis.email)
-    praxis.webseite = request.form.get('webseite', praxis.webseite)
+    webseite_form = request.form.get('webseite', praxis.webseite)
+    if webseite_form and not webseite_form.startswith(("http://", "https://")):
+        webseite_form = "https://" + webseite_form
+    praxis.webseite = webseite_form
     
     # Willkommenstext speichern
     ueber_uns_text = request.form.get('ueber_uns_text', '')

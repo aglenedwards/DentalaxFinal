@@ -12,6 +12,7 @@ class Zahnarzt(UserMixin, db.Model):
     registration_date = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     praxis_id = db.Column(db.Integer, db.ForeignKey('praxis.id'))
+    marketing = db.Column(db.Boolean, default=False)
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
