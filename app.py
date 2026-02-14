@@ -529,7 +529,6 @@ def suche():
 
     # Wenn weder Ort noch Geolocation angegeben, zur Startseite umleiten
     if not ort and not has_geolocation:
-        flash('Bitte geben Sie einen Ort für die Suche ein.', 'warning')
         return redirect(url_for('index'))
 
     # Wenn kein Geolocation, Ort geocodieren
