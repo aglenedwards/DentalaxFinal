@@ -1,5 +1,6 @@
 import os
 import logging
+from datetime import datetime
 from flask import Flask, flash, redirect, request
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from database import db
@@ -26,6 +27,8 @@ app.config["GOOGLE_MAPS_API_KEY"] = os.environ.get("GOOGLE_MAPS_API_KEY", "")
 
 db.init_app(app)
 csrf.init_app(app)
+
+app.jinja_env.globals['now'] = datetime.now
 
 @app.errorhandler(CSRFError)
 def handle_csrf_error(e):
