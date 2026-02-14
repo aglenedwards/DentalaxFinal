@@ -621,9 +621,9 @@ def praxis_daten_speichern_db():
         
         # Dann neue Öffnungszeiten hinzufügen
         for tag in ['montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag', 'samstag', 'sonntag']:
-            geschlossen = request.form.get(f'tag_{tag}_geschlossen', '') == 'on'
-            von = request.form.get(f'tag_{tag}_von', '08:00') if not geschlossen else None
-            bis = request.form.get(f'tag_{tag}_bis', '18:00') if not geschlossen else None
+            geschlossen = request.form.get(f'closed_{tag}', '') == '1'
+            von = request.form.get(f'{tag}_von', '08:00') if not geschlossen else None
+            bis = request.form.get(f'{tag}_bis', '18:00') if not geschlossen else None
             
             neue_oeffnungszeit = Oeffnungszeit(
                 tag=tag.capitalize(),

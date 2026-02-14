@@ -5755,10 +5755,10 @@ def dashboard_terminbuchung_speichern():
     return redirect(url_for('zahnarzt_dashboard') + '?page=termine')
 
 
-@app.route("/dashboard/veroeffentlichen", methods=["GET", "POST"])
+@app.route("/dashboard/veroeffentlichen", methods=["POST"])
 @login_required
 def dashboard_veroeffentlichen():
-    """Veröffentlicht die Landingpage"""
+    """Veröffentlicht oder deaktiviert die Landingpage (Toggle)"""
     if not hasattr(current_user, 'praxis_id') or not current_user.praxis_id:
         flash('Keine Praxis zugeordnet.', 'danger')
         return redirect(url_for('zahnarzt_dashboard'))
@@ -5771,10 +5771,16 @@ def dashboard_veroeffentlichen():
     if not praxis.slug:
         praxis.slug = slugify(f"{praxis.name}-{praxis.stadt}")
     
-    praxis.landingpage_aktiv = True
-    db.session.commit()
+    aktion = request.form.get('aktion', 'toggle')
+    if aktion == 'deaktivieren':
+        praxis.landingpage_aktiv = False
+        db.session.commit()
+        flash('Ihre Landingpage wurde offline genommen.', 'info')
+    else:
+        praxis.landingpage_aktiv = True
+        db.session.commit()
+        flash(f'Ihre Landingpage ist jetzt live unter: /zahnarzt/{praxis.slug}', 'success')
     
-    flash(f'Ihre Landingpage ist jetzt live unter: /praxis/{praxis.slug}', 'success')
     return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
 
 
