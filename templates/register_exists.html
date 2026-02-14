@@ -1,9 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="position-relative overflow-hidden" style="padding: 6rem 0 3rem; background: linear-gradient(135deg, rgba(231, 249, 252, 0.9) 0%, rgba(255, 255, 255, 0.95) 100%);">
-  <div class="position-absolute top-0 end-0 w-100 h-100" style="background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI3NSIgY3k9IjI1IiByPSIyMCIgZmlsbD0icmdiYSg2MywgMTkxLCAyMTYsIDAuMDgpIi8+PGNpcmNsZSBjeD0iMjUiIGN5PSI3NSIgcj0iMTUiIGZpbGw9InJnYmEoNjMsIDE5MSwgMjE2LCAwLjA2KSIvPjxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9IjEwIiBmaWxsPSJyZ2JhKDYzLCAxOTEsIDIxNiwgMC4xKSIvPjwvc3ZnPg==') no-repeat; opacity: 0.6; z-index: 0;"></div>
+<section class="impressive-gradient position-relative overflow-hidden" style="padding: 12rem 0 4rem;">
   <div class="container position-relative" style="z-index: 1;">
     <div class="row justify-content-center text-center">
       <div class="col-lg-8" data-aos="fade-up">
@@ -34,22 +32,45 @@
           {% endif %}
         {% endwith %}
 
-        <div class="card border-0 shadow-sm rounded-4" data-aos="fade-up">
-          <div class="card-body p-4 p-md-5">
-            
-            <!-- Praxisinformationen -->
-            <div class="d-flex align-items-center mb-4">
-              <div class="d-inline-flex align-items-center justify-content-center rounded-circle me-4" 
-                  style="width: 64px; height: 64px; background-color: rgba(63, 191, 216, 0.1);">
-                <i class="fas fa-clinic-medical text-primary fa-lg"></i>
-              </div>
-              <div>
-                <h3 class="h4 fw-bold mb-1">{{ praxisname }}</h3>
-                <p class="mb-0 text-secondary">{{ strasse }}, {{ plz }} {{ stadt }}</p>
+        <div class="row g-4 mb-4" data-aos="fade-up">
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="d-inline-flex align-items-center justify-content-center rounded-circle me-3" 
+                      style="width: 44px; height: 44px; background-color: rgba(63, 191, 216, 0.1); flex-shrink: 0;">
+                    <i class="fas fa-edit text-primary"></i>
+                  </div>
+                  <h6 class="mb-0 text-muted fw-semibold">Ihre Eingabe</h6>
+                </div>
+                <h5 class="fw-bold mb-2">{{ praxisname }}</h5>
+                <p class="mb-0 text-secondary">
+                  <i class="fas fa-map-marker-alt me-1 text-primary"></i> {{ strasse }}, {{ plz }} {{ stadt }}
+                </p>
               </div>
             </div>
-            
-            <hr class="my-4">
+          </div>
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100" style="border-left: 4px solid #ffc107 !important;">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="d-inline-flex align-items-center justify-content-center rounded-circle me-3" 
+                      style="width: 44px; height: 44px; background-color: rgba(255, 193, 7, 0.1); flex-shrink: 0;">
+                    <i class="fas fa-database text-warning"></i>
+                  </div>
+                  <h6 class="mb-0 text-muted fw-semibold">Gefundener Eintrag</h6>
+                </div>
+                <h5 class="fw-bold mb-2">{{ gefundener_name or 'Unbenannte Praxis' }}</h5>
+                <p class="mb-0 text-secondary">
+                  <i class="fas fa-map-marker-alt me-1 text-warning"></i> {{ gefundene_strasse }}, {{ gefundene_plz }} {{ gefundene_stadt }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="card-body p-4 p-md-5">
             
             {% if beansprucht == "ja" %}
             
@@ -97,7 +118,6 @@
                 </a>
               </div>
               
-              <!-- Claim-Formular -->
               <div id="claimFormContainer" class="mt-5" style="display: none;">
                 <h3 class="h5 fw-bold mb-4" style="color: var(--dental-dark);">
                   <i class="fas fa-user-check me-2 text-primary"></i> Praxis übernehmen
@@ -133,7 +153,6 @@
                     <div class="invalid-feedback">Bitte geben Sie eine gültige E-Mail-Adresse ein.</div>
                   </div>
                   
-                  <!-- Passwort Felder -->
                   <div class="row g-3">
                     <div class="col-md-6">
                       <div class="form-floating mb-3">
@@ -156,7 +175,6 @@
                     <label for="nachricht">Nachricht (optional)</label>
                   </div>
                   
-                  <!-- Datenschutz & AGB -->
                   <div class="mb-4 form-check">
                     <input type="checkbox" class="form-check-input" id="datenschutz" name="datenschutz" required>
                     <label class="form-check-label" for="datenschutz">
@@ -187,7 +205,7 @@
         
         {% if not beansprucht == "ja" %}
         <div class="mt-5">
-          <div class="card border-0 shadow-sm rounded-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="card border-0 shadow-sm rounded-4" data-aos="fade-up" data-aos-delay="200">
             <div class="card-body p-4">
               <h4 class="fw-bold h5 mb-3" style="color: var(--dental-dark);">
                 <i class="fas fa-shield-alt me-2 text-primary"></i> Warum sollte ich meine Praxis übernehmen?
@@ -215,7 +233,6 @@
     document.getElementById('showClaimFormBtn').style.display = 'none';
     document.getElementById('claimFormContainer').style.display = 'block';
     
-    // Sanft zum Formular scrollen
     document.getElementById('claimFormContainer').scrollIntoView({
       behavior: 'smooth',
       block: 'start'
@@ -223,7 +240,6 @@
   }
   
   document.addEventListener('DOMContentLoaded', function() {
-    // AOS Initialisierung, falls vorhanden
     if (typeof AOS !== 'undefined') {
       AOS.init({
         duration: 800,
@@ -231,7 +247,6 @@
       });
     }
     
-    // Formularvalidierung
     var forms = document.querySelectorAll('.needs-validation');
     Array.prototype.slice.call(forms).forEach(function(form) {
       form.addEventListener('submit', function(event) {
@@ -240,7 +255,6 @@
           event.stopPropagation();
         }
         
-        // Überprüfen, ob Passwörter übereinstimmen
         const passwort = document.getElementById('passwort');
         const passwortBestaetigen = document.getElementById('passwort_bestaetigen');
         

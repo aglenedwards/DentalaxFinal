@@ -783,34 +783,82 @@ def register():
         session["email"] = email
         session["marketing"] = marketing
 
-        # Duplikatprüfung (CSV + Datenbank)
+        # Duplikatprüfung (CSV + Datenbank) mit Fuzzy-Matching
+        import re as re_mod
+        
+        def normalize_strasse(s):
+            """Straßenname ohne Hausnummer extrahieren und normalisieren"""
+            s = s.strip().lower()
+            s = re_mod.sub(r'\s*\d+[\s\-/]*\d*\s*[a-zA-Z]?\s*$', '', s)
+            s = re_mod.sub(r'\s+', ' ', s).strip()
+            s = s.replace('str.', 'straße').replace('strasse', 'straße')
+            return s
+        
+        def normalize_stadt(s):
+            """Stadt normalisieren: Stadtteil-Zusatz nach Bindestrich entfernen"""
+            s = s.strip().lower()
+            return s
+        
+        def staedte_match(stadt1, stadt2):
+            """Prüft ob zwei Städte übereinstimmen (mit/ohne Stadtteil)"""
+            s1 = stadt1.strip().lower()
+            s2 = stadt2.strip().lower()
+            if s1 == s2:
+                return True
+            base1 = s1.split('-')[0].strip()
+            base2 = s2.split('-')[0].strip()
+            if base1 == s2 or base2 == s1:
+                return True
+            if base1 == base2:
+                return True
+            return False
+        
         csv_datei = "zahnaerzte.csv"
         duplikat_gefunden = False
         beansprucht_status = "nein"
+        gefundener_name = ""
+        gefundene_strasse = ""
+        gefundene_plz = ""
+        gefundene_stadt = ""
+        
+        eingabe_strasse_norm = normalize_strasse(strasse)
+        eingabe_plz = plz.strip()
 
         if os.path.isfile(csv_datei):
             with open(csv_datei, newline='', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 for row in reader:
+                    csv_plz = row["plz"].strip()
+                    csv_strasse_norm = normalize_strasse(row["straße"])
+                    
                     if (
-                        row["straße"].strip().lower() == strasse.strip().lower() and
-                        row["plz"].strip() == plz.strip() and
-                        row["stadt"].strip().lower() == stadt.strip().lower()
+                        csv_plz == eingabe_plz and
+                        csv_strasse_norm == eingabe_strasse_norm and
+                        staedte_match(row["stadt"], stadt)
                     ):
                         duplikat_gefunden = True
                         beansprucht_status = row.get("beansprucht", "").strip().lower()
+                        gefundener_name = row.get("name", "").strip()
+                        gefundene_strasse = row["straße"].strip()
+                        gefundene_plz = csv_plz
+                        gefundene_stadt = row["stadt"].strip()
                         break
 
         if not duplikat_gefunden:
             from models import Praxis
-            db_praxis = Praxis.query.filter(
-                db.func.lower(Praxis.strasse) == strasse.strip().lower(),
-                Praxis.plz == plz.strip(),
-                db.func.lower(Praxis.stadt) == stadt.strip().lower()
-            ).first()
-            if db_praxis:
-                duplikat_gefunden = True
-                beansprucht_status = "ja"
+            alle_praxen = Praxis.query.filter(Praxis.plz == eingabe_plz).all()
+            for p in alle_praxen:
+                if (
+                    normalize_strasse(p.strasse or '') == eingabe_strasse_norm and
+                    staedte_match(p.stadt or '', stadt)
+                ):
+                    duplikat_gefunden = True
+                    beansprucht_status = "ja"
+                    gefundener_name = p.name or ""
+                    gefundene_strasse = p.strasse or ""
+                    gefundene_plz = p.plz or ""
+                    gefundene_stadt = p.stadt or ""
+                    break
 
         if duplikat_gefunden:
             return render_template(
@@ -819,7 +867,11 @@ def register():
                 strasse=strasse,
                 plz=plz,
                 stadt=stadt,
-                beansprucht=beansprucht_status
+                beansprucht=beansprucht_status,
+                gefundener_name=gefundener_name,
+                gefundene_strasse=gefundene_strasse,
+                gefundene_plz=gefundene_plz,
+                gefundene_stadt=gefundene_stadt
             )
         else:
             adresse = f"{strasse}, {plz} {stadt}"
