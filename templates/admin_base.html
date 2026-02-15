@@ -494,6 +494,18 @@
       });
     });
   </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.alert-dismissible').forEach(function(alert) {
+        setTimeout(function() {
+          if (alert && alert.parentNode) {
+            var bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+            bsAlert.close();
+          }
+        }, 3000);
+      });
+    });
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
