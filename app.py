@@ -1248,8 +1248,8 @@ def claim():
     
     print(f"✅ Praxis '{praxisname}' direkt übernommen von {email} (Zahnarzt-ID: {zahnarzt.id}, Praxis-ID: {neue_praxis.id})")
     
-    flash(f"Herzlich willkommen! Die Praxis '{praxisname}' gehört jetzt zu Ihrem Konto. Sie können Ihre Daten im Dashboard vervollständigen.", "success")
-    return redirect("/zahnarzt-dashboard")
+    flash(f"Praxis '{praxisname}' erfolgreich übernommen! Bitte wählen Sie jetzt Ihr Paket.", "success")
+    return redirect("/paketwahl")
 
 @app.route("/paket-bestaetigen", methods=["POST"])
 def paket_bestaetigen():
@@ -1302,13 +1302,28 @@ def paket_bestaetigen():
             "ip_adresse": request.remote_addr
         })
 
-    # Bei Premium-Paketen entsprechenden Hinweis anzeigen
+    praxis_id = session.get("praxis_id")
+    if praxis_id:
+        praxis = Praxis.query.get(praxis_id)
+        if praxis:
+            praxis.paket = paket_display
+            if paket_lower in ["premium", "premiumplus"]:
+                praxis.landingpage_aktiv = True
+            db.session.commit()
+            session["paket"] = paket_display
+
+            if paket_lower in ["premium", "premiumplus"]:
+                flash(f"Sie haben das {paket_display}-Paket gewählt. Weiter zur Zahlung.", "success")
+                return redirect("/checkout")
+            else:
+                flash(f"Willkommen! Ihr kostenloses Basis-Paket ist aktiv. Sie können jederzeit upgraden.", "success")
+                return redirect("/zahnarzt-dashboard")
+
     if paket_lower in ["premium", "premiumplus"]:
         flash(f"Sie haben das {paket_display}-Paket gewählt. Bitte vervollständigen Sie nun Ihre Registrierung.", "success")
     else:
         flash(f"Sie haben das kostenlose Basis-Paket gewählt. Bitte vervollständigen Sie Ihre Registrierung.", "success")
 
-    # Zur Registrierung weiterleiten mit URL-Parametern als Backup für Session
     return redirect(f"/register?paket={paket_lower}&zahlweise={zahlweise}")
 
 
