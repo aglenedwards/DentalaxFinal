@@ -5912,6 +5912,10 @@ def dashboard_veroeffentlichen():
         db.session.commit()
         flash('Ihre Landingpage wurde offline genommen.', 'info')
     else:
+        paket_lower = (praxis.paket or '').lower()
+        if paket_lower not in ['premium', 'premiumplus', 'praxispro', 'praxisplus']:
+            flash('Um Ihre Landingpage zu veröffentlichen, benötigen Sie ein Premium- oder PremiumPlus-Paket.', 'warning')
+            return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
         from models import Verfuegbarkeit
         if praxis.terminbuchung_modus == 'kalender':
             verfuegbarkeiten = Verfuegbarkeit.query.filter_by(praxis_id=praxis.id, aktiv=True).count()

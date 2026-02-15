@@ -42,12 +42,13 @@ def praxis_landingpage(slug):
         abort(404)
     
     paket_lower = (praxis.paket or '').lower()
-    if paket_lower not in ['praxispro', 'praxisplus', 'premium', 'premiumplus']:
-        abort(404)
+    ist_premium = paket_lower in ['praxispro', 'praxisplus', 'premium', 'premiumplus']
     
-    # Prüfen ob Landingpage aktiviert ist (Wizard abgeschlossen)
+    if not ist_premium:
+        return render_template('landingpage_upgrade.html', praxis=praxis, grund='paket'), 403
+    
     if not praxis.landingpage_aktiv:
-        abort(404)
+        return render_template('landingpage_upgrade.html', praxis=praxis, grund='entwurf'), 403
     
     # Bilder laden
     hero_bild = PraxisBild.query.filter_by(praxis_id=praxis.id, typ='titelbild').first()
@@ -999,9 +1000,8 @@ def praxis_daten_speichern_db():
                 from app import slugify
                 praxis.slug = slugify(f"{praxis.name}-{praxis.stadt}")
             
-            # Landingpage aktivieren für Premium-Pakete (case-insensitive)
             paket_lower = (praxis.paket or '').lower()
-            if paket_lower in ['praxispro', 'praxisplus']:
+            if paket_lower in ['praxispro', 'praxisplus', 'premium', 'premiumplus']:
                 praxis.landingpage_aktiv = True
                 
                 # Standard-Werte für Landingpage setzen, falls nicht vorhanden

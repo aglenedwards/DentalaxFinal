@@ -15,9 +15,27 @@
       </div>
     </div>
     <div class="card-body">
+      {% set paket_lower = (praxis.paket or '')|lower %}
+      {% if paket_lower not in ['premium', 'premiumplus', 'praxispro', 'praxisplus'] %}
+      <div class="alert alert-warning border-0 rounded-4 shadow-sm" role="alert">
+        <div class="d-flex align-items-start">
+          <div class="me-3">
+            <i class="fas fa-pencil-ruler fa-2x text-warning"></i>
+          </div>
+          <div>
+            <h6 class="fw-bold mb-1">Entwurfsmodus</h6>
+            <p class="mb-2">Sie können Ihre Landingpage hier gestalten und bearbeiten. Um sie für Patienten sichtbar zu machen, benötigen Sie ein Premium- oder PremiumPlus-Paket.</p>
+            <a href="/paketwahl" class="btn btn-sm btn-primary rounded-pill">
+              <i class="fas fa-arrow-up me-1"></i> Jetzt upgraden &amp; veröffentlichen
+            </a>
+          </div>
+        </div>
+      </div>
+      {% else %}
       <div class="alert alert-info" role="alert">
         <i class="fas fa-info-circle me-2"></i> Hier können Sie Ihre individuelle Premium-Landingpage gestalten und verwalten. Alle Änderungen werden zunächst im Vorschaumodus gespeichert.
       </div>
+      {% endif %}
       
       <!-- Vorschau und Design-Auswahl -->
       <div class="row mb-4">
