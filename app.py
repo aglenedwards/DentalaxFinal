@@ -1060,20 +1060,26 @@ def claim():
     import secrets
     from datetime import timedelta
     
-    vorname = request.form["vorname"]
-    nachname = request.form["nachname"]
-    praxisname = request.form["praxisname"]
-    strasse = request.form["strasse"]
-    plz = request.form["plz"]
-    stadt = request.form["stadt"]
-    email = request.form["email"]
-    nachricht = request.form.get("nachricht", "")
-    passwort = request.form.get("passwort", "")
-    passwort_bestaetigen = request.form.get("passwort_bestaetigen", "")
-    datenschutz = request.form.get("datenschutz", "nein")
-    marketing = request.form.get("marketing", "nein")
+    vorname = session.get("vorname", "")
+    nachname = session.get("nachname", "")
+    praxisname = session.get("praxisname", "")
+    strasse = session.get("strasse", "")
+    plz = session.get("plz", "")
+    stadt = session.get("stadt", "")
+    email = session.get("email", "")
     telefon = session.get("telefon", "")
     webseite = session.get("webseite", "")
+    marketing = request.form.get("marketing", "off")
+    passwort = request.form.get("passwort", "")
+    passwort_bestaetigen = request.form.get("passwort_bestaetigen", "")
+    
+    if not email or not praxisname:
+        flash("Sitzung abgelaufen. Bitte starten Sie die Registrierung erneut.", "danger")
+        return redirect("/register")
+    
+    if not passwort or len(passwort) < 6:
+        flash("Bitte geben Sie ein Passwort mit mindestens 6 Zeichen ein.", "danger")
+        return redirect(f"/register?plz={plz}&stadt={stadt}&strasse={strasse}")
     
     if passwort != passwort_bestaetigen:
         flash("Die Passwörter stimmen nicht überein.", "danger")
@@ -1153,7 +1159,7 @@ def claim():
         nachname=nachname,
         password_hash=passwort_hash,
         is_active=True,
-        marketing=True if marketing == "on" else False
+        marketing=(marketing == "on")
     )
     db.session.add(zahnarzt)
     db.session.flush()

@@ -123,42 +123,22 @@
                   <i class="fas fa-user-check me-2 text-primary"></i> Praxis übernehmen
                 </h3>
                 
+                <div class="alert alert-light rounded-4 border mb-4">
+                  <p class="mb-1 text-secondary"><small><i class="fas fa-user me-1"></i> <strong>Name:</strong> {{ session.get('vorname', '') }} {{ session.get('nachname', '') }}</small></p>
+                  <p class="mb-0 text-secondary"><small><i class="fas fa-envelope me-1"></i> <strong>E-Mail:</strong> {{ session.get('email', '') }}</small></p>
+                </div>
+
                 <form id="claimForm" method="POST" action="/claim" class="needs-validation" novalidate>
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                  <input type="hidden" name="praxisname" value="{{ praxisname }}">
-                  <input type="hidden" name="strasse" value="{{ strasse }}">
-                  <input type="hidden" name="plz" value="{{ plz }}">
-                  <input type="hidden" name="stadt" value="{{ stadt }}">
                   
-                  <div class="row g-3">
-                    <div class="col-md-6">
-                      <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="vorname" name="vorname" placeholder="Vorname" required>
-                        <label for="vorname">Vorname</label>
-                        <div class="invalid-feedback">Bitte geben Sie Ihren Vornamen ein.</div>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="nachname" name="nachname" placeholder="Nachname" required>
-                        <label for="nachname">Nachname</label>
-                        <div class="invalid-feedback">Bitte geben Sie Ihren Nachnamen ein.</div>
-                      </div>
-                    </div>
-                  </div>
+                  <p class="text-secondary mb-3">Bitte wählen Sie ein Passwort für Ihr Praxis-Konto:</p>
 
-                  <div class="form-floating mb-3">
-                    <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
-                    <label for="email">E-Mail-Adresse</label>
-                    <div class="invalid-feedback">Bitte geben Sie eine gültige E-Mail-Adresse ein.</div>
-                  </div>
-                  
                   <div class="row g-3">
                     <div class="col-md-6">
                       <div class="form-floating mb-3">
-                        <input type="password" class="form-control" id="passwort" name="passwort" placeholder="Passwort" required>
+                        <input type="password" class="form-control" id="passwort" name="passwort" placeholder="Passwort" required minlength="6">
                         <label for="passwort">Passwort</label>
-                        <div class="invalid-feedback">Bitte geben Sie ein sicheres Passwort ein.</div>
+                        <div class="invalid-feedback">Bitte geben Sie ein Passwort ein (mind. 6 Zeichen).</div>
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -187,7 +167,7 @@
 
                   <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary btn-lg rounded-pill">
-                      <i class="fas fa-check-circle me-2"></i> Praxis übernehmen
+                      <i class="fas fa-check-circle me-2"></i> Praxis übernehmen & Dashboard öffnen
                     </button>
                   </div>
                 </form>
