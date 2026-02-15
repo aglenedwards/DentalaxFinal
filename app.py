@@ -878,6 +878,16 @@ def register():
                 return True
             return False
         
+        def extract_domain(url):
+            """Extrahiert die Domain aus einer URL (ohne Protokoll/www)"""
+            if not url:
+                return ""
+            url = url.strip().lower()
+            url = re_mod.sub(r'^https?://', '', url)
+            url = re_mod.sub(r'^www\.', '', url)
+            url = url.split('/')[0].strip()
+            return url
+        
         csv_datei = "zahnaerzte.csv"
         duplikat_gefunden = False
         beansprucht_status = "nein"
@@ -924,6 +934,36 @@ def register():
                     gefundene_plz = p.plz or ""
                     gefundene_stadt = p.stadt or ""
                     break
+
+        if not duplikat_gefunden and webseite:
+            eingabe_domain = extract_domain(webseite)
+            if eingabe_domain:
+                if os.path.isfile(csv_datei):
+                    with open(csv_datei, newline='', encoding='utf-8') as f:
+                        reader = csv.DictReader(f)
+                        for row in reader:
+                            csv_domain = extract_domain(row.get("webseite", ""))
+                            if csv_domain and csv_domain == eingabe_domain:
+                                duplikat_gefunden = True
+                                beansprucht_status = row.get("beansprucht", "").strip().lower()
+                                gefundener_name = row.get("name", "").strip()
+                                gefundene_strasse = row["straße"].strip()
+                                gefundene_plz = row["plz"].strip()
+                                gefundene_stadt = row["stadt"].strip()
+                                break
+
+                if not duplikat_gefunden:
+                    from models import Praxis
+                    alle_praxen_domain = Praxis.query.filter(Praxis.webseite.isnot(None), Praxis.webseite != '').all()
+                    for p in alle_praxen_domain:
+                        if extract_domain(p.webseite or '') == eingabe_domain:
+                            duplikat_gefunden = True
+                            beansprucht_status = "ja"
+                            gefundener_name = p.name or ""
+                            gefundene_strasse = p.strasse or ""
+                            gefundene_plz = p.plz or ""
+                            gefundene_stadt = p.stadt or ""
+                            break
 
         if duplikat_gefunden:
             return render_template(
