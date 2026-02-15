@@ -5,13 +5,26 @@
       <h5 class="card-title m-0 fw-bold">
         <i class="fas fa-globe me-2 text-primary"></i>Landingpage-Verwaltung
       </h5>
-      <div>
-        <a href="/praxis-landingpage/zahnärzte-am-stadtplatz-berlin" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+      <div class="d-flex align-items-center gap-2">
+        {% if praxis.slug %}
+        <a href="/zahnarzt/{{ praxis.slug }}" target="_blank" class="btn btn-sm btn-outline-primary">
           <i class="fas fa-external-link-alt me-1"></i> Vorschau
         </a>
-        <button class="btn btn-sm btn-success">
-          <i class="fas fa-cloud-upload-alt me-1"></i> Veröffentlichen
-        </button>
+        {% endif %}
+        <form method="POST" action="/zahnarzt-dashboard/veroeffentlichen" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          {% if praxis.landingpage_aktiv %}
+          <input type="hidden" name="aktion" value="deaktivieren">
+          <button type="submit" class="btn btn-sm btn-outline-danger">
+            <i class="fas fa-cloud-download-alt me-1"></i> Offline nehmen
+          </button>
+          {% else %}
+          <input type="hidden" name="aktion" value="aktivieren">
+          <button type="submit" class="btn btn-sm btn-success">
+            <i class="fas fa-cloud-upload-alt me-1"></i> Veröffentlichen
+          </button>
+          {% endif %}
+        </form>
       </div>
     </div>
     <div class="card-body">
