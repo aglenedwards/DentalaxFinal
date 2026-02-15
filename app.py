@@ -5891,6 +5891,36 @@ def praxis_landingpage_vorschau(slug):
     
     today = datetime.now().strftime('%Y-%m-%d')
     
+    import pytz
+    berlin_tz = pytz.timezone('Europe/Berlin')
+    jetzt = datetime.now(berlin_tz)
+    wochentag_index = jetzt.weekday()
+    aktueller_tag = tage_reihenfolge[wochentag_index]
+    aktuelle_zeit = jetzt.time()
+    
+    ist_geoeffnet = False
+    schliesst_um = None
+    oeffnet_naechstes = None
+    
+    if aktueller_tag in oeffnungszeiten_dict:
+        oz_heute = oeffnungszeiten_dict[aktueller_tag]
+        if not oz_heute.geschlossen and oz_heute.von and oz_heute.bis:
+            if oz_heute.von <= aktuelle_zeit <= oz_heute.bis:
+                ist_geoeffnet = True
+                schliesst_um = oz_heute.bis.strftime('%H:%M')
+            elif aktuelle_zeit < oz_heute.von:
+                oeffnet_naechstes = oz_heute.von.strftime('%H:%M')
+    
+    if not ist_geoeffnet and not oeffnet_naechstes:
+        for i in range(1, 8):
+            naechster_index = (wochentag_index + i) % 7
+            naechster_tag = tage_reihenfolge[naechster_index]
+            if naechster_tag in oeffnungszeiten_dict:
+                oz_naechster = oeffnungszeiten_dict[naechster_tag]
+                if not oz_naechster.geschlossen and oz_naechster.von:
+                    oeffnet_naechstes = f"{naechster_tag} {oz_naechster.von.strftime('%H:%M')}"
+                    break
+    
     return render_template(
         'praxis_landingpage.html',
         praxis=praxis,
@@ -5902,9 +5932,9 @@ def praxis_landingpage_vorschau(slug):
         ueber_uns_bild=ueber_uns_bild,
         portrait_bild=portrait_bild,
         bewertungen=bewertungen,
-        ist_geoeffnet=False,
-        schliesst_um=None,
-        oeffnet_naechstes=None,
+        ist_geoeffnet=ist_geoeffnet,
+        schliesst_um=schliesst_um,
+        oeffnet_naechstes=oeffnet_naechstes,
         today=today,
         vorschau_modus=True
     )
