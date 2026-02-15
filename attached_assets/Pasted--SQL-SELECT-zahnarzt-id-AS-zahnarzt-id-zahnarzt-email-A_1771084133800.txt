@@ -1,0 +1,20 @@
+
+[SQL: SELECT zahnarzt.id AS zahnarzt_id, zahnarzt.email AS zahnarzt_email, zahnarzt.password_hash AS zahnarzt_password_hash, zahnarzt.vorname AS zahnarzt_vorname, zahnarzt.nachname AS zahnarzt_nachname, zahnarzt.registration_date AS zahnarzt_registration_date, zahnarzt.is_active AS zahnarzt_is_active, zahnarzt.praxis_id AS zahnarzt_praxis_id, zahnarzt.marketing AS zahnarzt_marketing 
+FROM zahnarzt 
+WHERE zahnarzt.email = %(email_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'email_1': 'info@dentalax.de', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+10.23.112.65 - - [14/Feb/2026:15:46:44 +0000] "POST /zahnarzt-login HTTP/1.1" 500 265 "https://www.dentalax.de/zahnarzt-login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+10.17.145.198 - - [14/Feb/2026:15:46:45 +0000] "GET /favicon.ico HTTP/1.1" 302 189 "https://www.dentalax.de/zahnarzt-login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+10.23.112.65 - - [14/Feb/2026:15:46:45 +0000] "GET / HTTP/1.1" 200 54596 "https://www.dentalax.de/zahnarzt-login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+10.17.145.198 - - [14/Feb/2026:15:47:38 +0000] "GET /favicon.ico HTTP/1.1" 302 189 "https://www.dentalax.de/zahnarzt-login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+Menu
+10.17.145.198 - - [14/Feb/2026:15:47:38 +0000] "GET / HTTP/1.1" 200 54596 "https://www.dentalax.de/zahnarzt-login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+10.17.145.198 - - [14/Feb/2026:15:47:41 +0000] "GET /zahnarzt-login HTTP/1.1" 200 23931 "https://www.dentalax.de/zahnarzt-login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+10.17.145.198 - - [14/Feb/2026:15:47:41 +0000] "GET /static/css/custom_v2.css HTTP/1.1" 304 0 "https://www.dentalax.de/zahnarzt-login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+10.17.145.198 - - [14/Feb/2026:15:47:41 +0000] "GET /static/img/dentalax-logo.png HTTP/1.1" 304 0 "https://www.dentalax.de/zahnarzt-login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+10.17.145.198 - - [14/Feb/2026:15:47:41 +0000] "GET /static/css/api_config.css HTTP/1.1" 304 0 "https://www.dentalax.de/zahnarzt-login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+10.16.174.194 - - [14/Feb/2026:15:47:41 +0000] "GET /static/js/script.js HTTP/1.1" 304 0 "https://www.dentalax.de/zahnarzt-login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+10.17.145.198 - - [14/Feb/2026:15:47:41 +0000] "GET /favicon.ico HTTP/1.1" 302 189 "https://www.dentalax.de/zahnarzt-login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+10.17.145.198 - - [14/Feb/2026:15:47:41 +0000] "GET / HTTP/1.1" 200 54596 "https://www.dentalax.de/zahnarzt-login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
