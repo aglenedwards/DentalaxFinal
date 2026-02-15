@@ -1055,6 +1055,11 @@ def register():
 
 @app.route("/claim", methods=["POST"])
 def claim():
+    from flask_login import login_user
+    from werkzeug.security import generate_password_hash
+    import secrets
+    from datetime import timedelta
+    
     vorname = request.form["vorname"]
     nachname = request.form["nachname"]
     praxisname = request.form["praxisname"]
@@ -1067,197 +1072,187 @@ def claim():
     passwort_bestaetigen = request.form.get("passwort_bestaetigen", "")
     datenschutz = request.form.get("datenschutz", "nein")
     marketing = request.form.get("marketing", "nein")
+    telefon = session.get("telefon", "")
+    webseite = session.get("webseite", "")
     
-    # Passwörter prüfen
     if passwort != passwort_bestaetigen:
         flash("Die Passwörter stimmen nicht überein.", "danger")
         return redirect(f"/register?plz={plz}&stadt={stadt}&strasse={strasse}")
     
-    # Prüfen, ob die Praxis bereits beansprucht wurde
+    if Zahnarzt.query.filter_by(email=email).first():
+        flash("Diese E-Mail-Adresse ist bereits registriert. Bitte melden Sie sich an.", "danger")
+        return redirect("/zahnarzt-login")
+    
     datei = "zahnaerzte.csv"
     bereits_beansprucht = False
+    csv_lat = 0
+    csv_lng = 0
+    csv_telefon = ""
+    csv_webseite = ""
+    csv_fachgebiete = ""
     
-    with open(datei, newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if (
-                row["straße"].strip().lower() == strasse.strip().lower() and
-                row["plz"].strip() == plz.strip() and
-                row["stadt"].strip().lower() == stadt.strip().lower()
-            ):
-                if row.get("beansprucht", "").strip().lower() == "ja":
-                    bereits_beansprucht = True
-                break
+    import re as re_mod
+    def extract_domain(url):
+        if not url:
+            return ""
+        url = url.strip().lower()
+        url = re_mod.sub(r'^https?://', '', url)
+        url = re_mod.sub(r'^www\.', '', url)
+        url = url.split('/')[0].strip()
+        return url
+    
+    eingabe_domain = extract_domain(webseite)
+    
+    if os.path.isfile(datei):
+        with open(datei, newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                csv_strasse = row.get("straße", "").strip().lower()
+                csv_plz = row.get("plz", "").strip()
+                csv_stadt = row.get("stadt", "").strip().lower()
+                adress_match = (
+                    csv_strasse == strasse.strip().lower() and
+                    csv_plz == plz.strip() and
+                    csv_stadt == stadt.strip().lower()
+                )
+                domain_match = (
+                    eingabe_domain and 
+                    extract_domain(row.get("webseite", "")) == eingabe_domain
+                )
+                if adress_match or domain_match:
+                    if row.get("beansprucht", "").strip().lower() == "ja":
+                        bereits_beansprucht = True
+                    csv_lat = row.get("lat", 0)
+                    csv_lng = row.get("lng", 0)
+                    csv_telefon = row.get("telefon", "")
+                    csv_webseite = row.get("webseite", "")
+                    csv_fachgebiete = row.get("fachgebiete", "")
+                    break
     
     if bereits_beansprucht:
-        # In diesem Fall wird der Claim erst nach Admin-Prüfung verarbeitet
-        # Speichern in einem separaten "zu prüfenden Claims" CSV
-        pending_datei = "pending_claims.csv"
-        pending_existiert = os.path.isfile(pending_datei) and os.path.getsize(pending_datei) > 0
-        
-        with open(pending_datei, "a", newline='', encoding="utf-8") as f:
-            fieldnames = ["praxisname", "strasse", "plz", "stadt", "email", "nachricht", 
-                        "vorname", "nachname", "status", "datum", "passwort_hash"]
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            
-            if not pending_existiert:
-                writer.writeheader()
-            
-            # Passwort hashen
-            from werkzeug.security import generate_password_hash
-            passwort_hash = generate_password_hash(passwort)
-                
-            writer.writerow({
-                "praxisname": praxisname,
-                "strasse": strasse,
-                "plz": plz,
-                "stadt": stadt,
-                "email": email,
-                "nachricht": nachricht,
-                "vorname": vorname,
-                "nachname": nachname,
-                "status": "ausstehend",
-                "datum": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                "passwort_hash": passwort_hash
-            })
+        neuer_claim = Claim(
+            praxis_name=praxisname,
+            strasse=strasse,
+            plz=plz,
+            email=email,
+            status='pending',
+            notizen=f"Vorname: {vorname}, Nachname: {nachname}, Stadt: {stadt}.",
+            erstellt_am=datetime.now()
+        )
+        db.session.add(neuer_claim)
+        db.session.commit()
         
         flash("Diese Praxis wurde bereits beansprucht. Ihre Anfrage wird von unserem Team geprüft. Sie erhalten eine E-Mail, sobald die Prüfung abgeschlossen ist.", "warning")
         return redirect("/")
     
-    # Wenn die Praxis noch nicht beansprucht wurde, normalen Claim-Prozess fortsetzen
-    
-    # Claim in CSV speichern (für Nachverfolgung)
-    claim_datei = "claims.csv"
-    claim_existiert = os.path.isfile(claim_datei) and os.path.getsize(claim_datei) > 0
-    
-    with open(claim_datei, "a", newline='', encoding="utf-8") as f:
-        fieldnames = ["praxisname", "strasse", "plz", "stadt", "email", "nachricht", "vorname", "nachname"]
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        
-        if not claim_existiert:
-            writer.writeheader()
-            
-        writer.writerow({
-            "praxisname": praxisname,
-            "strasse": strasse,
-            "plz": plz,
-            "stadt": stadt,
-            "email": email,
-            "nachricht": nachricht,
-            "vorname": vorname,
-            "nachname": nachname
-        })
-    
-    # Zahnärztedaten aktualisieren
-    eintraege = []
-
-    # CSV einlesen und bearbeiten
-    with open(datei, newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if (
-                row["straße"].strip().lower() == strasse.strip().lower() and
-                row["plz"].strip() == plz.strip() and
-                row["stadt"].strip().lower() == stadt.strip().lower()
-            ):
-                # Bestehenden Eintrag aktualisieren
-                row["name"] = praxisname
-                row["email"] = email
-                row["beansprucht"] = "ja"
-                row["vorname"] = vorname
-                row["nachname"] = nachname
-            eintraege.append(row)
-
-    # Neue Datei mit aktualisierten Daten speichern
-    with open(datei, "w", newline="", encoding="utf-8") as f:
-        fieldnames = eintraege[0].keys()
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(eintraege)
-    
-    # Passwort hashen
-    from werkzeug.security import generate_password_hash
     passwort_hash = generate_password_hash(passwort)
     
-    # Bestätigungstoken erstellen
-    import secrets
-    from datetime import timedelta
+    zahnarzt = Zahnarzt(
+        email=email,
+        vorname=vorname,
+        nachname=nachname,
+        password_hash=passwort_hash,
+        is_active=True,
+        marketing=True if marketing == "on" else False
+    )
+    db.session.add(zahnarzt)
+    db.session.flush()
     
-    token = secrets.token_urlsafe(32)
-    token_gueltig_bis = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
-    registriert_am = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    verwendete_telefon = telefon or csv_telefon
+    verwendete_webseite = webseite or csv_webseite
     
-    # Auch in neue_praxen.csv einfügen mit Passwort-Hash und Token
-    neue_datei = "neue_praxen.csv"
-    existiert = os.path.isfile(neue_datei) and os.path.getsize(neue_datei) > 0
+    try:
+        lat_val = float(csv_lat) if csv_lat else 0
+        lng_val = float(csv_lng) if csv_lng else 0
+    except (ValueError, TypeError):
+        lat_val = lng_val = 0
     
-    # Prüfen ob Eintrag bereits existiert
-    eintrag_existiert = False
-    if existiert:
-        with open(neue_datei, newline='', encoding='utf-8') as f:
+    if lat_val == 0 and lng_val == 0:
+        adresse = f"{strasse}, {plz} {stadt}"
+        lat_val, lng_val = get_coordinates_from_address(adresse)
+    
+    praxis_slug = slugify(f"{praxisname}-{stadt}")
+    slug_base = praxis_slug
+    counter = 1
+    while Praxis.query.filter_by(slug=praxis_slug).first():
+        praxis_slug = f"{slug_base}-{counter}"
+        counter += 1
+    
+    neue_praxis = Praxis(
+        name=praxisname,
+        slug=praxis_slug,
+        strasse=strasse,
+        plz=plz,
+        stadt=stadt,
+        telefon=verwendete_telefon,
+        webseite=verwendete_webseite,
+        email=email,
+        latitude=lat_val,
+        longitude=lng_val,
+        zahnarzt_id=zahnarzt.id,
+        ist_verifiziert=True,
+        paket="Basis",
+        landingpage_aktiv=False
+    )
+    db.session.add(neue_praxis)
+    db.session.flush()
+    
+    zahnarzt.praxis_id = neue_praxis.id
+    
+    db.session.commit()
+    
+    eintraege = []
+    if os.path.isfile(datei):
+        with open(datei, newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                if (row.get("email") == email or 
-                    (row.get("straße") == strasse and row.get("plz") == plz and row.get("stadt") == stadt)):
-                    eintrag_existiert = True
-                    break
-    
-    if not eintrag_existiert:
-        with open(neue_datei, "a", newline='', encoding="utf-8") as f:
-            fieldnames = [
-                "vorname", "nachname", "name", "email", "telefon", "webseite",
-                "plz", "stadt", "straße", "lat", "lng", "beansprucht", "paket", 
-                "zahlweise", "registriert_am", "passwort_hash", "bestätigt", 
-                "bestätigungs_token", "token_gültig_bis", "marketing"
-            ]
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            
-            if not existiert:
+                adress_match = (
+                    row.get("straße", "").strip().lower() == strasse.strip().lower() and
+                    row.get("plz", "").strip() == plz.strip() and
+                    row.get("stadt", "").strip().lower() == stadt.strip().lower()
+                )
+                domain_match = (
+                    eingabe_domain and
+                    extract_domain(row.get("webseite", "")) == eingabe_domain
+                )
+                if adress_match or domain_match:
+                    row["beansprucht"] = "ja"
+                    row["name"] = praxisname
+                    row["email"] = email
+                eintraege.append(row)
+        
+        if eintraege:
+            with open(datei, "w", newline="", encoding="utf-8") as f:
+                fieldnames = eintraege[0].keys()
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
-                
-            # Koordinaten aus Zahnärzte CSV holen
-            lat = lng = 0
-            for row in eintraege:
-                if (row["straße"].strip().lower() == strasse.strip().lower() and
-                    row["plz"].strip() == plz.strip() and
-                    row["stadt"].strip().lower() == stadt.strip().lower()):
-                    lat = row.get("lat", 0)
-                    lng = row.get("lng", 0)
-                    break
-            
-            writer.writerow({
-                "vorname": vorname,
-                "nachname": nachname,
-                "name": praxisname,
-                "email": email,
-                "telefon": "",  # Fehlende Daten können später ergänzt werden
-                "webseite": "",
-                "plz": plz,
-                "stadt": stadt,
-                "straße": strasse,
-                "lat": lat,
-                "lng": lng,
-                "beansprucht": "ja",
-                "paket": "Basis",  # Standard-Paket
-                "zahlweise": "monatlich",
-                "registriert_am": registriert_am,
-                "passwort_hash": passwort_hash,
-                "bestätigt": "nein",
-                "bestätigungs_token": token,
-                "token_gültig_bis": token_gueltig_bis,
-                "marketing": "ja" if marketing else "nein"
-            })
+                writer.writerows(eintraege)
     
+    login_user(zahnarzt)
+    session["angemeldet"] = True
+    session["benutzer_typ"] = "zahnarzt"
+    session["benutzer_email"] = email
+    session["email"] = email
+    session["benutzer_vorname"] = vorname
+    session["benutzer_nachname"] = nachname
+    session["praxisname"] = praxisname
+    session["paket"] = "Basis"
+    session["praxis_id"] = neue_praxis.id
+    session["zahnarzt_id"] = zahnarzt.id
+    
+    token = secrets.token_urlsafe(32)
     bestaetigungs_url = url_for('zahnarzt_bestaetigen', token=token, email=email, _external=True)
-
-    from services.email_service import send_zahnarzt_bestaetigung
-    send_zahnarzt_bestaetigung(email, praxisname, bestaetigungs_url)
-
-    session["bestaetigungs_url"] = bestaetigungs_url
     
-    # Nach der Registrierung zur Bestätigungsseite weiterleiten
-    flash("Vielen Dank für die Übernahme Ihrer Praxis! Bitte überprüfen Sie Ihren E-Mail-Eingang, um Ihre Registrierung zu bestätigen.", "success")
-    return redirect("/registrierung-erfolgreich")
+    try:
+        from services.email_service import send_zahnarzt_bestaetigung
+        send_zahnarzt_bestaetigung(email, praxisname, bestaetigungs_url)
+    except Exception as e:
+        print(f"⚠️ Bestätigungs-E-Mail konnte nicht gesendet werden: {e}")
+    
+    print(f"✅ Praxis '{praxisname}' direkt übernommen von {email} (Zahnarzt-ID: {zahnarzt.id}, Praxis-ID: {neue_praxis.id})")
+    
+    flash(f"Herzlich willkommen! Die Praxis '{praxisname}' gehört jetzt zu Ihrem Konto. Sie können Ihre Daten im Dashboard vervollständigen.", "success")
+    return redirect("/zahnarzt-dashboard")
 
 @app.route("/paket-bestaetigen", methods=["POST"])
 def paket_bestaetigen():
