@@ -62,3 +62,5 @@ Key entities include `Zahnarzt` (Dentist), `Patient`, `Praxis` (Practice), `Term
 
 ### File Storage
 - **Local Filesystem:** For storing uploaded practice images (e.g., `static/uploads/praxis/`).
+- **Image Optimization (`image_utils.py`):** All uploaded images are automatically converted to WebP format, resized to max 1600px width, and compressed at 85% quality. Transparency is preserved for logos. Max upload size: 10MB. This reduces storage usage by 60-80%.
+- **Production (Render):** Uses Render Persistent Disk mounted at `/opt/render/project/src/static/uploads` to persist uploads across deployments.

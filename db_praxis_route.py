@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta, date, time
 import json
 from flask_wtf import FlaskForm
+from image_utils import optimize_and_save
 
 # Doppelte Slugify-Import entfernt
 
@@ -21,7 +22,7 @@ UPLOAD_FOLDER = os.path.join(os.getcwd(), 'static/uploads/praxis')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Erlaubte Dateiendungen
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'svg'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -533,84 +534,68 @@ def praxis_daten_speichern_db():
         # Bilder verarbeiten
         if 'praxislogo' in request.files and request.files['praxislogo'].filename:
             logo_file = request.files['praxislogo']
-            if allowed_file(logo_file.filename):
-                filename = secure_filename(f"logo_{praxis.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{logo_file.filename.rsplit('.', 1)[1].lower()}")
-                filepath = os.path.join(UPLOAD_FOLDER, filename)
-                logo_file.save(filepath)
-                
-                # Logo in der Datenbank speichern/aktualisieren
+            pfad = optimize_and_save(logo_file, 'logo', praxis.id)
+            if pfad:
                 logo_bild = PraxisBild.query.filter_by(praxis_id=praxis.id, typ='logo').first()
                 if logo_bild:
-                    # Altes Bild löschen, wenn es existiert
                     if os.path.exists(os.path.join(os.getcwd(), logo_bild.pfad.lstrip('/'))):
                         os.remove(os.path.join(os.getcwd(), logo_bild.pfad.lstrip('/')))
-                    logo_bild.pfad = f"/static/uploads/praxis/{filename}"
+                    logo_bild.pfad = pfad
                 else:
                     neues_logo = PraxisBild(
                         typ='logo',
-                        pfad=f"/static/uploads/praxis/{filename}",
+                        pfad=pfad,
                         praxis_id=praxis.id
                     )
                     db.session.add(neues_logo)
         
-        # Ähnlich für Titelbild und Team-Foto
         if 'titelbild' in request.files and request.files['titelbild'].filename:
             titelbild_file = request.files['titelbild']
-            if allowed_file(titelbild_file.filename):
-                filename = secure_filename(f"titel_{praxis.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{titelbild_file.filename.rsplit('.', 1)[1].lower()}")
-                filepath = os.path.join(UPLOAD_FOLDER, filename)
-                titelbild_file.save(filepath)
-                
+            pfad = optimize_and_save(titelbild_file, 'titel', praxis.id)
+            if pfad:
                 titelbild = PraxisBild.query.filter_by(praxis_id=praxis.id, typ='titelbild').first()
                 if titelbild:
                     if os.path.exists(os.path.join(os.getcwd(), titelbild.pfad.lstrip('/'))):
                         os.remove(os.path.join(os.getcwd(), titelbild.pfad.lstrip('/')))
-                    titelbild.pfad = f"/static/uploads/praxis/{filename}"
+                    titelbild.pfad = pfad
                 else:
                     neues_titelbild = PraxisBild(
                         typ='titelbild',
-                        pfad=f"/static/uploads/praxis/{filename}",
+                        pfad=pfad,
                         praxis_id=praxis.id
                     )
                     db.session.add(neues_titelbild)
         
         if 'team_foto' in request.files and request.files['team_foto'].filename:
             teamfoto_file = request.files['team_foto']
-            if allowed_file(teamfoto_file.filename):
-                filename = secure_filename(f"team_{praxis.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{teamfoto_file.filename.rsplit('.', 1)[1].lower()}")
-                filepath = os.path.join(UPLOAD_FOLDER, filename)
-                teamfoto_file.save(filepath)
-                
+            pfad = optimize_and_save(teamfoto_file, 'team', praxis.id)
+            if pfad:
                 teamfoto = PraxisBild.query.filter_by(praxis_id=praxis.id, typ='team_foto').first()
                 if teamfoto:
                     if os.path.exists(os.path.join(os.getcwd(), teamfoto.pfad.lstrip('/'))):
                         os.remove(os.path.join(os.getcwd(), teamfoto.pfad.lstrip('/')))
-                    teamfoto.pfad = f"/static/uploads/praxis/{filename}"
+                    teamfoto.pfad = pfad
                 else:
                     neues_teamfoto = PraxisBild(
                         typ='team_foto',
-                        pfad=f"/static/uploads/praxis/{filename}",
+                        pfad=pfad,
                         praxis_id=praxis.id
                     )
                     db.session.add(neues_teamfoto)
         
-        # Portrait-Bild für den Zahnarzt
         if 'portrait' in request.files and request.files['portrait'].filename:
             portrait_file = request.files['portrait']
-            if allowed_file(portrait_file.filename):
-                filename = secure_filename(f"portrait_{praxis.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{portrait_file.filename.rsplit('.', 1)[1].lower()}")
-                filepath = os.path.join(UPLOAD_FOLDER, filename)
-                portrait_file.save(filepath)
-                
+            pfad = optimize_and_save(portrait_file, 'portrait', praxis.id)
+            if pfad:
                 portrait = PraxisBild.query.filter_by(praxis_id=praxis.id, typ='portrait').first()
                 if portrait:
                     if os.path.exists(os.path.join(os.getcwd(), portrait.pfad.lstrip('/'))):
                         os.remove(os.path.join(os.getcwd(), portrait.pfad.lstrip('/')))
-                    portrait.pfad = f"/static/uploads/praxis/{filename}"
+                    portrait.pfad = pfad
                 else:
                     neues_portrait = PraxisBild(
                         typ='portrait',
-                        pfad=f"/static/uploads/praxis/{filename}",
+                        pfad=pfad,
                         praxis_id=praxis.id
                     )
                     db.session.add(neues_portrait)
@@ -699,11 +684,9 @@ def praxis_daten_speichern_db():
                 
                 if i < len(team_foto_files) and team_foto_files[i].filename:
                     foto_file = team_foto_files[i]
-                    if allowed_file(foto_file.filename):
-                        filename = secure_filename(f"mitarbeiter_{praxis.id}_{i}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{foto_file.filename.rsplit('.', 1)[1].lower()}")
-                        filepath = os.path.join(UPLOAD_FOLDER, filename)
-                        foto_file.save(filepath)
-                        bild_pfad = f"/static/uploads/praxis/{filename}"
+                    pfad = optimize_and_save(foto_file, 'teammitglied', praxis.id)
+                    if pfad:
+                        bild_pfad = pfad
                 
                 neues_teammitglied = TeamMitglied(
                     name=team_name[i],
@@ -798,74 +781,62 @@ def praxis_daten_speichern_db():
         # Logo
         if 'praxislogo' in request.files and request.files['praxislogo'].filename:
             logo_file = request.files['praxislogo']
-            if allowed_file(logo_file.filename):
-                filename = secure_filename(f"logo_{praxis.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{logo_file.filename.rsplit('.', 1)[1].lower()}")
-                filepath = os.path.join(UPLOAD_FOLDER, filename)
-                logo_file.save(filepath)
-                
+            pfad = optimize_and_save(logo_file, 'logo', praxis.id)
+            if pfad:
                 logo_bild = PraxisBild.query.filter_by(praxis_id=praxis.id, typ='logo').first()
                 if logo_bild:
                     if os.path.exists(os.path.join(os.getcwd(), logo_bild.pfad.lstrip('/'))):
                         os.remove(os.path.join(os.getcwd(), logo_bild.pfad.lstrip('/')))
-                    logo_bild.pfad = f"/static/uploads/praxis/{filename}"
+                    logo_bild.pfad = pfad
                 else:
-                    neues_logo = PraxisBild(typ='logo', pfad=f"/static/uploads/praxis/{filename}", praxis_id=praxis.id)
+                    neues_logo = PraxisBild(typ='logo', pfad=pfad, praxis_id=praxis.id)
                     db.session.add(neues_logo)
-                print(f"  - Logo gespeichert: {filename}")
+                print(f"  - Logo gespeichert: {pfad}")
         
         # Titelbild
         if 'titelbild' in request.files and request.files['titelbild'].filename:
             titelbild_file = request.files['titelbild']
-            if allowed_file(titelbild_file.filename):
-                filename = secure_filename(f"titel_{praxis.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{titelbild_file.filename.rsplit('.', 1)[1].lower()}")
-                filepath = os.path.join(UPLOAD_FOLDER, filename)
-                titelbild_file.save(filepath)
-                
+            pfad = optimize_and_save(titelbild_file, 'titel', praxis.id)
+            if pfad:
                 titelbild = PraxisBild.query.filter_by(praxis_id=praxis.id, typ='titelbild').first()
                 if titelbild:
                     if os.path.exists(os.path.join(os.getcwd(), titelbild.pfad.lstrip('/'))):
                         os.remove(os.path.join(os.getcwd(), titelbild.pfad.lstrip('/')))
-                    titelbild.pfad = f"/static/uploads/praxis/{filename}"
+                    titelbild.pfad = pfad
                 else:
-                    neues_titelbild = PraxisBild(typ='titelbild', pfad=f"/static/uploads/praxis/{filename}", praxis_id=praxis.id)
+                    neues_titelbild = PraxisBild(typ='titelbild', pfad=pfad, praxis_id=praxis.id)
                     db.session.add(neues_titelbild)
-                print(f"  - Titelbild gespeichert: {filename}")
+                print(f"  - Titelbild gespeichert: {pfad}")
         
         # Team Foto
         if 'team_foto' in request.files and request.files['team_foto'].filename:
             teamfoto_file = request.files['team_foto']
-            if allowed_file(teamfoto_file.filename):
-                filename = secure_filename(f"team_{praxis.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{teamfoto_file.filename.rsplit('.', 1)[1].lower()}")
-                filepath = os.path.join(UPLOAD_FOLDER, filename)
-                teamfoto_file.save(filepath)
-                
+            pfad = optimize_and_save(teamfoto_file, 'team', praxis.id)
+            if pfad:
                 teamfoto = PraxisBild.query.filter_by(praxis_id=praxis.id, typ='team_foto').first()
                 if teamfoto:
                     if os.path.exists(os.path.join(os.getcwd(), teamfoto.pfad.lstrip('/'))):
                         os.remove(os.path.join(os.getcwd(), teamfoto.pfad.lstrip('/')))
-                    teamfoto.pfad = f"/static/uploads/praxis/{filename}"
+                    teamfoto.pfad = pfad
                 else:
-                    neues_teamfoto = PraxisBild(typ='team_foto', pfad=f"/static/uploads/praxis/{filename}", praxis_id=praxis.id)
+                    neues_teamfoto = PraxisBild(typ='team_foto', pfad=pfad, praxis_id=praxis.id)
                     db.session.add(neues_teamfoto)
-                print(f"  - Team-Foto gespeichert: {filename}")
+                print(f"  - Team-Foto gespeichert: {pfad}")
         
         # Portrait
         if 'portrait' in request.files and request.files['portrait'].filename:
             portrait_file = request.files['portrait']
-            if allowed_file(portrait_file.filename):
-                filename = secure_filename(f"portrait_{praxis.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{portrait_file.filename.rsplit('.', 1)[1].lower()}")
-                filepath = os.path.join(UPLOAD_FOLDER, filename)
-                portrait_file.save(filepath)
-                
+            pfad = optimize_and_save(portrait_file, 'portrait', praxis.id)
+            if pfad:
                 portrait = PraxisBild.query.filter_by(praxis_id=praxis.id, typ='portrait').first()
                 if portrait:
                     if os.path.exists(os.path.join(os.getcwd(), portrait.pfad.lstrip('/'))):
                         os.remove(os.path.join(os.getcwd(), portrait.pfad.lstrip('/')))
-                    portrait.pfad = f"/static/uploads/praxis/{filename}"
+                    portrait.pfad = pfad
                 else:
-                    neues_portrait = PraxisBild(typ='portrait', pfad=f"/static/uploads/praxis/{filename}", praxis_id=praxis.id)
+                    neues_portrait = PraxisBild(typ='portrait', pfad=pfad, praxis_id=praxis.id)
                     db.session.add(neues_portrait)
-                print(f"  - Portrait gespeichert: {filename}")
+                print(f"  - Portrait gespeichert: {pfad}")
         
         # Über uns Text speichern
         ueber_uns = request.form.get('ueber_uns_text', '')
@@ -937,11 +908,9 @@ def praxis_daten_speichern_db():
                     
                     if i < len(team_foto_files) and team_foto_files[i].filename:
                         foto_file = team_foto_files[i]
-                        if allowed_file(foto_file.filename):
-                            filename = secure_filename(f"mitarbeiter_{praxis.id}_{i}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{foto_file.filename.rsplit('.', 1)[1].lower()}")
-                            filepath = os.path.join(UPLOAD_FOLDER, filename)
-                            foto_file.save(filepath)
-                            bild_pfad = f"/static/uploads/praxis/{filename}"
+                        pfad = optimize_and_save(foto_file, 'teammitglied', praxis.id)
+                        if pfad:
+                            bild_pfad = pfad
                     
                     neues_teammitglied = TeamMitglied(
                         name=team_name[i],

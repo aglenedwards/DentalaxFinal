@@ -5320,6 +5320,8 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+from image_utils import optimize_and_save
+
 @app.route("/dashboard/praxisdaten", methods=["POST"])
 @login_required
 def dashboard_praxisdaten_speichern():
@@ -5420,22 +5422,15 @@ def dashboard_hero_speichern():
     
     if 'titelbild' in request.files:
         file = request.files['titelbild']
-        if file and file.filename and allowed_file(file.filename):
-            filename = secure_filename(f"hero_{praxis.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{file.filename.rsplit('.', 1)[1].lower()}")
-            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(filepath)
-            
+        pfad = optimize_and_save(file, 'hero', praxis.id)
+        if pfad:
             existing = PraxisBild.query.filter_by(praxis_id=praxis.id, typ='titelbild').first()
             if existing:
-                existing.pfad = f"/static/uploads/praxis/{filename}"
+                existing.pfad = pfad
             else:
-                neues_bild = PraxisBild(
-                    praxis_id=praxis.id,
-                    typ='titelbild',
-                    pfad=f"/static/uploads/praxis/{filename}"
-                )
-                db.session.add(neues_bild)
+                db.session.add(PraxisBild(praxis_id=praxis.id, typ='titelbild', pfad=pfad))
+        elif file and file.filename:
+            flash('Bild konnte nicht verarbeitet werden. Max. 10MB, erlaubte Formate: PNG, JPG, WebP.', 'warning')
     
     db.session.commit()
     flash('Hero-Bereich erfolgreich aktualisiert!', 'success')
@@ -5457,22 +5452,15 @@ def dashboard_portrait_speichern():
     
     if 'portrait_bild' in request.files:
         file = request.files['portrait_bild']
-        if file and file.filename and allowed_file(file.filename):
-            filename = secure_filename(f"portrait_{praxis.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{file.filename.rsplit('.', 1)[1].lower()}")
-            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(filepath)
-            
+        pfad = optimize_and_save(file, 'portrait', praxis.id)
+        if pfad:
             existing = PraxisBild.query.filter_by(praxis_id=praxis.id, typ='portrait').first()
             if existing:
-                existing.pfad = f"/static/uploads/praxis/{filename}"
+                existing.pfad = pfad
             else:
-                neues_bild = PraxisBild(
-                    praxis_id=praxis.id,
-                    typ='portrait',
-                    pfad=f"/static/uploads/praxis/{filename}"
-                )
-                db.session.add(neues_bild)
+                db.session.add(PraxisBild(praxis_id=praxis.id, typ='portrait', pfad=pfad))
+        elif file and file.filename:
+            flash('Bild konnte nicht verarbeitet werden. Max. 10MB, erlaubte Formate: PNG, JPG, WebP.', 'warning')
     
     db.session.commit()
     flash('Portrait erfolgreich aktualisiert!', 'success')
@@ -5494,22 +5482,15 @@ def dashboard_logo_speichern():
     
     if 'logo_bild' in request.files:
         file = request.files['logo_bild']
-        if file and file.filename and allowed_file(file.filename):
-            filename = secure_filename(f"logo_{praxis.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{file.filename.rsplit('.', 1)[1].lower()}")
-            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(filepath)
-            
+        pfad = optimize_and_save(file, 'logo', praxis.id)
+        if pfad:
             existing = PraxisBild.query.filter_by(praxis_id=praxis.id, typ='logo').first()
             if existing:
-                existing.pfad = f"/static/uploads/praxis/{filename}"
+                existing.pfad = pfad
             else:
-                neues_bild = PraxisBild(
-                    praxis_id=praxis.id,
-                    typ='logo',
-                    pfad=f"/static/uploads/praxis/{filename}"
-                )
-                db.session.add(neues_bild)
+                db.session.add(PraxisBild(praxis_id=praxis.id, typ='logo', pfad=pfad))
+        elif file and file.filename:
+            flash('Bild konnte nicht verarbeitet werden. Max. 10MB, erlaubte Formate: PNG, JPG, WebP.', 'warning')
     
     db.session.commit()
     flash('Logo erfolgreich aktualisiert!', 'success')
@@ -5530,22 +5511,15 @@ def dashboard_ueber_uns_bild_speichern():
     
     if 'ueber_uns_bild' in request.files:
         file = request.files['ueber_uns_bild']
-        if file and file.filename and allowed_file(file.filename):
-            filename = secure_filename(f"team_{praxis.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{file.filename.rsplit('.', 1)[1].lower()}")
-            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(filepath)
-            
+        pfad = optimize_and_save(file, 'team', praxis.id)
+        if pfad:
             existing = PraxisBild.query.filter_by(praxis_id=praxis.id, typ='team_foto').first()
             if existing:
-                existing.pfad = f"/static/uploads/praxis/{filename}"
+                existing.pfad = pfad
             else:
-                neues_bild = PraxisBild(
-                    praxis_id=praxis.id,
-                    typ='team_foto',
-                    pfad=f"/static/uploads/praxis/{filename}"
-                )
-                db.session.add(neues_bild)
+                db.session.add(PraxisBild(praxis_id=praxis.id, typ='team_foto', pfad=pfad))
+        elif file and file.filename:
+            flash('Bild konnte nicht verarbeitet werden. Max. 10MB, erlaubte Formate: PNG, JPG, WebP.', 'warning')
     
     db.session.commit()
     flash('Praxisbild erfolgreich aktualisiert!', 'success')
@@ -5777,12 +5751,9 @@ def dashboard_teammitglied_speichern():
     bild_pfad = None
     if 'bild' in request.files:
         file = request.files['bild']
-        if file and file.filename and allowed_file(file.filename):
-            filename = secure_filename(f"team_{praxis.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{file.filename.rsplit('.', 1)[1].lower()}")
-            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(filepath)
-            bild_pfad = f"/static/uploads/praxis/{filename}"
+        bild_pfad = optimize_and_save(file, 'teammitglied', praxis.id)
+        if not bild_pfad and file and file.filename:
+            flash('Bild konnte nicht verarbeitet werden. Max. 10MB, erlaubte Formate: PNG, JPG, WebP.', 'warning')
     
     if mitglied_id:
         mitglied = TeamMitglied.query.get(mitglied_id)
