@@ -323,10 +323,42 @@ def zahnarzt_stadt(stadt_slug):
     ).filter(Bewertung.bestaetigt == True).group_by(Bewertung.praxis_id).all()
     bewertung_map = {b.praxis_id: {'avg': round(float(b.avg_sterne), 1), 'anzahl': int(b.anzahl)} for b in bewertung_stats}
     
+    from models import Oeffnungszeit as OZ_Stadt
+    import pytz
+    berlin_tz_stadt = pytz.timezone('Europe/Berlin')
+    jetzt_stadt = datetime.now(berlin_tz_stadt)
+    wochentag_idx_stadt = jetzt_stadt.weekday()
+    tage_stadt = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
+    aktueller_tag_stadt = tage_stadt[wochentag_idx_stadt]
+    aktuelle_zeit_stadt = jetzt_stadt.time()
+    
+    oz_alle_stadt = OZ_Stadt.query.all()
+    oz_by_praxis_stadt = {}
+    for oz in oz_alle_stadt:
+        if oz.praxis_id not in oz_by_praxis_stadt:
+            oz_by_praxis_stadt[oz.praxis_id] = {}
+        oz_by_praxis_stadt[oz.praxis_id][oz.tag] = oz
+    
     db_praxen = Praxis.query.all()
     for praxis in db_praxen:
         if praxis.latitude and praxis.longitude:
             bew = bewertung_map.get(praxis.id, {'avg': 0, 'anzahl': 0})
+            
+            oeffnungsstatus = None
+            if praxis.ist_verifiziert and praxis.id in oz_by_praxis_stadt:
+                oz_dict = oz_by_praxis_stadt[praxis.id]
+                if aktueller_tag_stadt in oz_dict:
+                    oz_heute = oz_dict[aktueller_tag_stadt]
+                    if not oz_heute.geschlossen and oz_heute.von and oz_heute.bis:
+                        if oz_heute.von <= aktuelle_zeit_stadt <= oz_heute.bis:
+                            oeffnungsstatus = 'geoeffnet'
+                        else:
+                            oeffnungsstatus = 'geschlossen'
+                    else:
+                        oeffnungsstatus = 'geschlossen'
+                else:
+                    oeffnungsstatus = 'geschlossen'
+            
             alle_praxen.append({
                 'id': praxis.id,
                 'name': praxis.name,
@@ -346,7 +378,8 @@ def zahnarzt_stadt(stadt_slug):
                 'bewertung_avg': bew['avg'],
                 'bewertung_anzahl': bew['anzahl'],
                 'google_rating': praxis.google_rating,
-                'google_review_count': praxis.google_review_count or 0
+                'google_review_count': praxis.google_review_count or 0,
+                'oeffnungsstatus': oeffnungsstatus
             })
     
     gefilterte_praxen = []
@@ -545,7 +578,7 @@ def suche():
     alle_praxen = lade_praxen("zahnaerzte.csv")
     
     # Datenbank-Praxen hinzufügen (alle, nicht nur mit aktiver Landingpage)
-    from models import Bewertung
+    from models import Bewertung, Oeffnungszeit
     from sqlalchemy import func as sql_func
     db_praxen = Praxis.query.all()
     
@@ -556,9 +589,40 @@ def suche():
     ).filter(Bewertung.bestaetigt == True).group_by(Bewertung.praxis_id).all()
     bewertung_map = {b.praxis_id: {'avg': round(float(b.avg_sterne), 1), 'anzahl': int(b.anzahl)} for b in bewertung_stats}
     
+    import pytz
+    berlin_tz = pytz.timezone('Europe/Berlin')
+    jetzt_berlin = datetime.now(berlin_tz)
+    wochentag_index = jetzt_berlin.weekday()
+    tage_reihenfolge_suche = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
+    aktueller_tag_suche = tage_reihenfolge_suche[wochentag_index]
+    aktuelle_zeit_suche = jetzt_berlin.time()
+    
+    oz_alle = Oeffnungszeit.query.all()
+    oz_by_praxis = {}
+    for oz in oz_alle:
+        if oz.praxis_id not in oz_by_praxis:
+            oz_by_praxis[oz.praxis_id] = {}
+        oz_by_praxis[oz.praxis_id][oz.tag] = oz
+    
     for praxis in db_praxen:
         if praxis.latitude and praxis.longitude:
             bew = bewertung_map.get(praxis.id, {'avg': 0, 'anzahl': 0})
+            
+            oeffnungsstatus = None
+            if praxis.ist_verifiziert and praxis.id in oz_by_praxis:
+                oz_dict = oz_by_praxis[praxis.id]
+                if aktueller_tag_suche in oz_dict:
+                    oz_heute = oz_dict[aktueller_tag_suche]
+                    if not oz_heute.geschlossen and oz_heute.von and oz_heute.bis:
+                        if oz_heute.von <= aktuelle_zeit_suche <= oz_heute.bis:
+                            oeffnungsstatus = 'geoeffnet'
+                        else:
+                            oeffnungsstatus = 'geschlossen'
+                    else:
+                        oeffnungsstatus = 'geschlossen'
+                else:
+                    oeffnungsstatus = 'geschlossen'
+            
             alle_praxen.append({
                 'id': praxis.id,
                 'name': praxis.name,
@@ -578,7 +642,8 @@ def suche():
                 'bewertung_avg': bew['avg'],
                 'bewertung_anzahl': bew['anzahl'],
                 'google_rating': praxis.google_rating,
-                'google_review_count': praxis.google_review_count or 0
+                'google_review_count': praxis.google_review_count or 0,
+                'oeffnungsstatus': oeffnungsstatus
             })
 
     gefilterte_praxen = []

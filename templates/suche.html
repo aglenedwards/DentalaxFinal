@@ -280,6 +280,18 @@ document.addEventListener('DOMContentLoaded', function() {
                       <span class="badge rounded-pill bg-info text-white me-2 mb-1">Premium</span>
                     {% endif %}
                     
+                    {% if praxis.oeffnungsstatus is defined and praxis.oeffnungsstatus %}
+                      {% if praxis.oeffnungsstatus == 'geoeffnet' %}
+                      <span class="badge rounded-pill me-2 mb-1" style="background-color: rgba(25,135,84,0.1); color: #198754; font-size: 0.7rem;">
+                        <i class="fas fa-circle me-1" style="font-size: 0.4rem; vertical-align: middle;"></i>Geöffnet
+                      </span>
+                      {% else %}
+                      <span class="badge rounded-pill me-2 mb-1" style="background-color: rgba(108,117,125,0.1); color: #6c757d; font-size: 0.7rem;">
+                        <i class="fas fa-circle me-1" style="font-size: 0.4rem; vertical-align: middle;"></i>Geschlossen
+                      </span>
+                      {% endif %}
+                    {% endif %}
+                    
                     {% set has_dentalax = praxis.bewertung_anzahl is defined and praxis.bewertung_anzahl > 0 %}
                     {% set has_google = praxis.google_rating is defined and praxis.google_rating and praxis.google_review_count is defined and praxis.google_review_count > 0 %}
                     
