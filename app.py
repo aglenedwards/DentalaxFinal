@@ -847,6 +847,9 @@ def register():
         session["webseite"] = webseite
         session["email"] = email
         session["marketing"] = marketing
+        
+        from werkzeug.security import generate_password_hash
+        session["passwort_hash"] = generate_password_hash(passwort)
 
         # Duplikatprüfung (CSV + Datenbank) mit Fuzzy-Matching
         import re as re_mod
@@ -1056,7 +1059,6 @@ def register():
 @app.route("/claim", methods=["POST"])
 def claim():
     from flask_login import login_user
-    from werkzeug.security import generate_password_hash
     import secrets
     from datetime import timedelta
     
@@ -1069,21 +1071,12 @@ def claim():
     email = session.get("email", "")
     telefon = session.get("telefon", "")
     webseite = session.get("webseite", "")
-    marketing = request.form.get("marketing", "off")
-    passwort = request.form.get("passwort", "")
-    passwort_bestaetigen = request.form.get("passwort_bestaetigen", "")
+    marketing = session.get("marketing", "nein")
+    passwort_hash = session.get("passwort_hash", "")
     
-    if not email or not praxisname:
+    if not email or not praxisname or not passwort_hash:
         flash("Sitzung abgelaufen. Bitte starten Sie die Registrierung erneut.", "danger")
         return redirect("/register")
-    
-    if not passwort or len(passwort) < 6:
-        flash("Bitte geben Sie ein Passwort mit mindestens 6 Zeichen ein.", "danger")
-        return redirect(f"/register?plz={plz}&stadt={stadt}&strasse={strasse}")
-    
-    if passwort != passwort_bestaetigen:
-        flash("Die Passwörter stimmen nicht überein.", "danger")
-        return redirect(f"/register?plz={plz}&stadt={stadt}&strasse={strasse}")
     
     if Zahnarzt.query.filter_by(email=email).first():
         flash("Diese E-Mail-Adresse ist bereits registriert. Bitte melden Sie sich an.", "danger")
@@ -1150,8 +1143,6 @@ def claim():
         
         flash("Diese Praxis wurde bereits beansprucht. Ihre Anfrage wird von unserem Team geprüft. Sie erhalten eine E-Mail, sobald die Prüfung abgeschlossen ist.", "warning")
         return redirect("/")
-    
-    passwort_hash = generate_password_hash(passwort)
     
     zahnarzt = Zahnarzt(
         email=email,

@@ -109,69 +109,23 @@
                 </div>
               </div>
 
-              <div class="d-grid gap-3 mt-4 mb-4">
-                <button id="showClaimFormBtn" class="btn btn-primary btn-lg rounded-pill" onclick="showClaimForm()">
-                  <i class="fas fa-check-circle me-2"></i> Ja, das ist meine Praxis – Eintrag übernehmen
-                </button>
-                <a href="/register" class="btn btn-outline-secondary rounded-pill">
-                  <i class="fas fa-times-circle me-2"></i> Nein, ich möchte eine neue Praxis registrieren
-                </a>
+              <div class="alert alert-light rounded-4 border mb-4">
+                <p class="mb-1 text-secondary"><small><i class="fas fa-user me-1"></i> <strong>Name:</strong> {{ session.get('vorname', '') }} {{ session.get('nachname', '') }}</small></p>
+                <p class="mb-1 text-secondary"><small><i class="fas fa-envelope me-1"></i> <strong>E-Mail:</strong> {{ session.get('email', '') }}</small></p>
+                <p class="mb-0 text-secondary"><small><i class="fas fa-map-marker-alt me-1"></i> <strong>Adresse:</strong> {{ strasse }}, {{ plz }} {{ stadt }}</small></p>
               </div>
-              
-              <div id="claimFormContainer" class="mt-5" style="display: none;">
-                <h3 class="h5 fw-bold mb-4" style="color: var(--dental-dark);">
-                  <i class="fas fa-user-check me-2 text-primary"></i> Praxis übernehmen
-                </h3>
-                
-                <div class="alert alert-light rounded-4 border mb-4">
-                  <p class="mb-1 text-secondary"><small><i class="fas fa-user me-1"></i> <strong>Name:</strong> {{ session.get('vorname', '') }} {{ session.get('nachname', '') }}</small></p>
-                  <p class="mb-0 text-secondary"><small><i class="fas fa-envelope me-1"></i> <strong>E-Mail:</strong> {{ session.get('email', '') }}</small></p>
+
+              <form method="POST" action="/claim">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="d-grid gap-3">
+                  <button type="submit" class="btn btn-primary btn-lg rounded-pill">
+                    <i class="fas fa-check-circle me-2"></i> Ja, das ist meine Praxis – jetzt übernehmen
+                  </button>
+                  <a href="/register" class="btn btn-outline-secondary rounded-pill">
+                    <i class="fas fa-times-circle me-2"></i> Nein, ich möchte eine neue Praxis registrieren
+                  </a>
                 </div>
-
-                <form id="claimForm" method="POST" action="/claim" class="needs-validation" novalidate>
-                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                  
-                  <p class="text-secondary mb-3">Bitte wählen Sie ein Passwort für Ihr Praxis-Konto:</p>
-
-                  <div class="row g-3">
-                    <div class="col-md-6">
-                      <div class="form-floating mb-3">
-                        <input type="password" class="form-control" id="passwort" name="passwort" placeholder="Passwort" required minlength="6">
-                        <label for="passwort">Passwort</label>
-                        <div class="invalid-feedback">Bitte geben Sie ein Passwort ein (mind. 6 Zeichen).</div>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-floating mb-3">
-                        <input type="password" class="form-control" id="passwort_bestaetigen" name="passwort_bestaetigen" placeholder="Passwort bestätigen" required>
-                        <label for="passwort_bestaetigen">Passwort bestätigen</label>
-                        <div class="invalid-feedback">Die Passwörter stimmen nicht überein.</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="mb-4 form-check">
-                    <input type="checkbox" class="form-check-input" id="datenschutz" name="datenschutz" required>
-                    <label class="form-check-label" for="datenschutz">
-                      Ich habe die <a href="/datenschutz" target="_blank">Datenschutzerklärung</a> und <a href="/agb" target="_blank">AGB</a> gelesen und stimme diesen zu.
-                    </label>
-                    <div class="invalid-feedback">Sie müssen den Datenschutzbestimmungen und AGB zustimmen, um fortzufahren.</div>
-                  </div>
-                  
-                  <div class="mb-5 form-check">
-                    <input type="checkbox" class="form-check-input" id="marketing" name="marketing">
-                    <label class="form-check-label" for="marketing">
-                      Ich möchte Neuigkeiten und spezielle Angebote für Zahnärzte per E-Mail erhalten.
-                    </label>
-                  </div>
-
-                  <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary btn-lg rounded-pill">
-                      <i class="fas fa-check-circle me-2"></i> Praxis übernehmen & Dashboard öffnen
-                    </button>
-                  </div>
-                </form>
-              </div>
+              </form>
               
             {% endif %}
             
@@ -204,16 +158,6 @@
 </section>
 
 <script>
-  function showClaimForm() {
-    document.getElementById('showClaimFormBtn').style.display = 'none';
-    document.getElementById('claimFormContainer').style.display = 'block';
-    
-    document.getElementById('claimFormContainer').scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    });
-  }
-  
   document.addEventListener('DOMContentLoaded', function() {
     if (typeof AOS !== 'undefined') {
       AOS.init({
@@ -221,29 +165,6 @@
         once: true
       });
     }
-    
-    var forms = document.querySelectorAll('.needs-validation');
-    Array.prototype.slice.call(forms).forEach(function(form) {
-      form.addEventListener('submit', function(event) {
-        if (!form.checkValidity()) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-        
-        const passwort = document.getElementById('passwort');
-        const passwortBestaetigen = document.getElementById('passwort_bestaetigen');
-        
-        if (passwort && passwortBestaetigen && passwort.value !== passwortBestaetigen.value) {
-          passwortBestaetigen.setCustomValidity('Die Passwörter stimmen nicht überein');
-          event.preventDefault();
-          event.stopPropagation();
-        } else if (passwortBestaetigen) {
-          passwortBestaetigen.setCustomValidity('');
-        }
-        
-        form.classList.add('was-validated');
-      }, false);
-    });
   });
 </script>
 {% endblock %}
