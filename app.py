@@ -5374,7 +5374,7 @@ def dashboard_hero_speichern():
     
     db.session.commit()
     flash('Hero-Bereich erfolgreich aktualisiert!', 'success')
-    return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
+    return redirect(url_for('zahnarzt_dashboard', page='landingpage', section='collapseHeader'))
 
 
 @app.route("/dashboard/portrait", methods=["POST"])
@@ -5411,7 +5411,7 @@ def dashboard_portrait_speichern():
     
     db.session.commit()
     flash('Portrait erfolgreich aktualisiert!', 'success')
-    return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
+    return redirect(url_for('zahnarzt_dashboard', page='landingpage', section='collapseAbout'))
 
 
 @app.route("/dashboard/logo", methods=["POST"])
@@ -5448,7 +5448,7 @@ def dashboard_logo_speichern():
     
     db.session.commit()
     flash('Logo erfolgreich aktualisiert!', 'success')
-    return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
+    return redirect(url_for('zahnarzt_dashboard', page='landingpage', section='collapseHeader'))
 
 
 @app.route("/dashboard/ueber-uns-bild", methods=["POST"])
@@ -5484,7 +5484,7 @@ def dashboard_ueber_uns_bild_speichern():
     
     db.session.commit()
     flash('Praxisbild erfolgreich aktualisiert!', 'success')
-    return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
+    return redirect(url_for('zahnarzt_dashboard', page='landingpage', section='collapseAbout'))
 
 
 @app.route("/dashboard/oeffnungszeiten", methods=["POST"])
@@ -5545,7 +5545,7 @@ def dashboard_oeffnungszeiten_speichern():
     
     db.session.commit()
     flash('Öffnungszeiten erfolgreich gespeichert!', 'success')
-    return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
+    return redirect(url_for('zahnarzt_dashboard', page='landingpage', section='collapseHours'))
 
 
 @app.route("/dashboard/dental-match", methods=["POST"])
@@ -5570,7 +5570,7 @@ def dashboard_dental_match_speichern():
     
     db.session.commit()
     flash('Dental Match Einstellungen erfolgreich gespeichert!', 'success')
-    return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
+    return redirect(url_for('zahnarzt_dashboard', page='landingpage', section='collapseDentalMatch'))
 
 
 @app.route("/dashboard/leistung", methods=["POST"])
@@ -5593,7 +5593,7 @@ def dashboard_leistung_speichern():
     
     if not titel:
         flash('Bitte geben Sie einen Titel für die Leistung ein.', 'warning')
-        return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
+        return redirect(url_for('zahnarzt_dashboard', page='landingpage', section='collapseServices'))
     
     if leistung_id:
         leistung = Leistung.query.get(leistung_id)
@@ -5612,7 +5612,7 @@ def dashboard_leistung_speichern():
     
     db.session.commit()
     flash('Leistung erfolgreich gespeichert!', 'success')
-    return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
+    return redirect(url_for('zahnarzt_dashboard', page='landingpage', section='collapseServices'))
 
 
 @app.route("/dashboard/leistungen-kacheln", methods=["POST"])
@@ -5662,7 +5662,7 @@ def dashboard_leistungen_kacheln_speichern():
     
     db.session.commit()
     flash('Leistungsschwerpunkte erfolgreich gespeichert!', 'success')
-    return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
+    return redirect(url_for('zahnarzt_dashboard', page='landingpage', section='collapseServices'))
 
 
 @app.route("/dashboard/leistung/loeschen/<int:leistung_id>", methods=["POST"])
@@ -5681,7 +5681,7 @@ def dashboard_leistung_loeschen(leistung_id):
     else:
         flash('Leistung nicht gefunden.', 'danger')
     
-    return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
+    return redirect(url_for('zahnarzt_dashboard', page='landingpage', section='collapseServices'))
 
 
 @app.route("/dashboard/teammitglied", methods=["POST"])
@@ -5707,7 +5707,7 @@ def dashboard_teammitglied_speichern():
     
     if not name:
         flash('Bitte geben Sie einen Namen ein.', 'warning')
-        return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
+        return redirect(url_for('zahnarzt_dashboard', page='landingpage', section='collapseTeam'))
     
     bild_pfad = None
     if 'bild' in request.files:
@@ -5745,7 +5745,7 @@ def dashboard_teammitglied_speichern():
     
     db.session.commit()
     flash('Teammitglied erfolgreich gespeichert!', 'success')
-    return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
+    return redirect(url_for('zahnarzt_dashboard', page='landingpage', section='collapseTeam'))
 
 
 @app.route("/dashboard/teammitglied/loeschen/<int:mitglied_id>", methods=["POST"])
@@ -5764,7 +5764,7 @@ def dashboard_teammitglied_loeschen(mitglied_id):
     else:
         flash('Teammitglied nicht gefunden.', 'danger')
     
-    return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
+    return redirect(url_for('zahnarzt_dashboard', page='landingpage', section='collapseTeam'))
 
 
 @app.route("/dashboard/terminbuchung", methods=["POST"])
@@ -5858,7 +5858,7 @@ def dashboard_farbschema_speichern():
     else:
         flash('Ungültiges Farbschema.', 'danger')
     
-    return redirect(url_for('zahnarzt_dashboard', page='landingpage'))
+    return redirect(url_for('zahnarzt_dashboard', page='landingpage', section='collapseHeader'))
 
 
 @app.route("/zahnarzt/vorschau/<slug>")

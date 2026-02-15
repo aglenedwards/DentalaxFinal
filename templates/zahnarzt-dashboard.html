@@ -2830,5 +2830,36 @@ async function generateAIText(textType, targetFieldId) {
   btn.disabled = false;
   btn.innerHTML = originalBtnHtml;
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  var params = new URLSearchParams(window.location.search);
+  var section = params.get('section');
+  if (section) {
+    var accordion = document.getElementById('landingpageAccordion');
+    if (accordion) {
+      var allPanels = accordion.querySelectorAll('.accordion-collapse');
+      allPanels.forEach(function(panel) {
+        panel.classList.remove('show');
+        var btn = panel.previousElementSibling ? panel.previousElementSibling.querySelector('.accordion-button') : null;
+        if (btn) {
+          btn.classList.add('collapsed');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+      var targetPanel = document.getElementById(section);
+      if (targetPanel) {
+        targetPanel.classList.add('show');
+        var targetBtn = targetPanel.previousElementSibling ? targetPanel.previousElementSibling.querySelector('.accordion-button') : null;
+        if (targetBtn) {
+          targetBtn.classList.remove('collapsed');
+          targetBtn.setAttribute('aria-expanded', 'true');
+        }
+        setTimeout(function() {
+          targetPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 200);
+      }
+    }
+  }
+});
 </script>
 {% endblock %}

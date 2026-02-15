@@ -247,6 +247,24 @@
   </div>
 </nav>
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="container-fluid" style="position: fixed; top: 70px; z-index: 1050; left: 0; right: 0;">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10 px-3">
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-triangle{% elif category == 'warning' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endwith %}
+
 {% set hero_image_url = hero_bild.pfad if hero_bild else url_for('static', filename='images/Demo Hero Image.jpg') %}
 {% if praxis.farbschema == 'gruen' %}
   {% set gradient_color1 = 'rgba(40, 167, 69, 0.7)' %}
@@ -872,22 +890,6 @@
     </div>
     {% endif %}
     
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="row justify-content-center mt-4">
-      <div class="col-lg-8">
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
-          <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-triangle{% elif category == 'warning' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-    {% endif %}
-    {% endwith %}
-
     <div class="text-center mt-4">
       <button class="btn btn-outline-primary rounded-pill" type="button" data-bs-toggle="collapse" data-bs-target="#bewertungFormular" aria-expanded="false">
         <i class="fas fa-pen me-2"></i> Ihre Erfahrung teilen
@@ -963,22 +965,6 @@
       </div>
     </div>
     
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="row justify-content-center mb-3">
-      <div class="col-lg-8">
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
-          <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-triangle{% elif category == 'warning' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-    {% endif %}
-    {% endwith %}
-
     <div class="row justify-content-center">
       <div class="col-lg-8">
         <div class="card border-0 shadow-sm">
