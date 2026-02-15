@@ -5894,6 +5894,13 @@ def dashboard_veroeffentlichen():
         db.session.commit()
         flash('Ihre Landingpage wurde offline genommen.', 'info')
     else:
+        from models import Verfuegbarkeit
+        if praxis.terminbuchung_modus == 'kalender':
+            verfuegbarkeiten = Verfuegbarkeit.query.filter_by(praxis_id=praxis.id, aktiv=True).count()
+            if verfuegbarkeiten == 0:
+                skip = request.form.get('skip_warning')
+                if not skip:
+                    return redirect(url_for('zahnarzt_dashboard', page='landingpage', show_publish_warning='1'))
         praxis.landingpage_aktiv = True
         db.session.commit()
         flash(f'Ihre Landingpage ist jetzt live unter: /zahnarzt/{praxis.slug}', 'success')

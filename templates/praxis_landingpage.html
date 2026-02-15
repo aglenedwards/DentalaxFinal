@@ -605,25 +605,27 @@
       </div>
     </div>
     
-    <div class="row g-5 justify-content-center">
+    <div class="row g-4 justify-content-center">
       {% set team_count = team_mitglieder|length %}
       {% if team_count == 1 %}
         {% set team_col = 'col-md-8 col-lg-6 mx-auto' %}
       {% elif team_count == 2 %}
         {% set team_col = 'col-md-6' %}
-      {% elif team_count == 4 %}
-        {% set team_col = 'col-md-6 col-lg-3' %}
+      {% elif team_count == 3 %}
+        {% set team_col = 'col-md-4' %}
       {% else %}
-        {% set team_col = 'col-md-6 col-lg-4' %}
+        {% set team_col = 'col-md-6' %}
       {% endif %}
       {% for mitglied in team_mitglieder %}
         <div class="{{ team_col }}">
           <div class="card border-0 shadow-sm h-100 hover-lift overflow-hidden">
             <div class="position-relative">
               {% if mitglied.bild_pfad %}
-                <img src="{{ mitglied.bild_pfad }}" alt="{{ mitglied.name }}" class="card-img-top" style="height: 220px; object-fit: cover;">
+                <div style="width: 100%; height: 280px; overflow: hidden;">
+                  <img src="{{ mitglied.bild_pfad }}" alt="{{ mitglied.name }}" class="card-img-top" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;">
+                </div>
               {% else %}
-                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 220px;">
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 280px;">
                   <i class="fas fa-user-md text-primary" style="font-size: 5rem;"></i>
                 </div>
               {% endif %}

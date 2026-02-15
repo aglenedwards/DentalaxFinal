@@ -569,10 +569,35 @@
                 <div>Ihre Landingpage ist live unter: <a href="{{ url_for('praxis_landingpage', slug=praxis.slug) }}" target="_blank"><strong>/zahnarzt/{{ praxis.slug }}</strong></a></div>
               </div>
               {% else %}
+              {% if request.args.get('show_publish_warning') %}
+              <div class="alert alert-warning" role="alert">
+                <div class="d-flex align-items-start">
+                  <i class="fas fa-exclamation-triangle me-2 mt-1"></i>
+                  <div class="flex-grow-1">
+                    <strong>Verfügbarkeiten fehlen</strong>
+                    <p class="mb-2 small">Sie haben den Dentalax-Kalender als Buchungsmodus gewählt, aber noch keine Verfügbarkeiten eingerichtet. Patienten können so keine Termine über den Kalender buchen.</p>
+                    <div class="d-flex gap-2 flex-wrap">
+                      <a href="/zahnarzt-dashboard?page=termine" class="btn btn-sm btn-primary">
+                        <i class="fas fa-clock me-1"></i>Verfügbarkeiten einrichten
+                      </a>
+                      <form action="/dashboard/veroeffentlichen" method="post" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="aktion" value="aktivieren">
+                        <input type="hidden" name="skip_warning" value="1">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">
+                          <i class="fas fa-forward me-1"></i>Trotzdem veröffentlichen
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% else %}
               <div class="alert alert-warning d-flex align-items-center" role="alert">
                 <i class="fas fa-info-circle me-2"></i>
                 <div>Ihre Landingpage ist derzeit <strong>nicht veröffentlicht</strong>. Schalten Sie den Toggle oben auf "Live", um sie für Patienten sichtbar zu machen.</div>
               </div>
+              {% endif %}
               {% endif %}
               
               <!-- Accordion für die Sektionen -->
@@ -1169,42 +1194,6 @@
                   </div>
                 </div>
                 
-                <!-- Kontakt Sektion -->
-                <div class="accordion-item border-0 shadow-sm mb-3">
-                  <h2 class="accordion-header" id="headingContact">
-                    <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseContact" aria-expanded="false" aria-controls="collapseContact">
-                      <i class="fas fa-map-marker-alt me-2 text-primary"></i> Kontakt & Anfahrt
-                    </button>
-                  </h2>
-                  <div id="collapseContact" class="accordion-collapse collapse" aria-labelledby="headingContact" data-bs-parent="#landingpageAccordion">
-                    <div class="accordion-body">
-                      <div class="row">
-                        <div class="col-md-6">
-                          <div class="mb-3">
-                            <label for="contactForm" class="form-label">Kontaktformular aktivieren</label>
-                            <div class="form-check form-switch">
-                              <input class="form-check-input" type="checkbox" id="contactForm" checked>
-                              <label class="form-check-label" for="contactForm">Formular anzeigen</label>
-                            </div>
-                          </div>
-                          <div class="mb-3">
-                            <label for="contactMap" class="form-label">Karte anzeigen</label>
-                            <div class="form-check form-switch">
-                              <input class="form-check-input" type="checkbox" id="contactMap" checked>
-                              <label class="form-check-label" for="contactMap">Google Maps einbinden</label>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="alert alert-info p-3 mb-0">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <small>Die Kontaktdaten werden aus Ihren <strong>Praxisdaten</strong> übernommen. Ändern Sie diese dort, um sie auf der Landingpage zu aktualisieren.</small>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
                 
               </div>
               
