@@ -102,6 +102,17 @@
 
 .leistung-tile .card-title {
     color: #333;
+    word-break: break-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    line-height: 1.3;
+    font-size: 0.8rem;
+}
+
+@media (min-width: 768px) {
+    .leistung-tile .card-title {
+        font-size: 0.875rem;
+    }
 }
 
 .leistung-tile.selected .card-title {
