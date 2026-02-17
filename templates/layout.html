@@ -431,5 +431,40 @@
     });
   </script>
 
+  <div id="cookie-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999; background:#fff; border-top:1px solid #dee2e6; box-shadow:0 -4px 20px rgba(0,0,0,0.1); padding:1rem 0;">
+    <div class="container">
+      <div class="row align-items-center g-3">
+        <div class="col-lg-8">
+          <p class="mb-0" style="font-size:0.9rem; color:#333;">
+            <i class="fas fa-cookie-bite me-2" style="color:#35bfd6;"></i>
+            Diese Website verwendet technisch notwendige Cookies, um den Betrieb sicherzustellen (z. B. Login-Sessions). Zusätzlich setzen wir Drittanbieter-Dienste ein (Google Maps, Stripe). Weitere Informationen finden Sie in unserer
+            <a href="/datenschutz" style="color:#2a8294; text-decoration:underline;">Datenschutzerklärung</a>.
+          </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+          <button onclick="acceptCookies()" class="btn btn-sm px-4 me-2" style="background:linear-gradient(135deg,#35bfd6,#2a8294); color:#fff; border:none; border-radius:50px;">Alle akzeptieren</button>
+          <button onclick="acceptEssentialOnly()" class="btn btn-sm btn-outline-secondary px-4" style="border-radius:50px;">Nur notwendige</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var consent = localStorage.getItem('cookie_consent');
+      if (!consent) {
+        document.getElementById('cookie-banner').style.display = 'block';
+      }
+    })();
+    function acceptCookies() {
+      localStorage.setItem('cookie_consent', 'all');
+      document.getElementById('cookie-banner').style.display = 'none';
+    }
+    function acceptEssentialOnly() {
+      localStorage.setItem('cookie_consent', 'essential');
+      document.getElementById('cookie-banner').style.display = 'none';
+    }
+  </script>
+
 </body>
 </html>

@@ -3375,6 +3375,14 @@ def fuer_zahnaerzte():
 def datenschutz():
     return render_template("datenschutz.html")
 
+@app.route("/impressum")
+def impressum():
+    return render_template("impressum.html")
+
+@app.route("/agb")
+def agb():
+    return render_template("agb.html")
+
 @app.route("/praxis/<slug>/bewertung", methods=["POST"])
 def bewertung_abgeben(slug):
     import secrets as secrets_mod
