@@ -89,6 +89,23 @@ with app.app_context():
         db.session.rollback()
         print(f"⚠️ Demo-Migration übersprungen: {e}")
 
+    # Einmalige Bereinigung verwaister Zahnarzt-Accounts (praxis_id IS NULL)
+    # Läuft beim Start und bereinigt Accounts die nach dem Löschen einer Praxis übrig geblieben sind
+    try:
+        from models import Zahnarzt, Praxis
+        verwaiste = Zahnarzt.query.filter(Zahnarzt.praxis_id == None).all()
+        if verwaiste:
+            print(f"🧹 Startup-Bereinigung: {len(verwaiste)} verwaiste Zahnarzt-Account(s) werden gelöscht...")
+            for za in verwaiste:
+                Praxis.query.filter_by(zahnarzt_id=za.id).update({'zahnarzt_id': None})
+                db.session.flush()
+                db.session.delete(za)
+            db.session.commit()
+            print(f"✅ {len(verwaiste)} verwaiste(r) Zahnarzt-Account(s) bereinigt.")
+    except Exception as e:
+        db.session.rollback()
+        print(f"⚠️ Startup-Bereinigung verwaister Accounts übersprungen: {e}")
+
     # Neue Routen importieren
     try:
         from db_praxis_route import *

@@ -2444,16 +2444,25 @@ def admin_praxis_loeschen(praxis_id):
         # Claims für diese Praxis
         Claim.query.filter_by(praxis_id=praxis_id).delete()
         
-        # Zirkuläre FK-Referenz auflösen: praxis.zahnarzt_id → zahnarzt.id
-        # Muss VOR dem Löschen der Zahnarzt-Accounts passieren, sonst FK-Verletzung
+        # Zahnarzt-Accounts löschen: beide Verlinkungspfade berücksichtigen
+        # Pfad A: Praxis.zahnarzt_id → zahnarzt.id (direkte Inhaberschaft)
+        # Pfad B: zahnarzt.praxis_id → praxis.id (umgekehrte Verlinkung)
+        zahnarzt_ids_zu_loeschen = set()
+        if praxis.zahnarzt_id:
+            zahnarzt_ids_zu_loeschen.add(praxis.zahnarzt_id)
+        for za in Zahnarzt.query.filter_by(praxis_id=praxis_id).all():
+            zahnarzt_ids_zu_loeschen.add(za.id)
+
+        # Zirkuläre FK-Referenz auflösen BEVOR wir Zahnarzt-Accounts löschen
         if praxis.zahnarzt_id:
             praxis.zahnarzt_id = None
             db.session.flush()
 
-        # Zahnarzt-Account(s) löschen die über praxis_id auf diese Praxis zeigen
-        zahnaerzte_verknuepft = Zahnarzt.query.filter_by(praxis_id=praxis_id).all()
-        for za in zahnaerzte_verknuepft:
-            db.session.delete(za)
+        # Zahnarzt-Accounts aus beiden Pfaden löschen
+        for za_id in zahnarzt_ids_zu_loeschen:
+            za = Zahnarzt.query.get(za_id)
+            if za:
+                db.session.delete(za)
 
         # Praxis selbst löschen
         db.session.delete(praxis)
