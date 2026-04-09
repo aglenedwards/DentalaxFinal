@@ -89,22 +89,24 @@ with app.app_context():
         db.session.rollback()
         print(f"⚠️ Demo-Migration übersprungen: {e}")
 
-    # Einmalige Bereinigung verwaister Zahnarzt-Accounts (praxis_id IS NULL)
-    # Läuft beim Start und bereinigt Accounts die nach dem Löschen einer Praxis übrig geblieben sind
+    # Startup-Bereinigung echter Orphans (sicherer Check über BEIDE Verlinkungspfade)
+    # Echte Orphans: praxis_id IS NULL UND keine Praxis hat zahnarzt_id auf diesen Account gesetzt
+    # Accounts die via Praxis.zahnarzt_id verlinkt sind werden NICHT gelöscht
     try:
         from models import Zahnarzt, Praxis
-        verwaiste = Zahnarzt.query.filter(Zahnarzt.praxis_id == None).all()
+        kandidaten = Zahnarzt.query.filter(Zahnarzt.praxis_id == None).all()
+        verwaiste = [za for za in kandidaten if Praxis.query.filter_by(zahnarzt_id=za.id).first() is None]
         if verwaiste:
-            print(f"🧹 Startup-Bereinigung: {len(verwaiste)} verwaiste Zahnarzt-Account(s) werden gelöscht...")
+            print(f"🧹 Startup-Bereinigung: {len(verwaiste)} echte Orphan-Account(s) werden gelöscht...")
             for za in verwaiste:
-                Praxis.query.filter_by(zahnarzt_id=za.id).update({'zahnarzt_id': None})
-                db.session.flush()
                 db.session.delete(za)
             db.session.commit()
-            print(f"✅ {len(verwaiste)} verwaiste(r) Zahnarzt-Account(s) bereinigt.")
+            print(f"✅ {len(verwaiste)} Orphan-Account(s) bereinigt.")
+        else:
+            print("✅ Keine Orphan-Accounts gefunden.")
     except Exception as e:
         db.session.rollback()
-        print(f"⚠️ Startup-Bereinigung verwaister Accounts übersprungen: {e}")
+        print(f"⚠️ Startup-Bereinigung übersprungen: {e}")
 
     # Neue Routen importieren
     try:

@@ -2476,6 +2476,30 @@ def admin_praxis_loeschen(praxis_id):
     return redirect("/admin/praxen")
 
 
+def _zahnarzt_ist_verwaist(zahnarzt_id):
+    """Prüft ob ein Zahnarzt-Account wirklich verwaist ist:
+    keine praxis_id gesetzt UND keine Praxis referenziert diesen Account via zahnarzt_id.
+    """
+    za = Zahnarzt.query.get(zahnarzt_id)
+    if not za:
+        return False
+    if za.praxis_id is not None:
+        return False
+    return Praxis.query.filter_by(zahnarzt_id=zahnarzt_id).first() is None
+
+
+def _lade_praxis_fuer_zahnarzt(za):
+    """Löst die verknüpfte Praxis über beide FK-Pfade auf:
+    1. Zahnarzt.praxis_id → Praxis.id
+    2. Praxis.zahnarzt_id → Zahnarzt.id
+    """
+    if za.praxis_id:
+        praxis = Praxis.query.get(za.praxis_id)
+        if praxis:
+            return praxis
+    return Praxis.query.filter_by(zahnarzt_id=za.id).first()
+
+
 @app.route("/admin/zahnaerzte")
 @admin_required
 def admin_zahnaerzte():
@@ -2483,34 +2507,37 @@ def admin_zahnaerzte():
     filter_param = request.args.get("filter", "all")
     suche = request.args.get("suche", "").strip()
 
-    query = Zahnarzt.query
-
+    alle = Zahnarzt.query
     if suche:
-        query = query.filter(
+        alle = alle.filter(
             db.or_(
                 Zahnarzt.email.ilike(f"%{suche}%"),
                 Zahnarzt.vorname.ilike(f"%{suche}%"),
                 Zahnarzt.nachname.ilike(f"%{suche}%"),
             )
         )
+    alle_zahnaerzte = alle.order_by(Zahnarzt.registration_date.desc()).all()
 
-    if filter_param == "ohne_praxis":
-        query = query.filter(Zahnarzt.praxis_id == None)
-    elif filter_param == "mit_praxis":
-        query = query.filter(Zahnarzt.praxis_id != None)
-
-    zahnaerzte = query.order_by(Zahnarzt.registration_date.desc()).all()
-
-    # Praxis-Daten für jeden Account laden
+    # Praxis über beide Pfade auflösen
     praxis_map = {}
-    for za in zahnaerzte:
-        if za.praxis_id:
-            praxis_map[za.id] = Praxis.query.get(za.praxis_id)
+    for za in alle_zahnaerzte:
+        praxis_map[za.id] = _lade_praxis_fuer_zahnarzt(za)
 
+    # Filter anwenden (nach Praxis-Auflösung)
+    if filter_param == "ohne_praxis":
+        zahnaerzte = [za for za in alle_zahnaerzte if praxis_map.get(za.id) is None]
+    elif filter_param == "mit_praxis":
+        zahnaerzte = [za for za in alle_zahnaerzte if praxis_map.get(za.id) is not None]
+    else:
+        zahnaerzte = alle_zahnaerzte
+
+    # Zähler: verwaist = kein Praxis über beide Pfade erreichbar
+    alle_ungefiltert = Zahnarzt.query.all()
+    praxis_map_alle = {za.id: _lade_praxis_fuer_zahnarzt(za) for za in alle_ungefiltert}
     counts = {
-        "all": Zahnarzt.query.count(),
-        "ohne_praxis": Zahnarzt.query.filter(Zahnarzt.praxis_id == None).count(),
-        "mit_praxis": Zahnarzt.query.filter(Zahnarzt.praxis_id != None).count(),
+        "all": len(alle_ungefiltert),
+        "ohne_praxis": sum(1 for za in alle_ungefiltert if praxis_map_alle.get(za.id) is None),
+        "mit_praxis": sum(1 for za in alle_ungefiltert if praxis_map_alle.get(za.id) is not None),
     }
 
     return render_template(
@@ -2527,16 +2554,15 @@ def admin_zahnaerzte():
 @app.route("/admin/zahnaerzte/verwaiste-bereinigen", methods=["POST"])
 @admin_required
 def admin_zahnaerzte_verwaiste_bereinigen():
-    """Löscht alle Zahnarzt-Accounts ohne verknüpfte Praxis (praxis_id IS NULL).
-    Einmalige Bereinigung, kann jederzeit erneut aufgerufen werden.
+    """Löscht nur echte Orphans: kein praxis_id UND keine Praxis referenziert diesen Account.
+    Accounts die über Praxis.zahnarzt_id verlinkt sind werden NICHT gelöscht.
     """
     try:
-        verwaiste = Zahnarzt.query.filter(Zahnarzt.praxis_id == None).all()
+        alle = Zahnarzt.query.filter(Zahnarzt.praxis_id == None).all()
+        # Nur echte Orphans: auch kein Praxis.zahnarzt_id zeigt auf diesen Account
+        verwaiste = [za for za in alle if Praxis.query.filter_by(zahnarzt_id=za.id).first() is None]
         anzahl = len(verwaiste)
         for za in verwaiste:
-            # Praxis.zahnarzt_id Rückreferenz entfernen (falls vorhanden)
-            Praxis.query.filter_by(zahnarzt_id=za.id).update({'zahnarzt_id': None})
-            db.session.flush()
             db.session.delete(za)
         db.session.commit()
         if anzahl > 0:
