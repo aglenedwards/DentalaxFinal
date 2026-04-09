@@ -2551,8 +2551,9 @@ def admin_login():
         benutzer = request.form["benutzer"]
         passwort = request.form["passwort"]
 
-        # ⚠️ Einfaches Passwort für Demo-Zwecke!
-        if benutzer == "admin" and passwort == "geheim123":
+        admin_user = os.environ.get("ADMIN_USERNAME", "admin")
+        admin_pass = os.environ.get("ADMIN_PASSWORD", "geheim123")
+        if benutzer == admin_user and passwort == admin_pass:
             session["admin_eingeloggt"] = True
             flash("Erfolgreich eingeloggt.", "success")
             return redirect("/admin/dashboard")
