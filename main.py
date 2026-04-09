@@ -51,6 +51,14 @@ with app.app_context():
     from models import *
     db.create_all()
 
+    # Schema-Migration: fehlende Spalten hinzufügen (produktionssicher)
+    try:
+        db.session.execute(db.text('ALTER TABLE praxis ADD COLUMN IF NOT EXISTS ist_demo BOOLEAN DEFAULT FALSE'))
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"⚠️ Schema-Migration ist_demo übersprungen: {e}")
+
     # Demo-Praxen als Demo markieren + Slug korrigieren (einmalige Migration)
     try:
         from models import Praxis
