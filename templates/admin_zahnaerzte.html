@@ -1,0 +1,180 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Zahnarzt-Accounts{% endblock %}
+{% block page_title %}Zahnarzt-Accounts{% endblock %}
+
+{% block header_actions %}
+<form method="GET" action="/admin/zahnaerzte" class="d-flex gap-2">
+  <input type="hidden" name="filter" value="{{ filter }}">
+  <div class="search-box" style="position:relative;">
+    <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#aaa;"></i>
+    <input type="text" name="suche" class="form-control ps-4"
+           placeholder="Name oder E-Mail suchen..."
+           value="{{ suche }}"
+           style="padding-left:2rem;min-width:260px;">
+  </div>
+  <button type="submit" class="btn btn-primary btn-sm">Suchen</button>
+  {% if suche %}
+  <a href="/admin/zahnaerzte?filter={{ filter }}" class="btn btn-outline-secondary btn-sm">Zurücksetzen</a>
+  {% endif %}
+</form>
+{% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+  <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show mb-3">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+{% endwith %}
+
+<div class="filter-tabs mb-3">
+  <a href="?filter=all{% if suche %}&suche={{ suche }}{% endif %}"
+     class="filter-tab {{ 'active' if filter == 'all' or not filter else '' }}">
+    Alle <span class="badge bg-secondary ms-1">{{ counts.all }}</span>
+  </a>
+  <a href="?filter=mit_praxis{% if suche %}&suche={{ suche }}{% endif %}"
+     class="filter-tab {{ 'active' if filter == 'mit_praxis' else '' }}">
+    <i class="fas fa-clinic-medical me-1"></i>Mit Praxis
+    <span class="badge bg-success ms-1">{{ counts.mit_praxis }}</span>
+  </a>
+  <a href="?filter=ohne_praxis{% if suche %}&suche={{ suche }}{% endif %}"
+     class="filter-tab {{ 'active' if filter == 'ohne_praxis' else '' }}">
+    <i class="fas fa-unlink me-1"></i>Ohne Praxis
+    {% if counts.ohne_praxis > 0 %}
+    <span class="badge bg-warning text-dark ms-1">{{ counts.ohne_praxis }}</span>
+    {% else %}
+    <span class="badge bg-secondary ms-1">0</span>
+    {% endif %}
+  </a>
+</div>
+
+{% if counts.ohne_praxis > 0 and filter != 'ohne_praxis' %}
+<div class="alert alert-warning d-flex align-items-center mb-3">
+  <i class="fas fa-exclamation-triangle me-2"></i>
+  <span>
+    <strong>{{ counts.ohne_praxis }} verwaiste Account(s)</strong> ohne verknüpfte Praxis gefunden —
+    diese blockieren eine erneute Registrierung mit derselben E-Mail.
+    <a href="?filter=ohne_praxis" class="alert-link ms-1">Jetzt anzeigen</a>
+  </span>
+</div>
+{% endif %}
+
+<div class="data-card">
+  <div class="data-card-body">
+    {% if zahnaerzte %}
+    <table class="table" id="zahnaerzteTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>E-Mail</th>
+          <th>Registriert</th>
+          <th>Verknüpfte Praxis</th>
+          <th>Status</th>
+          <th>Aktionen</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for za in zahnaerzte %}
+        <tr>
+          <td><small class="text-muted">#{{ za.id }}</small></td>
+          <td>
+            <strong>{{ za.vorname or '' }} {{ za.nachname or '' }}</strong>
+          </td>
+          <td>
+            <a href="mailto:{{ za.email }}">{{ za.email }}</a>
+          </td>
+          <td>
+            <small class="text-muted">
+              {{ za.registration_date.strftime('%d.%m.%Y %H:%M') if za.registration_date else '—' }}
+            </small>
+          </td>
+          <td>
+            {% if za.praxis_id and praxis_map.get(za.id) %}
+              {% set praxis = praxis_map[za.id] %}
+              <a href="/admin/praxis/{{ praxis.id }}/bearbeiten" class="text-decoration-none">
+                <i class="fas fa-clinic-medical me-1 text-primary"></i>
+                {{ praxis.name }}
+              </a>
+              <br>
+              <small class="text-muted">{{ praxis.plz }} {{ praxis.stadt }}</small>
+            {% elif za.praxis_id %}
+              <span class="text-muted"><i class="fas fa-question-circle me-1"></i>ID {{ za.praxis_id }} (nicht gefunden)</span>
+            {% else %}
+              <span class="badge bg-warning text-dark">
+                <i class="fas fa-unlink me-1"></i>Keine Praxis
+              </span>
+            {% endif %}
+          </td>
+          <td>
+            {% if za.is_active %}
+              <span class="badge bg-success">Aktiv</span>
+            {% else %}
+              <span class="badge bg-secondary">Inaktiv</span>
+            {% endif %}
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-danger"
+                    onclick="confirmDelete({{ za.id }}, '{{ za.email | e }}')">
+              <i class="fas fa-trash me-1"></i>Löschen
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="fas fa-user-slash fa-3x mb-3 d-block"></i>
+      <p>Keine Zahnarzt-Accounts gefunden{% if suche %} für "{{ suche }}"{% endif %}.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Lösch-Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-exclamation-triangle text-danger me-2"></i>Zahnarzt-Account löschen
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Möchten Sie den Account <strong id="deleteEmail"></strong> wirklich löschen?</p>
+        <p class="text-danger small">
+          <i class="fas fa-warning me-1"></i>
+          Diese Aktion kann nicht rückgängig gemacht werden. Der Login-Zugang wird dauerhaft entfernt.
+          Verknüpfte Praxisdaten bleiben erhalten.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        <form id="deleteForm" method="POST" style="display:inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash me-1"></i>Endgültig löschen
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmDelete(zahnarztId, email) {
+  document.getElementById('deleteEmail').textContent = email;
+  document.getElementById('deleteForm').action = '/admin/zahnarzt/' + zahnarztId + '/loeschen';
+  new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

@@ -417,7 +417,10 @@
           <span class="badge bg-warning text-dark">{{ pending_claims_count }}</span>
         {% endif %}
       </a>
-      
+      <a class="nav-link {{ 'active' if active_page == 'zahnaerzte' else '' }}" href="/admin/zahnaerzte">
+        <i class="fas fa-user-md"></i> Zahnarzt-Accounts
+      </a>
+
       <div class="nav-section">Stellenangebote</div>
       <a class="nav-link {{ 'active' if active_page == 'jobs' else '' }}" href="/admin/stellenangebote">
         <i class="fas fa-briefcase"></i> Alle Jobs

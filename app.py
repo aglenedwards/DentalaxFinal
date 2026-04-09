@@ -2444,8 +2444,10 @@ def admin_praxis_loeschen(praxis_id):
         # Claims für diese Praxis
         Claim.query.filter_by(praxis_id=praxis_id).delete()
         
-        # Zahnarzt-Verknüpfung entfernen (nicht löschen, nur praxis_id auf NULL setzen)
-        Zahnarzt.query.filter_by(praxis_id=praxis_id).update({'praxis_id': None})
+        # Zahnarzt-Account ebenfalls löschen (damit die E-Mail wieder registriert werden kann)
+        zahnaerzte_verknuepft = Zahnarzt.query.filter_by(praxis_id=praxis_id).all()
+        for za in zahnaerzte_verknuepft:
+            db.session.delete(za)
         
         # Praxis selbst löschen
         db.session.delete(praxis)
@@ -2457,6 +2459,76 @@ def admin_praxis_loeschen(praxis_id):
         flash(f"Fehler beim Löschen: {str(e)}", "danger")
     
     return redirect("/admin/praxen")
+
+
+@app.route("/admin/zahnaerzte")
+@admin_required
+def admin_zahnaerzte():
+    """Übersicht aller Zahnarzt-Login-Accounts"""
+    filter_param = request.args.get("filter", "all")
+    suche = request.args.get("suche", "").strip()
+
+    query = Zahnarzt.query
+
+    if suche:
+        query = query.filter(
+            db.or_(
+                Zahnarzt.email.ilike(f"%{suche}%"),
+                Zahnarzt.vorname.ilike(f"%{suche}%"),
+                Zahnarzt.nachname.ilike(f"%{suche}%"),
+            )
+        )
+
+    if filter_param == "ohne_praxis":
+        query = query.filter(Zahnarzt.praxis_id == None)
+    elif filter_param == "mit_praxis":
+        query = query.filter(Zahnarzt.praxis_id != None)
+
+    zahnaerzte = query.order_by(Zahnarzt.registration_date.desc()).all()
+
+    # Praxis-Daten für jeden Account laden
+    praxis_map = {}
+    for za in zahnaerzte:
+        if za.praxis_id:
+            praxis_map[za.id] = Praxis.query.get(za.praxis_id)
+
+    counts = {
+        "all": Zahnarzt.query.count(),
+        "ohne_praxis": Zahnarzt.query.filter(Zahnarzt.praxis_id == None).count(),
+        "mit_praxis": Zahnarzt.query.filter(Zahnarzt.praxis_id != None).count(),
+    }
+
+    return render_template(
+        "admin_zahnaerzte.html",
+        zahnaerzte=zahnaerzte,
+        praxis_map=praxis_map,
+        filter=filter_param,
+        suche=suche,
+        counts=counts,
+        active_page="zahnaerzte",
+    )
+
+
+@app.route("/admin/zahnarzt/<int:zahnarzt_id>/loeschen", methods=["POST"])
+@admin_required
+def admin_zahnarzt_loeschen(zahnarzt_id):
+    """Zahnarzt-Login-Account löschen"""
+    zahnarzt = Zahnarzt.query.get(zahnarzt_id)
+    if not zahnarzt:
+        flash("Zahnarzt-Account nicht gefunden.", "danger")
+        return redirect("/admin/zahnaerzte")
+
+    email = zahnarzt.email
+    try:
+        db.session.delete(zahnarzt)
+        db.session.commit()
+        flash(f"Zahnarzt-Account '{email}' wurde erfolgreich gelöscht.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Fehler beim Löschen: {str(e)}", "danger")
+
+    return redirect("/admin/zahnaerzte")
+
 
 @app.route("/admin/praxis/<int:praxis_id>/bearbeiten", methods=["GET", "POST"])
 @admin_required
