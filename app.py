@@ -2483,18 +2483,6 @@ def admin_praxis_loeschen(praxis_id):
     return redirect("/admin/praxen")
 
 
-def _zahnarzt_ist_verwaist(zahnarzt_id):
-    """Prüft ob ein Zahnarzt-Account wirklich verwaist ist:
-    keine praxis_id gesetzt UND keine Praxis referenziert diesen Account via zahnarzt_id.
-    """
-    za = Zahnarzt.query.get(zahnarzt_id)
-    if not za:
-        return False
-    if za.praxis_id is not None:
-        return False
-    return Praxis.query.filter_by(zahnarzt_id=zahnarzt_id).first() is None
-
-
 def _lade_praxis_fuer_zahnarzt(za):
     """Löst die verknüpfte Praxis über beide FK-Pfade auf:
     1. Zahnarzt.praxis_id → Praxis.id

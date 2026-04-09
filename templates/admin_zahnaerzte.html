@@ -22,15 +22,6 @@
 
 {% block content %}
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% for category, message in messages %}
-  <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show mb-3">
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-  {% endfor %}
-{% endwith %}
-
 <div class="filter-tabs mb-3">
   <a href="?filter=all{% if suche %}&suche={{ suche }}{% endif %}"
      class="filter-tab {{ 'active' if filter == 'all' or not filter else '' }}">
