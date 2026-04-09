@@ -699,8 +699,24 @@ def suche():
         meta_robots=meta_robots
     )
 
+# Modul-Level-Cache für die CSV-Praxen (Speicher sparen: nur 1× laden pro Worker)
+_praxen_cache = {}  # {csv_datei: {"daten": [...], "mtime": float, "ladezeit": float}}
+
 def lade_praxen(csv_datei):
-    """Lädt Praxen aus CSV. csv_id ist immer der Zeilen-Index aus der Originaldatei."""
+    """Lädt Praxen aus CSV mit Modul-Level-Cache (wird nur bei Dateiänderung neu geladen)."""
+    import time
+    global _praxen_cache
+
+    # Cache-Check: Datei-Änderungszeit prüfen
+    try:
+        mtime = os.path.getmtime(csv_datei)
+    except OSError:
+        mtime = 0
+
+    cached = _praxen_cache.get(csv_datei)
+    if cached and cached["mtime"] == mtime:
+        return cached["daten"]
+
     praxen = []
     with open(csv_datei, newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -735,7 +751,8 @@ def lade_praxen(csv_datei):
             except Exception as e:
                 print(f"⚠️ Fehler in Zeile: {row}\nGrund: {e}")
                 continue
-    print(f"{len(praxen)} Praxen geladen")
+    print(f"{len(praxen)} Praxen geladen (mtime={mtime})")
+    _praxen_cache[csv_datei] = {"daten": praxen, "mtime": mtime}
     return praxen
 
 def entfernung_km(lat1, lng1, lat2, lng2):
@@ -982,9 +999,18 @@ def register():
             from flask_login import login_user as flask_login_user
             from werkzeug.security import generate_password_hash
 
-            # Koordinaten ermitteln
+            # Doppelte E-Mail verhindern
+            if Zahnarzt.query.filter_by(email=email).first():
+                flash("Diese E-Mail-Adresse ist bereits registriert. Bitte melden Sie sich an.", "danger")
+                return redirect("/zahnarzt-login")
+
+            # Koordinaten ermitteln (Fehler nicht fatal)
             adresse = f"{strasse}, {plz} {stadt}"
-            lat, lng = get_coordinates_from_address(adresse)
+            try:
+                lat, lng = get_coordinates_from_address(adresse)
+            except Exception as geo_err:
+                print(f"⚠️ Geocoding fehlgeschlagen: {geo_err}")
+                lat, lng = None, None
             print("📍 Neue Koordinaten:", lat, lng)
 
             # Zahnarzt-Account sofort in der DB anlegen
@@ -1037,24 +1063,29 @@ def register():
 
             db.session.commit()
 
-            # zahnaerzte.csv als beansprucht markieren (falls Eintrag vorhanden)
-            csv_datei_aktuell = "zahnaerzte.csv"
-            if os.path.isfile(csv_datei_aktuell):
-                eintraege = []
-                with open(csv_datei_aktuell, newline='', encoding='utf-8') as f:
-                    reader = csv.DictReader(f)
-                    for row in reader:
-                        if (normalize_strasse(row.get("straße", "")) == eingabe_strasse_norm and
-                                row.get("plz", "").strip() == eingabe_plz):
-                            row["beansprucht"] = "ja"
-                            row["email"] = email
-                        eintraege.append(row)
-                if eintraege:
-                    with open(csv_datei_aktuell, "w", newline="", encoding="utf-8") as f:
-                        fieldnames = eintraege[0].keys()
-                        writer = csv.DictWriter(f, fieldnames=fieldnames)
-                        writer.writeheader()
-                        writer.writerows(eintraege)
+            # zahnaerzte.csv als beansprucht markieren (nicht fatal wenn nicht möglich)
+            try:
+                csv_datei_aktuell = "zahnaerzte.csv"
+                if os.path.isfile(csv_datei_aktuell):
+                    eintraege = []
+                    with open(csv_datei_aktuell, newline='', encoding='utf-8') as f:
+                        reader = csv.DictReader(f)
+                        for row in reader:
+                            if (normalize_strasse(row.get("straße", "")) == eingabe_strasse_norm and
+                                    row.get("plz", "").strip() == eingabe_plz):
+                                row["beansprucht"] = "ja"
+                                row["email"] = email
+                            eintraege.append(row)
+                    if eintraege:
+                        with open(csv_datei_aktuell, "w", newline="", encoding="utf-8") as f:
+                            fieldnames = eintraege[0].keys()
+                            writer = csv.DictWriter(f, fieldnames=fieldnames)
+                            writer.writeheader()
+                            writer.writerows(eintraege)
+                    # Cache invalidieren damit die Änderung sichtbar wird
+                    _praxen_cache.pop(csv_datei_aktuell, None)
+            except Exception as csv_err:
+                print(f"⚠️ CSV-Update übersprungen (Dateisystem schreibgeschützt?): {csv_err}")
 
             # User einloggen
             flask_login_user(zahnarzt)
@@ -1259,7 +1290,8 @@ def claim():
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
                 writer.writerows(eintraege)
-    
+            _praxen_cache.pop(datei, None)
+
     login_user(zahnarzt)
     session["angemeldet"] = True
     session["benutzer_typ"] = "zahnarzt"
