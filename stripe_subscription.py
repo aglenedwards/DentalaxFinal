@@ -190,11 +190,15 @@ def create_subscription_checkout(praxis_id, paket, zahlweise):
             }
         )
         
+        # Preis für Buchungsprotokoll ermitteln
+        from config import STRIPE_PREISE_CENT
+        preis_cents = STRIPE_PREISE_CENT.get(paket_key, {}).get(zahlweise_key, 0)
+
         # Buchung in der Datenbank speichern
         neue_buchung = PaketBuchung(
             paket=paket,
             zahlweise=zahlweise,
-            preis=price_cents / 100.0,
+            preis=preis_cents / 100.0,
             zahlungsmethode='stripe_subscription',
             zahlungsstatus='ausstehend',
             stripe_session_id=checkout_session.id,

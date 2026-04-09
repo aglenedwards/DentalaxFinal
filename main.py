@@ -59,6 +59,15 @@ with app.app_context():
         db.session.rollback()
         print(f"⚠️ Schema-Migration ist_demo übersprungen: {e}")
 
+    # Schema-Migration: E-Mail-Verifizierungs-Token für Zahnarzt
+    try:
+        db.session.execute(db.text('ALTER TABLE zahnarzt ADD COLUMN IF NOT EXISTS email_verify_token VARCHAR(100)'))
+        db.session.execute(db.text('ALTER TABLE zahnarzt ADD COLUMN IF NOT EXISTS email_verify_expires TIMESTAMP'))
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"⚠️ Schema-Migration email_verify_token übersprungen: {e}")
+
     # Demo-Praxen als Demo markieren + Slug korrigieren (einmalige Migration)
     try:
         from models import Praxis

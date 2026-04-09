@@ -977,76 +977,116 @@ def register():
                 gefundene_stadt=gefundene_stadt
             )
         else:
+            import secrets
+            from datetime import timedelta
+            from flask_login import login_user as flask_login_user
+            from werkzeug.security import generate_password_hash
+
+            # Koordinaten ermitteln
             adresse = f"{strasse}, {plz} {stadt}"
             lat, lng = get_coordinates_from_address(adresse)
             print("📍 Neue Koordinaten:", lat, lng)
-            
-            # Passwort hashen
-            from werkzeug.security import generate_password_hash
-            passwort_hash = generate_password_hash(passwort)
-            
-            # Bestätigungstoken erstellen
-            import secrets
-            from datetime import timedelta
-            
+
+            # Zahnarzt-Account sofort in der DB anlegen
+            zahnarzt = Zahnarzt(
+                email=email,
+                vorname=vorname,
+                nachname=nachname,
+                password_hash=generate_password_hash(passwort),
+                is_active=True,
+                marketing=(marketing == "on")
+            )
+            db.session.add(zahnarzt)
+            db.session.flush()
+
+            # Slug für die Praxis erstellen
+            praxis_slug = slugify(f"{praxisname}-{stadt}")
+            slug_base = praxis_slug
+            counter = 1
+            while Praxis.query.filter_by(slug=praxis_slug).first():
+                praxis_slug = f"{slug_base}-{counter}"
+                counter += 1
+
+            paket_db = "Basis" if paket.lower() in ["basis", "basic"] else paket.capitalize()
+
+            neue_praxis = Praxis(
+                name=praxisname,
+                slug=praxis_slug,
+                strasse=strasse,
+                plz=plz,
+                stadt=stadt,
+                telefon=telefon,
+                webseite=webseite,
+                email=email,
+                latitude=lat,
+                longitude=lng,
+                zahnarzt_id=zahnarzt.id,
+                ist_verifiziert=True,
+                paket=paket_db,
+                landingpage_aktiv=(paket.lower() in ["premium", "premiumplus"])
+            )
+            db.session.add(neue_praxis)
+            db.session.flush()
+
+            zahnarzt.praxis_id = neue_praxis.id
+
+            # E-Mail-Bestätigungstoken in der DB speichern
             token = secrets.token_urlsafe(32)
-            token_gueltig_bis = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
-            registriert_am = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            zahnarzt.email_verify_token = token
+            zahnarzt.email_verify_expires = datetime.utcnow() + timedelta(hours=24)
 
-            neue_datei = "neue_praxen.csv"
-            existiert = os.path.isfile(neue_datei)
+            db.session.commit()
 
-            with open(neue_datei, "a", newline='', encoding="utf-8") as f:
-                fieldnames = [
-                    "vorname", "nachname", "name", "email", "telefon", "webseite",
-                    "plz", "stadt", "straße", "lat", "lng", "beansprucht", "paket", 
-                    "zahlweise", "registriert_am", "passwort_hash", "bestätigt", 
-                    "bestätigungs_token", "token_gültig_bis", "marketing"
-                ]
-                writer = csv.DictWriter(f, fieldnames=fieldnames)
+            # zahnaerzte.csv als beansprucht markieren (falls Eintrag vorhanden)
+            csv_datei_aktuell = "zahnaerzte.csv"
+            if os.path.isfile(csv_datei_aktuell):
+                eintraege = []
+                with open(csv_datei_aktuell, newline='', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        if (normalize_strasse(row.get("straße", "")) == eingabe_strasse_norm and
+                                row.get("plz", "").strip() == eingabe_plz):
+                            row["beansprucht"] = "ja"
+                            row["email"] = email
+                        eintraege.append(row)
+                if eintraege:
+                    with open(csv_datei_aktuell, "w", newline="", encoding="utf-8") as f:
+                        fieldnames = eintraege[0].keys()
+                        writer = csv.DictWriter(f, fieldnames=fieldnames)
+                        writer.writeheader()
+                        writer.writerows(eintraege)
 
-                if os.stat(neue_datei).st_size == 0:
-                    writer.writeheader()
+            # User einloggen
+            flask_login_user(zahnarzt)
+            session["angemeldet"] = True
+            session["benutzer_typ"] = "zahnarzt"
+            session["benutzer_email"] = email
+            session["email"] = email
+            session["benutzer_vorname"] = vorname
+            session["benutzer_nachname"] = nachname
+            session["praxisname"] = praxisname
+            session["paket"] = paket_db
+            session["zahlweise"] = zahlweise
+            session["praxis_id"] = neue_praxis.id
+            session["zahnarzt_id"] = zahnarzt.id
 
-                writer.writerow({
-                    "vorname": vorname,
-                    "nachname": nachname,
-                    "name": praxisname,
-                    "email": email,
-                    "telefon": telefon,
-                    "webseite": webseite,
-                    "plz": plz,
-                    "stadt": stadt,
-                    "straße": strasse,
-                    "lat": lat,
-                    "lng": lng,
-                    "beansprucht": "ja",
-                    "paket": paket,
-                    "zahlweise": zahlweise,
-                    "registriert_am": registriert_am,
-                    "passwort_hash": passwort_hash,
-                    "bestätigt": "nein",
-                    "bestätigungs_token": token,
-                    "token_gültig_bis": token_gueltig_bis,
-                    "marketing": marketing
-                })
-                
+            # Bestätigungs-E-Mail senden
             bestaetigungs_url = url_for('zahnarzt_bestaetigen', token=token, email=email, _external=True)
+            try:
+                from services.email_service import send_zahnarzt_bestaetigung
+                send_zahnarzt_bestaetigung(email, praxisname, bestaetigungs_url)
+            except Exception as e:
+                print(f"⚠️ Bestätigungs-E-Mail konnte nicht gesendet werden: {e}")
 
-            from services.email_service import send_zahnarzt_bestaetigung
-            send_zahnarzt_bestaetigung(email, praxisname, bestaetigungs_url)
+            print(f"✅ Neuer Account erstellt: {praxisname} ({email}), Praxis-ID: {neue_praxis.id}")
 
-            session["bestaetigungs_url"] = bestaetigungs_url
-
-            # Je nach gewähltem Paket unterschiedliche Weiterleitung
+            # Je nach Paket weiterleiten
             if paket.lower() in ["premium", "premiumplus"]:
-                # Bei kostenpflichtigen Paketen zur Zahlungsseite weiterleiten
-                flash("Vielen Dank für Ihre Registrierung! Bitte schließen Sie den Zahlungsvorgang ab, um die Praxisseite einzurichten.", "success")
+                flash("Willkommen! Bitte schließen Sie jetzt den Zahlungsvorgang ab.", "success")
                 return redirect("/checkout")
             else:
-                # Bei Basis-Paket zur Bestätigungsseite weiterleiten
-                flash("Vielen Dank für Ihre Registrierung! Bitte überprüfen Sie Ihren E-Mail-Eingang, um Ihre Registrierung zu bestätigen.", "success")
-                return redirect("/registrierung-erfolgreich")
+                flash("Willkommen bei Dentalax! Bitte bestätigen Sie Ihre E-Mail-Adresse.", "success")
+                return redirect("/zahnarzt-dashboard")
 
     return render_template("register.html", paket=paket)
 
@@ -1233,6 +1273,10 @@ def claim():
     session["zahnarzt_id"] = zahnarzt.id
     
     token = secrets.token_urlsafe(32)
+    zahnarzt.email_verify_token = token
+    zahnarzt.email_verify_expires = datetime.utcnow() + timedelta(hours=24)
+    db.session.commit()
+
     bestaetigungs_url = url_for('zahnarzt_bestaetigen', token=token, email=email, _external=True)
     
     try:
@@ -1598,48 +1642,70 @@ def praxis_paket_waehlen(claim_id):
 # 🌐 E-Mail-Bestätigung für Zahnärzte
 @app.route("/zahnarzt-bestätigen")
 def zahnarzt_bestaetigen():
+    from flask_login import login_user as flask_login_user
     token = request.args.get("token")
     email = request.args.get("email")
-    
+
     if not token or not email:
         flash("Ungültige Anfrage. Token oder E-Mail fehlt.", "danger")
         return redirect("/")
-    
-    # Überprüfen, ob Token gültig ist
+
+    # Zuerst in der Datenbank suchen (neue Accounts)
+    zahnarzt = Zahnarzt.query.filter_by(email=email, email_verify_token=token).first()
+
+    if zahnarzt:
+        # Token-Gültigkeit prüfen
+        if zahnarzt.email_verify_expires and datetime.utcnow() > zahnarzt.email_verify_expires:
+            flash("Der Bestätigungslink ist abgelaufen. Bitte melden Sie sich an und fordern Sie einen neuen Link an.", "danger")
+            return redirect("/zahnarzt-login")
+
+        # Token löschen (einmalige Verwendung)
+        zahnarzt.email_verify_token = None
+        zahnarzt.email_verify_expires = None
+        db.session.commit()
+
+        # User einloggen falls noch nicht eingeloggt
+        if not current_user.is_authenticated:
+            flask_login_user(zahnarzt)
+            session["angemeldet"] = True
+            session["benutzer_typ"] = "zahnarzt"
+            session["benutzer_email"] = email
+            session["email"] = email
+            session["benutzer_vorname"] = zahnarzt.vorname
+            session["benutzer_nachname"] = zahnarzt.nachname
+            if zahnarzt.praxis_id:
+                session["praxis_id"] = zahnarzt.praxis_id
+
+        flash("Ihre E-Mail-Adresse wurde erfolgreich bestätigt!", "success")
+        return redirect("/zahnarzt-dashboard")
+
+    # Legacy-Fallback: CSV-Prüfung für alte Einträge
     gefunden = False
     eintraege = []
-    
     if os.path.isfile("neue_praxen.csv"):
         with open("neue_praxen.csv", newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 if row.get("email") == email and row.get("bestätigungs_token") == token:
-                    # Token-Gültigkeit prüfen
-                    from datetime import datetime
                     token_gueltig_bis = datetime.strptime(row.get("token_gültig_bis", "2000-01-01 00:00:00"), "%Y-%m-%d %H:%M:%S")
-                    
                     if datetime.now() > token_gueltig_bis:
                         flash("Der Bestätigungslink ist abgelaufen. Bitte registrieren Sie sich erneut.", "danger")
                         return redirect("/register")
-                    
-                    # Token ist gültig
                     row["bestätigt"] = "ja"
-                    row["bestätigungs_token"] = ""  # Token nach Verwendung löschen
+                    row["bestätigungs_token"] = ""
                     gefunden = True
-                    
                 eintraege.append(row)
-    
+
     if not gefunden:
         flash("Ungültiger Bestätigungslink oder die E-Mail wurde bereits bestätigt.", "danger")
         return redirect("/")
-    
-    # Aktualisierte Daten zurückschreiben
+
     with open("neue_praxen.csv", "w", newline='', encoding='utf-8') as f:
         fieldnames = eintraege[0].keys()
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(eintraege)
-    
+
     flash("Ihre E-Mail-Adresse wurde erfolgreich bestätigt. Sie können sich jetzt anmelden.", "success")
     return redirect("/zahnarzt-login")
 
@@ -1807,6 +1873,45 @@ def checkout():
         preis_mwst=preise["mwst"],
         preis_brutto=preise["brutto"]
     )
+
+@app.route("/stripe-abonnement-starten", methods=["POST"])
+def stripe_abonnement_starten():
+    """Startet eine echte Stripe-Subscription-Checkout-Session."""
+    from stripe_subscription import create_subscription_checkout
+
+    # Praxis-ID bestimmen: eingeloggter User hat Vorrang vor Session
+    praxis_id = None
+    if current_user.is_authenticated and hasattr(current_user, 'praxis_id') and current_user.praxis_id:
+        praxis_id = current_user.praxis_id
+    else:
+        praxis_id = session.get("praxis_id")
+
+    if not praxis_id:
+        flash("Keine Praxis gefunden. Bitte registrieren Sie sich zuerst.", "danger")
+        return redirect("/paketwahl")
+
+    paket = session.get("paket", "").lower()
+    zahlweise = session.get("zahlweise", "monatlich")
+
+    # Normalisierung
+    if paket in ["basis", "basic", ""]:
+        flash("Das Basis-Paket ist kostenlos – keine Zahlung notwendig.", "info")
+        return redirect("/zahnarzt-dashboard")
+
+    if paket not in ["premium", "premiumplus"]:
+        flash("Ungültiges Paket. Bitte wählen Sie erneut.", "danger")
+        return redirect("/paketwahl")
+
+    zahlweise_norm = "jaehrlich" if zahlweise in ("jährlich", "jaehrlich") else "monatlich"
+
+    result = create_subscription_checkout(praxis_id, paket, zahlweise_norm)
+
+    if "error" in result:
+        flash(f"Fehler beim Starten der Zahlung: {result['error']}", "danger")
+        return redirect("/checkout")
+
+    return redirect(result["url"])
+
 
 @app.route("/zahlung-abschliessen", methods=["POST"])
 def zahlung_abschliessen():
@@ -4555,7 +4660,19 @@ def zahnarzt_dashboard():
     if not praxis:
         flash('Praxis nicht gefunden.', 'danger')
         return redirect(url_for('index'))
-    
+
+    # Stripe-Rückkehr verarbeiten (nach erfolgreicher Subscription)
+    stripe_session_id = request.args.get("session_id")
+    if stripe_session_id and request.args.get("success") == "1":
+        try:
+            from stripe_subscription import handle_subscription_success
+            result = handle_subscription_success(stripe_session_id)
+            if result.get("success") and not result.get("already_processed"):
+                db.session.refresh(praxis)
+                flash("Herzlichen Glückwunsch! Ihr Abonnement ist jetzt aktiv.", "success")
+        except Exception as e:
+            print(f"⚠️ Stripe Success Verarbeitung fehlgeschlagen: {e}")
+
     oeffnungszeiten = Oeffnungszeit.query.filter_by(praxis_id=praxis.id).order_by(Oeffnungszeit.tag).all()
     oeffnungszeiten_dict = {oz.tag: oz for oz in oeffnungszeiten}
     leistungen = Leistung.query.filter_by(praxis_id=praxis.id).all()
