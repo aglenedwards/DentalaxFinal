@@ -31,7 +31,7 @@ PAKET_PREISE = {
     },
 }
 
-# Stripe-Beträge in Cent (für checkout session unit_amount)
+# Stripe-Beträge in Cent (für Rechnungsdarstellung / Fallback)
 STRIPE_PREISE_CENT = {
     'premium': {
         'monatlich': 7900,
@@ -40,5 +40,18 @@ STRIPE_PREISE_CENT = {
     'premiumplus': {
         'monatlich': 9900,
         'jaehrlich': 99900,
+    },
+}
+
+# Stripe Price IDs – aus dem Stripe-Dashboard
+# Beim Wechsel der Preise: neue Price IDs in Stripe anlegen und hier eintragen.
+STRIPE_PRICE_IDS = {
+    'premium': {
+        'monatlich': 'price_1TKEybDNQHMKEm2lhCloD2dF',
+        'jaehrlich': 'price_1TKF0LDNQHMKEm2l9hpxkTvj',
+    },
+    'premiumplus': {
+        'monatlich': 'price_1TKF1qDNQHMKEm2lwJqZva8x',
+        'jaehrlich': 'price_1TKF3DDNQHMKEm2lfQpUB9nd',
     },
 }

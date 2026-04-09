@@ -157,27 +157,20 @@ def create_subscription_checkout(praxis_id, paket, zahlweise):
         success_url = f'https://{domain}/zahnarzt-dashboard?page=abrechnung&success=1'
         cancel_url = f'https://{domain}/zahnarzt-dashboard?page=abrechnung&canceled=1'
         
-        # Paketname für Anzeige
-        paket_name = 'PraxisPro' if paket == 'praxispro' else 'PraxisPlus'
-        interval = 'month' if zahlweise == 'monatlich' else 'year'
-        price_cents = PRICES_DISPLAY.get(paket, {}).get(zahlweise, 2900)
-        
+        # Stripe Price ID aus config holen
+        from config import STRIPE_PRICE_IDS
+        paket_key = paket.lower().replace('praxispro', 'premium').replace('praxisplus', 'premiumplus')
+        zahlweise_key = 'jaehrlich' if zahlweise in ('jährlich', 'jaehrlich') else 'monatlich'
+        price_id = STRIPE_PRICE_IDS.get(paket_key, {}).get(zahlweise_key)
+        if not price_id:
+            return {'error': f'Kein Stripe Price ID für {paket_key}/{zahlweise_key} konfiguriert'}
+
         # Checkout Session mit Subscription Mode erstellen
         checkout_session = stripe_client.checkout.Session.create(
             customer=customer.id,
             payment_method_types=['card'],
             line_items=[{
-                'price_data': {
-                    'currency': 'eur',
-                    'product_data': {
-                        'name': f'Dentalax {paket_name}',
-                        'description': f'Premium-Paket für Ihre Zahnarztpraxis auf Dentalax.de',
-                    },
-                    'unit_amount': price_cents,
-                    'recurring': {
-                        'interval': interval,
-                    },
-                },
+                'price': price_id,
                 'quantity': 1,
             }],
             mode='subscription',
