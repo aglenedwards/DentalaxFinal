@@ -2444,11 +2444,17 @@ def admin_praxis_loeschen(praxis_id):
         # Claims für diese Praxis
         Claim.query.filter_by(praxis_id=praxis_id).delete()
         
-        # Zahnarzt-Account ebenfalls löschen (damit die E-Mail wieder registriert werden kann)
+        # Zirkuläre FK-Referenz auflösen: praxis.zahnarzt_id → zahnarzt.id
+        # Muss VOR dem Löschen der Zahnarzt-Accounts passieren, sonst FK-Verletzung
+        if praxis.zahnarzt_id:
+            praxis.zahnarzt_id = None
+            db.session.flush()
+
+        # Zahnarzt-Account(s) löschen die über praxis_id auf diese Praxis zeigen
         zahnaerzte_verknuepft = Zahnarzt.query.filter_by(praxis_id=praxis_id).all()
         for za in zahnaerzte_verknuepft:
             db.session.delete(za)
-        
+
         # Praxis selbst löschen
         db.session.delete(praxis)
         db.session.commit()
@@ -2509,6 +2515,31 @@ def admin_zahnaerzte():
     )
 
 
+@app.route("/admin/zahnaerzte/verwaiste-bereinigen", methods=["POST"])
+@admin_required
+def admin_zahnaerzte_verwaiste_bereinigen():
+    """Löscht alle Zahnarzt-Accounts ohne verknüpfte Praxis (praxis_id IS NULL).
+    Einmalige Bereinigung, kann jederzeit erneut aufgerufen werden.
+    """
+    try:
+        verwaiste = Zahnarzt.query.filter(Zahnarzt.praxis_id == None).all()
+        anzahl = len(verwaiste)
+        for za in verwaiste:
+            # Praxis.zahnarzt_id Rückreferenz entfernen (falls vorhanden)
+            Praxis.query.filter_by(zahnarzt_id=za.id).update({'zahnarzt_id': None})
+            db.session.flush()
+            db.session.delete(za)
+        db.session.commit()
+        if anzahl > 0:
+            flash(f"{anzahl} verwaiste(r) Zahnarzt-Account(s) wurden bereinigt.", "success")
+        else:
+            flash("Keine verwaisten Accounts gefunden — nichts zu tun.", "info")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Fehler bei der Bereinigung: {str(e)}", "danger")
+    return redirect("/admin/zahnaerzte")
+
+
 @app.route("/admin/zahnarzt/<int:zahnarzt_id>/loeschen", methods=["POST"])
 @admin_required
 def admin_zahnarzt_loeschen(zahnarzt_id):
@@ -2520,6 +2551,14 @@ def admin_zahnarzt_loeschen(zahnarzt_id):
 
     email = zahnarzt.email
     try:
+        # FK-Cycle auflösen: Praxis.zahnarzt_id → zahnarzt.id (Rückreferenz nullen)
+        Praxis.query.filter_by(zahnarzt_id=zahnarzt.id).update({'zahnarzt_id': None})
+        db.session.flush()
+
+        # zahnarzt.praxis_id auf None setzen (Praxis bleibt erhalten)
+        zahnarzt.praxis_id = None
+        db.session.flush()
+
         db.session.delete(zahnarzt)
         db.session.commit()
         flash(f"Zahnarzt-Account '{email}' wurde erfolgreich gelöscht.", "success")

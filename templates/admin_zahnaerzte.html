@@ -52,14 +52,23 @@
   </a>
 </div>
 
-{% if counts.ohne_praxis > 0 and filter != 'ohne_praxis' %}
-<div class="alert alert-warning d-flex align-items-center mb-3">
-  <i class="fas fa-exclamation-triangle me-2"></i>
+{% if counts.ohne_praxis > 0 %}
+<div class="alert alert-warning d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
   <span>
-    <strong>{{ counts.ohne_praxis }} verwaiste Account(s)</strong> ohne verknüpfte Praxis gefunden —
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <strong>{{ counts.ohne_praxis }} verwaiste Account(s)</strong> ohne verknüpfte Praxis —
     diese blockieren eine erneute Registrierung mit derselben E-Mail.
-    <a href="?filter=ohne_praxis" class="alert-link ms-1">Jetzt anzeigen</a>
+    {% if filter != 'ohne_praxis' %}
+    <a href="?filter=ohne_praxis" class="alert-link ms-1">Anzeigen</a>
+    {% endif %}
   </span>
+  <form method="POST" action="/admin/zahnaerzte/verwaiste-bereinigen"
+        onsubmit="return confirm('Alle {{ counts.ohne_praxis }} verwaiste(n) Account(s) endgültig löschen?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-warning btn-sm">
+      <i class="fas fa-broom me-1"></i>Alle verwaisten bereinigen
+    </button>
+  </form>
 </div>
 {% endif %}
 
