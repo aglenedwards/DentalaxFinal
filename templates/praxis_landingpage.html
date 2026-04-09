@@ -232,7 +232,7 @@
 <!-- Minimale Navigation für Landingpage -->
 <nav class="landingpage-nav">
   <div class="d-flex gap-2">
-    <a href="{{ url_for('suche', ort=praxis.stadt) }}" class="nav-btn" onclick="if(document.referrer){event.preventDefault();history.back();}">
+    <a href="{{ url_for('suche', ort=praxis.stadt) }}" class="nav-btn" onclick="if(history.length>1){event.preventDefault();history.back();}">
       <i class="fas fa-arrow-left"></i>
       <span class="d-none d-sm-inline">Zurück</span>
     </a>
