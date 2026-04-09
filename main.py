@@ -51,14 +51,22 @@ with app.app_context():
     from models import *
     db.create_all()
 
-    # Demo-Praxen als Demo markieren (einmalige Migration)
+    # Demo-Praxen als Demo markieren + Slug korrigieren (einmalige Migration)
     try:
         from models import Praxis
-        demo_slugs = ['testpraxis-bodenheim', 'zahnarztpraxis-dr-muste-mainz']
-        for slug in demo_slugs:
-            demo = Praxis.query.filter_by(slug=slug).first()
-            if demo and not demo.ist_demo:
-                demo.ist_demo = True
+        # Testpraxis auf kanonischen Demo-Slug umbenennen
+        testpraxis = Praxis.query.filter_by(slug='testpraxis-bodenheim').first()
+        if testpraxis:
+            testpraxis.slug = 'praxis-mustermann-mainz'
+            testpraxis.ist_demo = True
+        # Zweite Testpraxis ebenfalls als Demo markieren
+        dr_muste = Praxis.query.filter_by(slug='zahnarztpraxis-dr-muste-mainz').first()
+        if dr_muste and not dr_muste.ist_demo:
+            dr_muste.ist_demo = True
+        # Kanonische Demo-Praxis per neuem Slug markieren
+        mustermann = Praxis.query.filter_by(slug='praxis-mustermann-mainz').first()
+        if mustermann and not mustermann.ist_demo:
+            mustermann.ist_demo = True
         db.session.commit()
     except Exception as e:
         db.session.rollback()

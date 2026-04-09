@@ -3501,6 +3501,7 @@ def sitemap_index():
     sitemap_files = [
         f"{domain}/sitemap-main.xml",
         f"{domain}/sitemap-staedte.xml",
+        f"{domain}/sitemap-praxen.xml",
     ]
     for leistung in LEISTUNG_SLUGS_SITEMAP:
         sitemap_files.append(f"{domain}/sitemap-{leistung}.xml")
@@ -3539,6 +3540,17 @@ def sitemap_staedte():
     domain = "https://dentalax.de"
     stadt_set = _get_sitemap_stadt_set()
     urls = [(f"{domain}/zahnarzt-{stadt}", "0.8", "weekly") for stadt in sorted(stadt_set)]
+    return Response(_build_sitemap_xml(urls), content_type="application/xml; charset=utf-8")
+
+@app.route("/sitemap-praxen.xml")
+def sitemap_praxen():
+    from flask import Response
+    domain = "https://dentalax.de"
+    praxen = Praxis.query.filter(
+        Praxis.landingpage_aktiv == True,
+        Praxis.ist_demo != True
+    ).all()
+    urls = [(f"{domain}/zahnarzt/{p.slug}", "0.9", "weekly") for p in praxen if p.slug]
     return Response(_build_sitemap_xml(urls), content_type="application/xml; charset=utf-8")
 
 @app.route("/sitemap-<leistung_slug>.xml")
@@ -3639,7 +3651,7 @@ def seo_leistung_stadt(full_slug):
     alle_praxen = lade_praxen("zahnaerzte.csv")
     
     # Datenbank-Praxen hinzufügen
-    db_praxen = Praxis.query.all()
+    db_praxen = Praxis.query.filter(Praxis.ist_demo != True).all()
     for praxis in db_praxen:
         if praxis.latitude and praxis.longitude:
             alle_praxen.append({
