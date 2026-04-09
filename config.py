@@ -47,7 +47,7 @@ STRIPE_PREISE_CENT = {
 # Beim Wechsel der Preise: neue Price IDs in Stripe anlegen und hier eintragen.
 STRIPE_PRICE_IDS = {
     'premium': {
-        'monatlich': 'price_1TKEybDNQHMKEm2lhCloD2dF',
+        'monatlich': 'price_1TKHCvDNQHMKEm2lOhY3gSD9',  # TEST - original: price_1TKEybDNQHMKEm2lhCloD2dF
         'jaehrlich': 'price_1TKF0LDNQHMKEm2l9hpxkTvj',
     },
     'premiumplus': {
