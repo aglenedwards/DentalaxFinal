@@ -20,16 +20,18 @@ SUBSCRIPTION_PRICES = {
     }
 }
 
-# Fallback-Preise in Cent (für Anzeige und Checkout)
+# Preise in Cent – aus zentraler config.py importiert
+from config import STRIPE_PREISE_CENT as _PREISE
+
 PRICES_DISPLAY = {
     'praxispro': {
-        'monatlich': 5900,  # 59 EUR/Monat
-        'jaehrlich': 63600  # 636 EUR/Jahr (10% Ersparnis)
+        'monatlich': _PREISE['premium']['monatlich'],
+        'jaehrlich': _PREISE['premium']['jaehrlich'],
     },
     'praxisplus': {
-        'monatlich': 8900,  # 89 EUR/Monat
-        'jaehrlich': 96000  # 960 EUR/Jahr (10% Ersparnis)
-    }
+        'monatlich': _PREISE['premiumplus']['monatlich'],
+        'jaehrlich': _PREISE['premiumplus']['jaehrlich'],
+    },
 }
 
 

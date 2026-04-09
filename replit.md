@@ -18,7 +18,7 @@ Key entities include `Zahnarzt` (Dentist), `Patient`, `Praxis` (Practice), `Term
 ### Key Features
 - **Practice Search:** Location-based search with premium placement for subscribed practices and specialization-based prioritization.
 - **Practice Landing Pages:** Customizable, SEO-optimized pages for premium subscribers, including details on services, team, and contact information.
-- **Subscription Management:** Tiered subscription packages (Basis/Free, Premium €59/month, PremiumPlus €89/month) managed via Stripe.
+- **Subscription Management:** Tiered subscription packages (Basis/Free, Premium €79/month or €829/year, PremiumPlus €99/month or €999/year) managed via Stripe. **All prices are defined centrally in `config.py`** (`PAKET_PREISE` for netto EUR values, `STRIPE_PREISE_CENT` for Stripe unit_amount in cents) — change prices only there.
 - **Appointment Booking:** Flexible booking system supporting internal scheduling, external redirects, contact forms, and direct contact options. Month calendar view with color-coded status dots, day detail view, status filters.
   - **Notes per Appointment:** Inline free-text note field on each appointment, editable directly from the list view.
   - **24h Reminder Emails:** Button to send automatic reminder emails to all patients with appointments for the next day. Tracks sent status per appointment.

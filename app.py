@@ -747,21 +747,16 @@ def entfernung_km(lat1, lng1, lat2, lng2):
     return round(R * c, 1)
 
 def berechne_preislogik(paket, zahlweise):
-    if paket.lower() == "premium":
-        monatspreis = 59
-    elif paket.lower() == "premiumplus":
-        monatspreis = 89
-    else:
-        monatspreis = 0
+    from config import PAKET_PREISE
+    preise = PAKET_PREISE.get(paket.lower(), PAKET_PREISE['basis'])
 
     if zahlweise == "jährlich":
+        gesamt_netto = preise['jaehrlich']
         dauer = 12
-        rabatt = 0.10
     else:
+        gesamt_netto = preise['monatlich']
         dauer = 1
-        rabatt = 0
 
-    gesamt_netto = monatspreis * dauer * (1 - rabatt)
     mwst = round(gesamt_netto * 0.19, 2)
     gesamt_brutto = round(gesamt_netto + mwst, 2)
 
