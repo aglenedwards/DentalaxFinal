@@ -103,7 +103,7 @@
             </small>
           </td>
           <td>
-            {% if za.praxis_id and praxis_map.get(za.id) %}
+            {% if praxis_map.get(za.id) %}
               {% set praxis = praxis_map[za.id] %}
               <a href="/admin/praxis/{{ praxis.id }}/bearbeiten" class="text-decoration-none">
                 <i class="fas fa-clinic-medical me-1 text-primary"></i>

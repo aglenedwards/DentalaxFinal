@@ -2458,6 +2458,13 @@ def admin_praxis_loeschen(praxis_id):
             praxis.zahnarzt_id = None
             db.session.flush()
 
+        # Claim.zahnarzt_id auf NULL setzen für alle zu löschenden Zahnarzt-Accounts
+        if zahnarzt_ids_zu_loeschen:
+            Claim.query.filter(Claim.zahnarzt_id.in_(zahnarzt_ids_zu_loeschen)).update(
+                {'zahnarzt_id': None}, synchronize_session=False
+            )
+            db.session.flush()
+
         # Zahnarzt-Accounts aus beiden Pfaden löschen
         for za_id in zahnarzt_ids_zu_loeschen:
             za = Zahnarzt.query.get(za_id)
@@ -2586,11 +2593,15 @@ def admin_zahnarzt_loeschen(zahnarzt_id):
 
     email = zahnarzt.email
     try:
-        # FK-Cycle auflösen: Praxis.zahnarzt_id → zahnarzt.id (Rückreferenz nullen)
+        # 1. Claim-Referenzen auf NULL setzen (Claim.zahnarzt_id FK)
+        Claim.query.filter_by(zahnarzt_id=zahnarzt.id).update({'zahnarzt_id': None})
+        db.session.flush()
+
+        # 2. Praxis.zahnarzt_id → zahnarzt.id Rückreferenz aufheben
         Praxis.query.filter_by(zahnarzt_id=zahnarzt.id).update({'zahnarzt_id': None})
         db.session.flush()
 
-        # zahnarzt.praxis_id auf None setzen (Praxis bleibt erhalten)
+        # 3. zahnarzt.praxis_id trennen (Praxis bleibt erhalten)
         zahnarzt.praxis_id = None
         db.session.flush()
 
