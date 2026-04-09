@@ -207,8 +207,8 @@
             <label class="form-label fw-bold">Paket</label>
             <select class="form-select" name="paket">
               <option value="basic" {{ 'selected' if praxis.paket and praxis.paket.lower() == 'basic' or not praxis.paket }}>Basis (Kostenlos)</option>
-              <option value="premium" {{ 'selected' if praxis.paket and praxis.paket.lower() == 'premium' }}>Premium (59€/Monat)</option>
-              <option value="premiumplus" {{ 'selected' if praxis.paket and praxis.paket.lower() == 'premiumplus' }}>PremiumPlus (89€/Monat)</option>
+              <option value="premium" {{ 'selected' if praxis.paket and praxis.paket.lower() == 'premium' }}>Premium (79€/Monat)</option>
+              <option value="premiumplus" {{ 'selected' if praxis.paket and praxis.paket.lower() == 'premiumplus' }}>PremiumPlus (99€/Monat)</option>
             </select>
           </div>
           <div class="mb-3">
@@ -234,6 +234,12 @@
             <input class="form-check-input" type="checkbox" name="ist_verifiziert" id="ist_verifiziert" {{ 'checked' if praxis.ist_verifiziert }}>
             <label class="form-check-label fw-bold" for="ist_verifiziert">
               <i class="fas fa-check-circle text-success me-1"></i> Verifiziert
+            </label>
+          </div>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" name="ist_demo" id="ist_demo" {{ 'checked' if praxis.ist_demo }}>
+            <label class="form-check-label fw-bold" for="ist_demo">
+              <i class="fas fa-flask text-warning me-1"></i> Demo-Praxis (aus Suche/Chatbot ausblenden)
             </label>
           </div>
           <div class="form-check form-switch mb-3">

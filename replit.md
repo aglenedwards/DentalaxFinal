@@ -38,6 +38,7 @@ Key entities include `Zahnarzt` (Dentist), `Patient`, `Praxis` (Practice), `Term
     - **Admin SEO Management (`/admin/seo-texte`):** Interface for single/batch generation (5-50 cities), regeneration of existing texts, with FAQ/Meta status indicators.
     - **Admin Leistung-SEO Management (`/admin/leistung-seo-texte`):** Interface for managing Leistung+Stadt SEO content with tabs per service, single/batch generation (5-50 cities), and regeneration.
 - **Claiming Process:** A workflow for dentists to claim and manage their practice listings, including email verification and package selection.
+- **Demo-Praxis Flag:** `ist_demo` boolean on `Praxis` model. Demo practices are hidden from search results, the homepage map, and the AI chatbot, but remain accessible via direct URL (e.g., for the "Demo ansehen" button on `/fuer-zahnaerzte`). Toggled via admin panel (`/admin/praxis/<id>/bearbeiten`). Slugs `testpraxis-bodenheim` and `zahnarztpraxis-dr-muste-mainz` are pre-marked as demo.
 
 ### Design Principles
 - **Modular Architecture:** Separation of concerns with dedicated files for routes, models, and integrations.

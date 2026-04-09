@@ -91,6 +91,7 @@ class Praxis(db.Model):
     erstelldatum = db.Column(db.DateTime, default=datetime.utcnow)
     aktualisiert_am = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     ist_verifiziert = db.Column(db.Boolean, default=False)
+    ist_demo = db.Column(db.Boolean, default=False)
     
     # Landing Page Felder
     landingpage_aktiv = db.Column(db.Boolean, default=False)

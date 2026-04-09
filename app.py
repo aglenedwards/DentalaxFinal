@@ -339,7 +339,7 @@ def zahnarzt_stadt(stadt_slug):
             oz_by_praxis_stadt[oz.praxis_id] = {}
         oz_by_praxis_stadt[oz.praxis_id][oz.tag] = oz
     
-    db_praxen = Praxis.query.all()
+    db_praxen = Praxis.query.filter(Praxis.ist_demo != True).all()
     for praxis in db_praxen:
         if praxis.latitude and praxis.longitude:
             bew = bewertung_map.get(praxis.id, {'avg': 0, 'anzahl': 0})
@@ -580,7 +580,7 @@ def suche():
     # Datenbank-Praxen hinzufügen (alle, nicht nur mit aktiver Landingpage)
     from models import Bewertung, Oeffnungszeit
     from sqlalchemy import func as sql_func
-    db_praxen = Praxis.query.all()
+    db_praxen = Praxis.query.filter(Praxis.ist_demo != True).all()
     
     bewertung_stats = db.session.query(
         Bewertung.praxis_id,
@@ -2369,6 +2369,7 @@ def admin_praxis_bearbeiten(praxis_id):
         praxis.farbschema = request.form.get("farbschema", "blau")
 
         praxis.ist_verifiziert = "ist_verifiziert" in request.form
+        praxis.ist_demo = "ist_demo" in request.form
         praxis.landingpage_aktiv = "landingpage_aktiv" in request.form
 
         praxis.terminbuchung_aktiv = "terminbuchung_aktiv" in request.form
@@ -4825,7 +4826,7 @@ def dental_match_chat():
         chatbot_bewertung_map = {b.praxis_id: {'avg': round(float(b.avg_sterne), 1), 'anzahl': int(b.anzahl)} for b in bewertung_stats}
         
         # 1. DATENBANK-PRAXEN durchsuchen
-        query = Praxis.query
+        query = Praxis.query.filter(Praxis.ist_demo != True)
         
         # Filter anwenden
         if filters.get('angstpatienten'):

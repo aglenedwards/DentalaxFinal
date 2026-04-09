@@ -50,7 +50,20 @@ csrf.exempt(zahnarzt_passwort_reset)
 with app.app_context():
     from models import *
     db.create_all()
-    
+
+    # Demo-Praxen als Demo markieren (einmalige Migration)
+    try:
+        from models import Praxis
+        demo_slugs = ['testpraxis-bodenheim', 'zahnarztpraxis-dr-muste-mainz']
+        for slug in demo_slugs:
+            demo = Praxis.query.filter_by(slug=slug).first()
+            if demo and not demo.ist_demo:
+                demo.ist_demo = True
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"⚠️ Demo-Migration übersprungen: {e}")
+
     # Neue Routen importieren
     try:
         from db_praxis_route import *
