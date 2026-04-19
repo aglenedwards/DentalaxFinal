@@ -41,7 +41,7 @@ Key entities include `Zahnarzt` (Dentist), `Patient`, `Praxis` (Practice), `Term
 - **Demo-Praxis Flag:** `ist_demo` boolean on `Praxis` model. Demo practices are hidden from search results, the homepage map, and the AI chatbot, but remain accessible via direct URL (e.g., for the "Demo ansehen" button on `/fuer-zahnaerzte`). Toggled via admin panel (`/admin/praxis/<id>/bearbeiten`). Slugs `testpraxis-bodenheim` and `zahnarztpraxis-dr-muste-mainz` are pre-marked as demo.
 - **CSV Module-Level Cache (`_praxen_cache`):** `lade_praxen()` now caches results at module level using file `mtime`. The CSV is only re-read when the file changes on disk, reducing memory usage drastically (22,000 entries loaded once per worker, not once per request). Cache is invalidated when CSV is updated by the claim/register routes.
 - **Register Route Hardening:** Geocoding (`get_coordinates_from_address`) wrapped in try/except with fallback to `(None, None)`. CSV update also wrapped in try/except so Render's read-only filesystem does not cause a 500. Duplicate email check added before DB insertion.
-- **render.yaml:** Production Render config created with `--workers 2 --max-requests 1000 --max-requests-jitter 100` to avoid OOM on the 512MB Render free tier.
+- **render.yaml:** Production Render config uses `--workers 1 --worker-class gthread --threads 4 --max-requests 1000 --max-requests-jitter 100`. Single process with 4 threads shares memory (CSV cache etc.) instead of duplicating it across 2 separate worker processes, keeping baseline RAM well below Render's 512MB free-tier limit.
 
 ### Design Principles
 - **Modular Architecture:** Separation of concerns with dedicated files for routes, models, and integrations.
