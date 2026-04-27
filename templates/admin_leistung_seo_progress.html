@@ -1,0 +1,131 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Auto-Generierung: {{ leistung_name }}{% endblock %}
+
+{% block content %}
+{% set prozent = (bereits_generiert / total_staedte * 100) if total_staedte > 0 else 0 %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="mb-1">
+      <i class="fas fa-cog fa-spin text-primary me-2"></i>
+      Auto-Generierung läuft
+    </h2>
+    <p class="text-muted mb-0">Leistung: <strong>{{ leistung_name }}</strong></p>
+  </div>
+  <a href="/admin/leistung-seo-texte?leistung={{ leistung_slug }}"
+     class="btn btn-danger"
+     onclick="clearTimeout(window._autoTimer)">
+    <i class="fas fa-stop me-1"></i> Stopp
+  </a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="fw-semibold">Gesamtfortschritt</span>
+      <span class="text-muted">{{ bereits_generiert }} von {{ total_staedte }} Städten ({{ prozent|round(1) }}%)</span>
+    </div>
+    <div class="progress mb-3" style="height: 12px;">
+      <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+           style="width: {{ prozent }}%"></div>
+    </div>
+    <div class="row text-center g-3">
+      <div class="col-4">
+        <div class="p-3 bg-success bg-opacity-10 rounded">
+          <div class="fs-4 fw-bold text-success">{{ bereits_generiert }}</div>
+          <small class="text-muted">Fertig</small>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="p-3 bg-warning bg-opacity-10 rounded">
+          <div class="fs-4 fw-bold text-warning">{{ noch_offen }}</div>
+          <small class="text-muted">Noch offen</small>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="p-3 bg-danger bg-opacity-10 rounded">
+          <div class="fs-4 fw-bold text-danger">{{ fehler }}</div>
+          <small class="text-muted">Fehler (dieses Batch)</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">Letzter Batch — {{ batch_results|length }} Städte verarbeitet</h5>
+    <div id="countdownBadge" class="badge bg-primary fs-6 px-3 py-2">
+      Nächster Batch in <span id="countdownSec">5</span>s
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+      <table class="table table-sm table-hover mb-0">
+        <thead class="table-light sticky-top">
+          <tr>
+            <th>Stadt</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in batch_results %}
+          <tr>
+            <td>{{ r.stadt_name }}</td>
+            <td>
+              {% if r.status == 'erstellt' %}
+                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Erstellt</span>
+              {% elif r.status == 'vorhanden' %}
+                <span class="badge bg-secondary"><i class="fas fa-minus me-1"></i>Bereits vorhanden</span>
+              {% else %}
+                <span class="badge bg-danger" title="{{ r.get('error', '') }}"><i class="fas fa-times me-1"></i>Fehler</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card-footer bg-white py-3 d-flex gap-2">
+    <form action="/admin/leistung-seo-texte/batch-generieren" method="post" id="autoForm">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="leistung_slug" value="{{ leistung_slug }}">
+      <input type="hidden" name="anzahl" value="50">
+      <input type="hidden" name="auto_continue" value="1">
+      <button type="submit" class="btn btn-primary" id="nextBtn">
+        <i class="fas fa-forward me-1"></i> Jetzt sofort weiter
+      </button>
+    </form>
+    <a href="/admin/leistung-seo-texte?leistung={{ leistung_slug }}"
+       class="btn btn-outline-secondary"
+       onclick="clearTimeout(window._autoTimer)">
+      <i class="fas fa-stop me-1"></i> Stopp
+    </a>
+  </div>
+</div>
+
+<script>
+(function() {
+  var sec = 5;
+  var el = document.getElementById('countdownSec');
+  var badge = document.getElementById('countdownBadge');
+  var form = document.getElementById('autoForm');
+  var btn = document.getElementById('nextBtn');
+
+  function tick() {
+    sec--;
+    if (el) el.textContent = sec;
+    if (sec <= 0) {
+      if (badge) badge.classList.replace('bg-primary', 'bg-success');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Generierung läuft...'; }
+      form.submit();
+    } else {
+      window._autoTimer = setTimeout(tick, 1000);
+    }
+  }
+  window._autoTimer = setTimeout(tick, 1000);
+})();
+</script>
+{% endblock %}

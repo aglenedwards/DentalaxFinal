@@ -6,33 +6,45 @@
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
   <h2 class="mb-0">Leistung + Stadt SEO-Texte</h2>
   <div>
-    <form action="/admin/leistung-seo-texte/batch-generieren" method="post" class="d-flex flex-wrap gap-2 align-items-center" id="batchForm" onsubmit="startBatchSpinner()">
+    <form action="/admin/leistung-seo-texte/batch-generieren" method="post" class="d-flex flex-wrap gap-2 align-items-center" id="batchForm">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <select name="leistung_slug" class="form-select form-select-sm" style="width: auto; min-width: 140px;" required>
+      <input type="hidden" name="auto_continue" id="autoContinueField" value="0">
+      <select name="leistung_slug" id="leistungSelect" class="form-select form-select-sm" style="width: auto; min-width: 140px;" required>
         {% for slug, leistung in leistungen.items() %}
-        <option value="{{ slug }}">{{ leistung.name }}</option>
+        <option value="{{ slug }}" {% if selected_leistung == slug %}selected{% endif %}>{{ leistung.name }}</option>
         {% endfor %}
       </select>
-      <select name="anzahl" class="form-select form-select-sm" style="width: auto;">
+      <select name="anzahl" id="anzahlSelect" class="form-select form-select-sm" style="width: auto;">
         <option value="10">10 Städte</option>
         <option value="20" selected>20 Städte</option>
         <option value="30">30 Städte</option>
         <option value="50">50 Städte (Max)</option>
       </select>
-      <button type="submit" class="btn btn-primary btn-sm" id="batchBtn">
+      <button type="submit" class="btn btn-primary btn-sm" id="batchBtn" onclick="startManual()">
         <i class="fas fa-magic me-1" id="batchIcon"></i>
         <span id="batchText">Batch generieren</span>
         <span class="spinner-border spinner-border-sm ms-1 d-none" id="batchSpinner" role="status"></span>
       </button>
-      <small class="text-muted" id="batchHint">(ca. 15-30 Sek.)</small>
+      <button type="submit" class="btn btn-success btn-sm" id="autoBtn" onclick="startAuto()">
+        <i class="fas fa-play me-1"></i> Alle generieren
+      </button>
+      <small class="text-muted">(ca. 15–30 Sek. pro Batch)</small>
     </form>
     <script>
-    function startBatchSpinner() {
+    function startManual() {
+      document.getElementById('autoContinueField').value = '0';
       document.getElementById('batchBtn').disabled = true;
+      document.getElementById('autoBtn').disabled = true;
       document.getElementById('batchIcon').classList.add('d-none');
       document.getElementById('batchText').textContent = 'Generierung läuft...';
       document.getElementById('batchSpinner').classList.remove('d-none');
-      document.getElementById('batchHint').textContent = 'Bitte warten...';
+    }
+    function startAuto() {
+      document.getElementById('autoContinueField').value = '1';
+      document.getElementById('anzahlSelect').value = '50';
+      document.getElementById('batchBtn').disabled = true;
+      document.getElementById('autoBtn').disabled = true;
+      document.getElementById('autoBtn').innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Startet...';
     }
     </script>
   </div>

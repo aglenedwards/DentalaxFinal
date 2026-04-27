@@ -3243,16 +3243,17 @@ def admin_leistung_seo_batch_generieren():
     from leistungen_config import LEISTUNGEN
     from concurrent.futures import ThreadPoolExecutor, as_completed
     import json as json_lib
-    
+
     leistung_slug = request.form.get('leistung_slug', '').strip()
-    anzahl = min(int(request.form.get('anzahl', 10)), 50)  # Max 50 mit paralleler Verarbeitung
-    
+    anzahl = min(int(request.form.get('anzahl', 10)), 50)
+    auto_continue = request.form.get('auto_continue', '0') == '1'
+
     if not leistung_slug or leistung_slug not in LEISTUNGEN:
         flash("Ungültige Leistung.", "danger")
         return redirect("/admin/leistung-seo-texte")
-    
+
     leistung_name = LEISTUNGEN[leistung_slug]['name']
-    
+
     stadt_set = set()
     with open("zahnaerzte.csv", newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -3260,56 +3261,56 @@ def admin_leistung_seo_batch_generieren():
             stadt = row.get("stadt", "").strip()
             if stadt:
                 stadt_set.add(stadt)
-    
+
     slug_to_stadt = {}
     for stadt in stadt_set:
         slug = stadt.lower().replace(' ', '-').replace('ü', 'ue').replace('ä', 'ae').replace('ö', 'oe').replace('ß', 'ss')
         if slug not in slug_to_stadt:
             slug_to_stadt[slug] = stadt
-    
+
+    total_staedte = len(slug_to_stadt)
     existing_slugs = {s.stadt_slug for s in LeistungStadtSEO.query.filter_by(leistung_slug=leistung_slug).all()}
-    
+
     staedte_ohne_seo = []
     for slug in sorted(slug_to_stadt.keys()):
         if slug not in existing_slugs:
             staedte_ohne_seo.append(slug_to_stadt[slug])
-    
+
     staedte_batch = staedte_ohne_seo[:anzahl]
-    
+
     def generate_single(stadt_name):
         try:
             stadt_slug = stadt_name.lower().replace(' ', '-').replace('ü', 'ue').replace('ä', 'ae').replace('ö', 'oe').replace('ß', 'ss')
             seo_data = generate_leistung_stadt_seo_texts(leistung_name, leistung_slug, stadt_name)
-            return {
-                'success': True,
-                'stadt_slug': stadt_slug,
-                'stadt_name': stadt_name,
-                'seo_data': seo_data
-            }
+            return {'success': True, 'stadt_slug': stadt_slug, 'stadt_name': stadt_name, 'seo_data': seo_data}
         except Exception as e:
             logging.error(f"Fehler bei {leistung_name} {stadt_name}: {e}")
             return {'success': False, 'stadt_name': stadt_name, 'error': str(e)}
-    
+
     results = []
     with ThreadPoolExecutor(max_workers=8) as executor:
         futures = {executor.submit(generate_single, s): s for s in staedte_batch}
         for future in as_completed(futures):
             results.append(future.result())
-    
+
     from sqlalchemy.exc import IntegrityError
-    
+
     count = 0
     skipped = 0
+    fehler = 0
+    batch_results = []
+
     for result in results:
         if result['success']:
             try:
                 if LeistungStadtSEO.query.filter_by(leistung_slug=leistung_slug, stadt_slug=result['stadt_slug']).first():
                     skipped += 1
+                    batch_results.append({'stadt_name': result['stadt_name'], 'status': 'vorhanden'})
                     continue
-                    
+
                 seo_data = result['seo_data']
                 faq_json_str = json_lib.dumps(seo_data.get('faq', []), ensure_ascii=False) if seo_data.get('faq') else None
-                
+
                 new_seo = LeistungStadtSEO(
                     leistung_slug=leistung_slug,
                     leistung_name=leistung_name,
@@ -3325,17 +3326,46 @@ def admin_leistung_seo_batch_generieren():
                     seo_text_2=seo_data.get('seo_text_2'),
                     faq_json=faq_json_str
                 )
-                
                 db.session.add(new_seo)
                 db.session.commit()
                 count += 1
+                batch_results.append({'stadt_name': result['stadt_name'], 'status': 'erstellt'})
             except IntegrityError:
                 db.session.rollback()
                 skipped += 1
+                batch_results.append({'stadt_name': result['stadt_name'], 'status': 'vorhanden'})
             except Exception as e:
                 logging.error(f"DB-Fehler bei {result['stadt_name']}: {e}")
                 db.session.rollback()
-    
+                fehler += 1
+                batch_results.append({'stadt_name': result['stadt_name'], 'status': 'fehler'})
+        else:
+            fehler += 1
+            batch_results.append({'stadt_name': result['stadt_name'], 'status': 'fehler', 'error': result.get('error', '')})
+
+    if auto_continue:
+        existing_slugs_neu = {s.stadt_slug for s in LeistungStadtSEO.query.filter_by(leistung_slug=leistung_slug).all()}
+        noch_offen = sum(1 for slug in slug_to_stadt if slug not in existing_slugs_neu)
+        bereits_generiert = total_staedte - noch_offen
+
+        if noch_offen > 0:
+            return render_template(
+                'admin_leistung_seo_progress.html',
+                leistung_slug=leistung_slug,
+                leistung_name=leistung_name,
+                batch_results=sorted(batch_results, key=lambda x: x['stadt_name']),
+                count=count,
+                skipped=skipped,
+                fehler=fehler,
+                noch_offen=noch_offen,
+                bereits_generiert=bereits_generiert,
+                total_staedte=total_staedte,
+                active_page='leistung-seo-texte'
+            )
+        else:
+            flash(f"Fertig! Alle {total_staedte} Städte für {leistung_name} wurden mit SEO-Texten versorgt.", "success")
+            return redirect(f"/admin/leistung-seo-texte?leistung={leistung_slug}")
+
     msg = f"{count} SEO-Texte für {leistung_name} erfolgreich generiert!"
     if skipped > 0:
         msg += f" ({skipped} bereits vorhanden)"
