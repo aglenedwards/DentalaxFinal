@@ -3934,12 +3934,16 @@ def seo_leistung_stadt(full_slug):
         prefix = known_leistung + "-"
         if full_slug.startswith(prefix):
             leistung_slug = known_leistung
-            stadt_slug = full_slug[len(prefix):]
+            stadt_slug = full_slug[len(prefix):].lower()
             break
     
     # Prüfen ob Leistung gefunden wurde
     if not leistung_slug or not stadt_slug:
         return redirect(url_for('index'))
+
+    # 301 Redirect bei Großbuchstaben in der URL (Canonical SEO, kein Duplicate Content)
+    if full_slug != full_slug.lower():
+        return redirect(f"/{full_slug.lower()}", code=301)
     
     stadt = slug_zu_stadt(stadt_slug)
     seo = get_leistung_seo(leistung_slug, stadt)
@@ -3947,7 +3951,7 @@ def seo_leistung_stadt(full_slug):
     # KI-generierte SEO-Texte aus Datenbank laden
     leistung_seo = LeistungStadtSEO.query.filter_by(
         leistung_slug=leistung_slug,
-        stadt_slug=stadt_slug
+        stadt_slug=stadt_slug.lower()
     ).first()
     
     umkreis = float(request.args.get("umkreis", 25))
