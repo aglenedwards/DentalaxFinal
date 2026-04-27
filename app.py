@@ -3245,8 +3245,8 @@ def admin_leistung_seo_batch_generieren():
     import json as json_lib
 
     leistung_slug = request.form.get('leistung_slug', '').strip()
-    anzahl = min(int(request.form.get('anzahl', 10)), 50)
     auto_continue = request.form.get('auto_continue', '0') == '1'
+    anzahl = min(int(request.form.get('anzahl', 10)), 20 if auto_continue else 50)
 
     if not leistung_slug or leistung_slug not in LEISTUNGEN:
         flash("Ungültige Leistung.", "danger")
@@ -3288,7 +3288,7 @@ def admin_leistung_seo_batch_generieren():
             return {'success': False, 'stadt_name': stadt_name, 'error': str(e)}
 
     results = []
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    with ThreadPoolExecutor(max_workers=4) as executor:
         futures = {executor.submit(generate_single, s): s for s in staedte_batch}
         for future in as_completed(futures):
             results.append(future.result())

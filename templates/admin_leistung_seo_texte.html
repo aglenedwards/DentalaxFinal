@@ -28,7 +28,10 @@
       <button type="submit" class="btn btn-success btn-sm" id="autoBtn" onclick="startAuto()">
         <i class="fas fa-play me-1"></i> Alle generieren
       </button>
-      <small class="text-muted">(ca. 15–30 Sek. pro Batch)</small>
+      <a href="/admin/leistung-seo-texte" id="stopLink" class="btn btn-danger btn-sm d-none">
+        <i class="fas fa-stop me-1"></i> Stopp
+      </a>
+      <small class="text-muted" id="batchHint">(ca. 15–30 Sek. pro Batch)</small>
     </form>
     <script>
     function startManual() {
@@ -43,11 +46,15 @@
     }
     function startAuto() {
       document.getElementById('autoContinueField').value = '1';
-      document.getElementById('anzahlSelect').value = '50';
+      document.getElementById('anzahlSelect').value = '20';
+      var leistung = document.getElementById('leistungSelect').value;
+      document.getElementById('stopLink').href = '/admin/leistung-seo-texte?leistung=' + leistung;
       setTimeout(function() {
         document.getElementById('batchBtn').disabled = true;
         document.getElementById('autoBtn').disabled = true;
         document.getElementById('autoBtn').innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Startet...';
+        document.getElementById('stopLink').classList.remove('d-none');
+        document.getElementById('batchHint').classList.add('d-none');
       }, 0);
     }
     </script>
