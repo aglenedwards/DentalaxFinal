@@ -33,18 +33,22 @@
     <script>
     function startManual() {
       document.getElementById('autoContinueField').value = '0';
-      document.getElementById('batchBtn').disabled = true;
-      document.getElementById('autoBtn').disabled = true;
-      document.getElementById('batchIcon').classList.add('d-none');
-      document.getElementById('batchText').textContent = 'Generierung läuft...';
-      document.getElementById('batchSpinner').classList.remove('d-none');
+      setTimeout(function() {
+        document.getElementById('batchBtn').disabled = true;
+        document.getElementById('autoBtn').disabled = true;
+        document.getElementById('batchIcon').classList.add('d-none');
+        document.getElementById('batchText').textContent = 'Generierung läuft...';
+        document.getElementById('batchSpinner').classList.remove('d-none');
+      }, 0);
     }
     function startAuto() {
       document.getElementById('autoContinueField').value = '1';
       document.getElementById('anzahlSelect').value = '50';
-      document.getElementById('batchBtn').disabled = true;
-      document.getElementById('autoBtn').disabled = true;
-      document.getElementById('autoBtn').innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Startet...';
+      setTimeout(function() {
+        document.getElementById('batchBtn').disabled = true;
+        document.getElementById('autoBtn').disabled = true;
+        document.getElementById('autoBtn').innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Startet...';
+      }, 0);
     }
     </script>
   </div>
