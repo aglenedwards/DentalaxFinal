@@ -1,0 +1,42 @@
+✅ Praxis-Routen erfolgreich geladen
+Geocodierte Koordinaten: 51.2887751 9.415141
+⚠️ Fehler in Zeile: {'name': 'Dang Daniel Dr.', 'email': '', 'telefon': '07254 7 47 24', 'webseite': 'https://www.zahnarzt-dang.de/', 'plz': '68753', 'stadt': 'Waghäusel', 'straße': 'Untere Bachstr. 3a', 'lat': '49,2447162', 'lng': '', 'beansprucht': 'nein'}
+Grund: invalid literal for int() with base 10: ''
+17389 Praxen geladen (mtime=1777284154.0)
+10.19.45.6 - - [27/Apr/2026:10:10:41 +0000] "GET /suche?ort=Kassel%2BBrasselsberg&seite=7&umkreis=25.0 HTTP/1.1" 200 100515 "-" "Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)"
+✅ Praxis-Routen erfolgreich geladen
+⚠️ Fehler in Zeile: {'name': 'Dang Daniel Dr.', 'email': '', 'telefon': '07254 7 47 24', 'webseite': 'https://www.zahnarzt-dang.de/', 'plz': '68753', 'stadt': 'Waghäusel', 'straße': 'Untere Bachstr. 3a', 'lat': '49,2447162', 'lng': '', 'beansprucht': 'nein'}
+Grund: invalid literal for int() with base 10: ''
+17389 Praxen geladen (mtime=1777284154.0)
+10.22.5.140 - - [27/Apr/2026:10:10:47 +0000] "GET /praxis-uebernehmen-csv/csv_20095 HTTP/1.1" 200 27037 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Bremen%2BHabenhausen&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 3029
+✅ Praxis-Routen erfolgreich geladen
+Geocodierte Koordinaten: 53.04500909999999 8.8538149
+⚠️ Fehler in Zeile: {'name': 'Dang Daniel Dr.', 'email': '', 'telefon': '07254 7 47 24', 'webseite': 'https://www.zahnarzt-dang.de/', 'plz': '68753', 'stadt': 'Waghäusel', 'straße': 'Untere Bachstr. 3a', 'lat': '49,2447162', 'lng': '', 'beansprucht': 'nein'}
+Grund: invalid literal for int() with base 10: ''
+17389 Praxen geladen (mtime=1777284154.0)
+10.19.214.131 - - [27/Apr/2026:10:10:48 +0000] "GET /suche?ort=Bremen%2BHabenhausen&seite=3&umkreis=25.0 HTTP/1.1" 200 129909 "-" "Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Essen%2BBochold&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 3249
+Geocodierte Koordinaten: 51.4691718 6.9602606
+10.22.5.140 - - [27/Apr/2026:10:10:51 +0000] "GET /suche?ort=Essen%2BBochold&seite=4&umkreis=25.0 HTTP/1.1" 200 130577 "-" "Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Stuttgart+Giebel&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 3232
+✅ Praxis-Routen erfolgreich geladen
+⚠️ Fehler in Zeile: {'name': 'Dang Daniel Dr.', 'email': '', 'telefon': '07254 7 47 24', 'webseite': 'https://www.zahnarzt-dang.de/', 'plz': '68753', 'stadt': 'Waghäusel', 'straße': 'Untere Bachstr. 3a', 'lat': '49,2447162', 'lng': '', 'beansprucht': 'nein'}
+Grund: invalid literal for int() with base 10: ''
+17389 Praxen geladen (mtime=1777284154.0)
+10.19.45.6 - - [27/Apr/2026:10:11:07 +0000] "GET /zahnarzt-stuttgart-giebel?seite=1 HTTP/1.1" 200 141365 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Augsburg%2BGoeggingen&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 3194
+Geocodierte Koordinaten: 48.34102559999999 10.8618147
+10.19.73.132 - - [27/Apr/2026:10:11:14 +0000] "GET /suche?ort=Augsburg%2BGoeggingen&seite=3&umkreis=25.0 HTTP/1.1" 200 128374 "-" "Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Reutlingen&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 2664
+10.19.45.6 - - [27/Apr/2026:10:11:22 +0000] "GET /zahnarzt-reutlingen?seite=2 HTTP/1.1" 200 137053 "-" "Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Dortmund%2BKirchhoerde&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 3434
+Geocodierte Koordinaten: 51.4641874 7.457836100000001
+10.19.73.132 - - [27/Apr/2026:10:11:26 +0000] "GET /suche?ort=Dortmund%2BKirchhoerde&seite=5&umkreis=25.0 HTTP/1.1" 200 127973 "-" "Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)"
+10.19.214.131 - - [27/Apr/2026:10:11:26 +0000] "GET /praxis-uebernehmen-csv/csv_20118 HTTP/1.1" 200 27059 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
