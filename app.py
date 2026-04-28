@@ -3839,6 +3839,16 @@ LEISTUNG_SLUGS_SITEMAP = ['implantologie', 'kieferorthopaedie', 'prophylaxe', 'p
                            'wurzelbehandlung', 'zahnersatz', 'aesthetik', 'kinderzahnheilkunde',
                            'oralchirurgie', 'angstpatienten']
 
+@app.route("/zahnarzt/zahnarzt-in-<path:city_slug>")
+def redirect_zahnarzt_in(city_slug):
+    """301-Redirect für alte /zahnarzt/zahnarzt-in-{stadt} URLs → /zahnarzt-{stadt}"""
+    return redirect(f"/zahnarzt-{city_slug}", code=301)
+
+@app.route("/zahnarzt/registrieren")
+def redirect_zahnarzt_registrieren():
+    """301-Redirect für alte /zahnarzt/registrieren URL → /register"""
+    return redirect("/register", code=301)
+
 @app.route("/robots.txt")
 def robots_txt():
     from flask import Response

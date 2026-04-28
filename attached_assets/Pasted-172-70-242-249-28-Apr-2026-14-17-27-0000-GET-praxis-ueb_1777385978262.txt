@@ -1,0 +1,17 @@
+172.70.242.249 - - [28/Apr/2026:14:17:27 +0000] "GET /praxis-uebernehmen-csv/csv_18969 HTTP/1.1" 200 27006 "-" "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Kassel&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 2638
+Geocodierte Koordinaten: 51.3118828 9.4915751
+172.70.251.197 - - [28/Apr/2026:14:17:37 +0000] "GET /suche?ort=Kassel&umkreis=25.0&seite=3 HTTP/1.1" 200 129239 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Mettmann&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 2621
+Geocodierte Koordinaten: 51.2481156 6.975103
+172.70.242.248 - - [28/Apr/2026:14:18:13 +0000] "GET /suche?ort=Mettmann HTTP/1.1" 200 130046 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Chemnitz&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 2380
+Geocodierte Koordinaten: 50.8282222 12.9208547
+172.71.148.131 - - [28/Apr/2026:14:18:53 +0000] "GET /suche?ort=Chemnitz HTTP/1.1" 200 127057 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Pforzheim&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 2650
+Geocodierte Koordinaten: 48.8921862 8.6946286
+172.69.109.33 - - [28/Apr/2026:14:19:13 +0000] "GET /suche?ort=Pforzheim&umkreis=25.0&seite=5 HTTP/1.1" 200 128609 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)"
