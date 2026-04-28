@@ -3849,6 +3849,21 @@ def redirect_zahnarzt_registrieren():
     """301-Redirect für alte /zahnarzt/registrieren URL → /register"""
     return redirect("/register", code=301)
 
+@app.route("/zahnarzt-in-<path:city_slug>")
+def redirect_zahnarzt_in_top(city_slug):
+    """301-Redirect für /zahnarzt-in-{stadt} → /zahnarzt-{stadt}"""
+    return redirect(f"/zahnarzt-{city_slug}", code=301)
+
+@app.route("/claim/modal/<int:claim_id>")
+def redirect_claim_modal(claim_id):
+    """301-Redirect für alte /claim/modal/{id} URLs → Startseite"""
+    return redirect("/", code=301)
+
+@app.route("/antragsteller/registrieren")
+def redirect_antragsteller_registrieren():
+    """301-Redirect für alte /antragsteller/registrieren URL → /register"""
+    return redirect("/register", code=301)
+
 @app.route("/robots.txt")
 def robots_txt():
     from flask import Response
