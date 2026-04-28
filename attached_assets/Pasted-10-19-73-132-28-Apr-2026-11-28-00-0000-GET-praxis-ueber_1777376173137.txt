@@ -1,0 +1,51 @@
+10.19.73.132 - - [28/Apr/2026:11:28:00 +0000] "GET /praxis-uebernehmen-csv/csv_629 HTTP/1.1" 200 26526 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Augsburg+Hochzoll&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 2971
+Geocodierte Koordinaten: 48.3504969 10.947344
+Menu
+10.19.45.6 - - [28/Apr/2026:11:28:21 +0000] "GET /suche?ort=Augsburg+Hochzoll&umkreis=25.0&seite=2 HTTP/1.1" 200 129966 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.19.73.132 - - [28/Apr/2026:11:28:42 +0000] "GET /praxis-uebernehmen-csv/csv_7197 HTTP/1.1" 200 26944 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Ingolstadt&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 2686
+Geocodierte Koordinaten: 48.7667395 11.4226498
+10.19.36.196 - - [28/Apr/2026:11:29:01 +0000] "GET /suche?ort=Ingolstadt HTTP/1.1" 200 128690 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Buxtehude&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 2343
+Geocodierte Koordinaten: 53.467942 9.6897886
+10.19.73.132 - - [28/Apr/2026:11:29:21 +0000] "GET /suche?ort=Buxtehude&umkreis=25.0&seite=21 HTTP/1.1" 200 106029 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Essen-Zentrum&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 2630
+Geocodierte Koordinaten: 51.4575573 7.0224632
+10.19.36.196 - - [28/Apr/2026:11:29:41 +0000] "GET /suche?ort=Essen-Zentrum&umkreis=25.0&seite=3 HTTP/1.1" 200 129406 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.19.73.132 - - [28/Apr/2026:11:30:00 +0000] "GET /praxis-uebernehmen-csv/csv_19832 HTTP/1.1" 200 26979 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.18.237.201 - - [28/Apr/2026:11:30:23 +0000] "GET /praxis-uebernehmen-csv/csv_6133 HTTP/1.1" 200 27021 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.19.214.131 - - [28/Apr/2026:11:30:40 +0000] "GET /praxis-uebernehmen-csv/csv_11548 HTTP/1.1" 200 26488 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.19.36.196 - - [28/Apr/2026:11:31:01 +0000] "GET /praxis-uebernehmen-csv/csv_6290 HTTP/1.1" 200 26986 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.19.45.6 - - [28/Apr/2026:11:31:20 +0000] "GET /praxis-uebernehmen-csv/csv_11070 HTTP/1.1" 200 26753 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.22.5.140 - - [28/Apr/2026:11:31:40 +0000] "GET /praxis-uebernehmen-csv/csv_6320 HTTP/1.1" 200 27027 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Herne+Sodingen&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 2649
+10.22.5.140 - - [28/Apr/2026:11:32:00 +0000] "GET /zahnarzt-herne-sodingen?seite=45 HTTP/1.1" 200 131688 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)"
+10.22.5.140 - - [28/Apr/2026:11:32:00 +0000] "GET /praxis-uebernehmen-csv/csv_16039 HTTP/1.1" 200 26479 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Magdeburg+Ne%C3%BC+Neustadt&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 2753
+10.19.73.132 - - [28/Apr/2026:11:32:17 +0000] "GET /zahnarzt-magdeburg-neue-neustadt?seite=3 HTTP/1.1" 200 139077 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)"
+10.19.73.132 - - [28/Apr/2026:11:32:21 +0000] "GET /praxis-uebernehmen-csv/csv_11071 HTTP/1.1" 200 26481 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.22.5.140 - - [28/Apr/2026:11:32:41 +0000] "GET /praxis-uebernehmen-csv/csv_11541 HTTP/1.1" 200 26493 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.19.73.132 - - [28/Apr/2026:11:33:01 +0000] "GET /praxis-uebernehmen-csv/csv_5922 HTTP/1.1" 200 26708 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Essen-Zentrum&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 2630
+Geocodierte Koordinaten: 51.4575573 7.0224632
+10.19.214.131 - - [28/Apr/2026:11:33:22 +0000] "GET /suche?ort=Essen-Zentrum&umkreis=25.0&seite=6 HTTP/1.1" 200 128721 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.19.45.6 - - [28/Apr/2026:11:33:41 +0000] "GET /praxis-uebernehmen-csv/csv_11540 HTTP/1.1" 200 26464 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.19.73.132 - - [28/Apr/2026:11:33:55 +0000] "GET /praxis-uebernehmen-csv/csv_2625 HTTP/1.1" 200 26480 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)"
+10.19.214.131 - - [28/Apr/2026:11:34:01 +0000] "GET /praxis-uebernehmen-csv/csv_11066 HTTP/1.1" 200 26964 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=M%C3%BCnchen-Laim&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 2939
+Geocodierte Koordinaten: 48.1370679 11.5024512
+10.19.73.132 - - [28/Apr/2026:11:34:21 +0000] "GET /suche?ort=M%C3%BCnchen-Laim HTTP/1.1" 200 127232 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)"
+10.19.73.132 - - [28/Apr/2026:11:34:21 +0000] "GET /praxis-uebernehmen-csv/csv_5496 HTTP/1.1" 200 26532 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.18.237.201 - - [28/Apr/2026:11:34:40 +0000] "GET /praxis-uebernehmen-csv/csv_5488 HTTP/1.1" 200 26813 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.19.36.196 - - [28/Apr/2026:11:35:00 +0000] "GET /praxis-uebernehmen-csv/csv_5460 HTTP/1.1" 200 26826 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.18.237.201 - - [28/Apr/2026:11:35:21 +0000] "GET /praxis-uebernehmen-csv/csv_5362 HTTP/1.1" 200 26756 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+10.19.214.131 - - [28/Apr/2026:11:35:41 +0000] "GET /praxis-uebernehmen-csv/csv_5492 HTTP/1.1" 200 26784 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"

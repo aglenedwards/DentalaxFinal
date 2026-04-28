@@ -10,6 +10,26 @@ from datetime import datetime
 from os.path import isfile
 from functools import wraps
 from random import choice, Random
+import threading
+import time
+
+# Einfacher In-Memory Rate-Limiter (thread-safe, kein externes Paket nötig)
+_rate_limit_store = {}
+_rate_limit_lock = threading.Lock()
+
+def _is_rate_limited(ip, max_requests=20, window_seconds=300):
+    """Gibt True zurück wenn IP das Limit überschritten hat (max_requests pro window_seconds)."""
+    now = time.time()
+    with _rate_limit_lock:
+        if ip not in _rate_limit_store:
+            _rate_limit_store[ip] = []
+        timestamps = _rate_limit_store[ip]
+        timestamps = [t for t in timestamps if now - t < window_seconds]
+        _rate_limit_store[ip] = timestamps
+        if len(timestamps) >= max_requests:
+            return True
+        timestamps.append(now)
+        return False
 
 # Importiere Stripe-Integration
 from stripe_integration import create_checkout_session, handle_payment_success
@@ -1405,7 +1425,13 @@ def praxis_uebernehmen_csv(csv_id):
     """Seite für das Übernehmen einer CSV-Praxis - erstellt diese zuerst in der DB"""
     import secrets
     from datetime import timedelta
-    
+
+    # Rate-Limiting: max 20 Aufrufe pro IP in 5 Minuten
+    client_ip = request.remote_addr or 'unknown'
+    if _is_rate_limited(client_ip, max_requests=20, window_seconds=300):
+        logging.warning(f"Rate-Limit überschritten: {client_ip}")
+        return "Zu viele Anfragen. Bitte versuchen Sie es später erneut.", 429
+
     # CSV-Index extrahieren
     if not csv_id.startswith("csv_"):
         flash("Ungültige Praxis-ID.", "danger")
@@ -3799,6 +3825,23 @@ def _build_sitemap_xml(urls):
 LEISTUNG_SLUGS_SITEMAP = ['implantologie', 'kieferorthopaedie', 'prophylaxe', 'parodontologie',
                            'wurzelbehandlung', 'zahnersatz', 'aesthetik', 'kinderzahnheilkunde',
                            'oralchirurgie', 'angstpatienten']
+
+@app.route("/robots.txt")
+def robots_txt():
+    from flask import Response
+    content = """User-agent: *
+Disallow: /praxis-uebernehmen-csv/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /zahnarzt/
+
+User-agent: Googlebot
+Disallow: /praxis-uebernehmen-csv/
+Disallow: /admin/
+
+Sitemap: https://www.dentalax.de/sitemap.xml
+"""
+    return Response(content, mimetype="text/plain")
 
 @app.route("/sitemap.xml")
 def sitemap_index():

@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 from flask import Flask, flash, redirect, request
 from flask_wtf.csrf import CSRFProtect, CSRFError
+from werkzeug.middleware.proxy_fix import ProxyFix
 from database import db
 
 logging.basicConfig(level=logging.DEBUG)
@@ -10,6 +11,7 @@ logging.basicConfig(level=logging.DEBUG)
 csrf = CSRFProtect()
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
 app.secret_key = os.environ.get("SESSION_SECRET")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")

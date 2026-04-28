@@ -1,6 +1,8 @@
 import requests
 import os
+from functools import lru_cache
 
+@lru_cache(maxsize=10000)
 def get_coordinates_from_address(address):
     api_key = os.environ.get("GOOGLE_MAPS_API_KEY")
 
