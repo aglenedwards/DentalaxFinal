@@ -3288,7 +3288,7 @@ def admin_leistung_seo_batch_generieren():
             return {'success': False, 'stadt_name': stadt_name, 'error': str(e)}
 
     results = []
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=8) as executor:
         futures = {executor.submit(generate_single, s): s for s in staedte_batch}
         for future in as_completed(futures):
             results.append(future.result())
