@@ -10,10 +10,8 @@
   <meta property="og:description" content="{{ meta_description or 'Finden Sie jetzt den passenden Zahnarzt in Ihrer Nähe' }}">
   <meta property="og:type" content="website">
   <meta property="og:image" content="{{ url_for('static', filename='images/og-default.jpg', _external=True) }}">
-  <meta property="og:url" content="{{ canonical_url or request.url }}">
-  {% if canonical_url %}
-  <link rel="canonical" href="{{ canonical_url }}">
-  {% endif %}
+  <meta property="og:url" content="{{ canonical_url or request.base_url }}">
+  <link rel="canonical" href="{{ canonical_url or request.base_url }}">
   {% if meta_robots %}
   <meta name="robots" content="{{ meta_robots }}">
   {% endif %}
