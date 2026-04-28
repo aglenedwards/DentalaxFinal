@@ -1426,8 +1426,21 @@ def praxis_uebernehmen_csv(csv_id):
     import secrets
     from datetime import timedelta
 
+    # Bekannten Scraper-User-Agent blockieren (Chrome/124 Linux - veraltet, kein echter Nutzer)
+    ua = request.headers.get('User-Agent', '')
+    if 'Chrome/124.0.0.0' in ua and 'Linux x86_64' in ua and 'bingbot' not in ua and 'Googlebot' not in ua:
+        logging.warning(f"Scraper-UA blockiert: {ua[:80]}")
+        flash("Bitte nutze einen aktuellen Browser um eine Praxis zu beanspruchen.", "warning")
+        return redirect(url_for('index'))
+
+    # Echte Client-IP ermitteln: CF-Connecting-IP (hinter Cloudflare) > X-Forwarded-For > remote_addr
+    client_ip = (
+        request.headers.get('CF-Connecting-IP')
+        or request.headers.get('X-Forwarded-For', '').split(',')[0].strip()
+        or request.remote_addr
+        or 'unknown'
+    )
     # Rate-Limiting: max 20 Aufrufe pro IP in 5 Minuten
-    client_ip = request.remote_addr or 'unknown'
     if _is_rate_limited(client_ip, max_requests=20, window_seconds=300):
         logging.warning(f"Rate-Limit überschritten: {client_ip}")
         return "Zu viele Anfragen. Bitte versuchen Sie es später erneut.", 429

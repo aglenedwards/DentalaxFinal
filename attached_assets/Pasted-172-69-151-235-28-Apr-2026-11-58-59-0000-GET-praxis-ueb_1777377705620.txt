@@ -1,0 +1,13 @@
+172.69.151.235 - - [28/Apr/2026:11:58:59 +0000] "GET /praxis-uebernehmen-csv/csv_14052 HTTP/1.1" 200 26520 "-" "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36"
+104.23.239.66 - - [28/Apr/2026:11:59:06 +0000] "GET /praxis-uebernehmen-csv/csv_17187 HTTP/1.1" 200 26472 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+172.70.248.82 - - [28/Apr/2026:11:59:27 +0000] "GET /praxis-uebernehmen-csv/csv_5679 HTTP/1.1" 200 26984 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+172.71.144.19 - - [28/Apr/2026:11:59:46 +0000] "GET /praxis-uebernehmen-csv/csv_6922 HTTP/1.1" 200 26565 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+172.70.251.198 - - [28/Apr/2026:12:00:07 +0000] "GET /praxis-uebernehmen-csv/csv_6841 HTTP/1.1" 200 27024 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+162.158.111.222 - - [28/Apr/2026:12:00:26 +0000] "GET /praxis-uebernehmen-csv/csv_6918 HTTP/1.1" 200 27036 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+162.158.86.229 - - [28/Apr/2026:12:00:47 +0000] "GET /praxis-uebernehmen-csv/csv_5682 HTTP/1.1" 200 26759 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): maps.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://maps.googleapis.com:443 "GET /maps/api/geocode/json?address=Frankfurt+am+Main-Nordend&key=AIzaSyBaDfjQyokZ8ZRMK8tIwAQLUJDnvUQiZvM&region=de HTTP/1.1" 200 3375
+Geocodierte Koordinaten: 50.1316333 8.684030700000001
+172.71.164.7 - - [28/Apr/2026:12:01:05 +0000] "GET /suche?ort=Frankfurt+am+Main-Nordend&umkreis=25.0&seite=2 HTTP/1.1" 200 130105 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+162.158.94.182 - - [28/Apr/2026:12:01:21 +0000] "GET /praxis-uebernehmen-csv/csv_2158 HTTP/1.1" 200 26792 "-" "Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)"
+172.70.246.33 - - [28/Apr/2026:12:01:25 +0000] "GET /praxis-uebernehmen-csv/csv_6914 HTTP/1.1" 200 27089 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
