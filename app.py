@@ -3285,7 +3285,7 @@ def admin_leistung_seo_batch_generieren():
 
     leistung_slug = request.form.get('leistung_slug', '').strip()
     auto_continue = request.form.get('auto_continue', '0') == '1'
-    anzahl = min(int(request.form.get('anzahl', 10)), 20 if auto_continue else 50)
+    anzahl = min(int(request.form.get('anzahl', 10)), 8 if auto_continue else 50)
 
     if not leistung_slug or leistung_slug not in LEISTUNGEN:
         flash("Ungültige Leistung.", "danger")

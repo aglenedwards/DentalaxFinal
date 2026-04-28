@@ -10,7 +10,8 @@ AZURE_DEPLOYMENT = os.environ.get("AZURE_OPENAI_DEPLOYMENT", "gpt-4.1-mini")
 client = AzureOpenAI(
     api_key=os.environ.get("AZURE_OPENAI_API_KEY"),
     azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT", "https://dentalax.openai.azure.com/"),
-    api_version=os.environ.get("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+    api_version=os.environ.get("AZURE_OPENAI_API_VERSION", "2024-12-01-preview"),
+    timeout=25
 )
 
 def get_dental_match_response(user_message: str, praxen_data: list, conversation_history: list = None) -> str:
